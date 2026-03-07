@@ -1,0 +1,52 @@
+{
+  "name": "united-we-stand",
+  "version": "0.1.0",
+  "description": "Repo-scoped AI workflow context framework — persists branch-aware specs and agent roles as markdown files.",
+  "type": "module",
+  "bin": {
+    "united-we-stand": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "postinstall": "node ./dist/scripts/postinstall.js",
+    "prepublishOnly": "npm run clean && npm run build && npm test"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "agents",
+    "workflow",
+    "markdown",
+    "git",
+    "copilot",
+    "spec-driven"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrudinal/united-we-stand-framework.git"
+  }
+}
