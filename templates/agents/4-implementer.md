@@ -35,7 +35,9 @@ Check if all implementations fit with the previous steps, and modify accordingly
 
 ## Next Step
 
-After implementation and testing, update `00-current-status.md` with current stage = `5-code-reviewer`, append `4-implementer` to completed steps, and set **next step → 5-code-reviewer**.
+1. If implementation is not fully finished, update `00-current-status.md` with current stage = `4-implementer` and set **next step → 4-implementer**.
+2. If implementation is intentionally skipped/forced past, update current stage = `5-code-reviewer`, append `4-implementer` to **Incompleted stages**, and set next step accordingly.
+3. If implementation and testing are completed, update current stage = `5-code-reviewer`, append `4-implementer` to **Completed steps**, and set **next step → 5-code-reviewer**.
 
 ---
 

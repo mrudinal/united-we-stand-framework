@@ -38,12 +38,14 @@ Depending on what the user asks, operate in one of two modes:
 - Current branch
 - Current stage
 - Completed steps
+- Incompleted stages
 - Next recommended step
 
 ### For Mode 2 (Deep Review):
 - Current branch
 - Current stage
 - Completed steps
+- Incompleted stages
 - Next recommended step
 - Blockers / warnings
 - List of missing artifacts
@@ -54,7 +56,7 @@ Depending on what the user asks, operate in one of two modes:
 
 ## Next Step
 
-After running the status checker, update `00-current-status.md` with the current status summary.
+After running the status checker, update `00-current-status.md` with the current status summary. Validate that stages are properly categorized between Current, Completed, and Incompleted without duplication.
 
 ---
 

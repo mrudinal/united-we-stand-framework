@@ -164,6 +164,7 @@ export function buildOverviewStageBlock(
     sanitizedName: string,
     currentStage: string,
     completedSteps: string,
+    incompletedSteps: string,
     nextStep: string,
 ): string {
     const todayDate = new Date().toISOString().slice(0, 10);
@@ -176,6 +177,7 @@ export function buildOverviewStageBlock(
 | Sanitized ID | \`${sanitizedName}\` |
 | Current stage | ${currentStage} |
 | Completed steps | ${completedSteps} |
+| Incompleted stages | ${incompletedSteps} |
 | Next step | ${nextStep} |
 | Last updated | ${todayDate} |
 `;

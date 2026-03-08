@@ -37,4 +37,5 @@ Provide a summary and final recommendations.
 
 ## Next Step
 
-After finalization, update `00-current-status.md` with current stage = `finalized`, append `6-finalizer` to completed steps, and clear the next step. This is the final framework step — the workflow is done.
+1. If finalization is not fully finished, update `00-current-status.md` with current stage = `6-finalizer` and set **next step → 6-finalizer**.
+2. If finalization is completed or skipped at the end, update current stage = `finalized`, append `6-finalizer` to **Completed steps**, and clear the next step. This is the final framework step — the workflow is done.

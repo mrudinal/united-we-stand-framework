@@ -31,4 +31,6 @@ Identify which later stages are required.
 
 ## Next Step
 
-After planning, update `00-current-status.md` with current stage = `3-designer` (or `4-implementer` if user decided that design is not needed), append `2-planner` to completed steps, and set **next step → 3-designer** (if design is needed) or **4-implementer** (if design is not needed).
+1. If planning is not fully finished, update `00-current-status.md` with current stage = `2-planner` and set **next step → 2-planner**.
+2. If planning is intentionally skipped/forced past, update current stage = `3-designer` (or `4-implementer`), append `2-planner` to **Incompleted stages**, and set next step accordingly.
+3. If planning is completed, update current stage = `3-designer` (or `4-implementer`), append `2-planner` to **Completed steps**, and set next step accordingly.

@@ -5,6 +5,8 @@ that persists branch-aware context as markdown files.
 
 ### How to use (for AI agents)
 
+> **Note**: Throughout this framework, the terms **"stage"** and **"step"** are used interchangeably and mean the exact same thing.
+
 1. **Detect** the current git branch.
 2. **Read** this file (`AGENTS.md`) first for high-level guidance.
 3. **Read** the framework and role agent files in `.united-we-stand/agents/`.
@@ -15,11 +17,11 @@ that persists branch-aware context as markdown files.
 8. **`4-implementer`** is the **first** framework agent allowed by default to make code changes.
 9. **Keep specs and decisions updated** when acting as a framework agent. Each framework agent updates its designated stage file and also checks whether `00-current-status.md` must be updated.
 10. **Track next step** — after completing a stage, update `00-current-status.md` with the current stage and recommended next step, unless the user is only asking a question that does not require state changes. User questions alone must not modify non-status framework stage files unless the user explicitly asks to persist, revise, or repair them.
-11. **Do not** update `.united-we-stand/spec-driven/<branch>/` when acting only as a standalone role agent, unless the user explicitly asks to persist the output or write the respective files.
+11. **Do not** update `.united-we-stand/spec-driven/<sanitized-current-branch>/` when acting only as a standalone role agent, unless the user explicitly asks to persist the output or write the respective files.
 12. **Use persistent markdown context** instead of relying on chat memory alone.
 13. **User is King & Spec is Truth**: when receiving a modification instruction from the user (for example, “instead make this blue”), first review all existing framework steps and spec files, update the relevant specs to reflect the user’s latest intent, and only then make code changes if the active agent is allowed to do so.
-14. **Automatic Routing & Chat Resumption**: the framework is automatic. In new or continued chats, the AI must check `00-current-status.md` first to establish context, determine the active step, determine the next numbered step, and continue seamlessly.
-15. **Default progression rule**: if the user says things like *“next step”*, *“do the next step”*, or *“continue with the next step”*, execute the next numbered framework step by default **only if** prerequisites and state are valid and the current step is considered completed. Otherwise, report the blockers and wait for user confirmation. Do not skip ahead unless explicitly told to skip, or `--force` is used.
+14. **Automatic Routing & Chat Resumption**: the framework is automatic. In new or continued chats, the AI must run `0-status-checker` first to establish context, determine the active step, determine the next numbered step, and continue seamlessly.
+15. **Default progression rule**: if the user says things like *“next step”*, *“do the next step”*, or *“continue with the next step”*, run `0-status-checker` first, then execute the next numbered framework step by default **only if** prerequisites and state are valid and the current step is considered completed. Otherwise, report the blockers and wait for user confirmation. Do not skip ahead unless explicitly told to skip, or `--force` is used.
 16. **Implementation guardrail**: if the user asks to implement while steps `2-planner` and/or `3-designer` are missing, do **not** silently invent that they were completed. Warn the user that planning/design are missing and ask for confirmation before proceeding directly to `4-implementer`, unless `--force` is used.
 17. **Persistent context beats chat-only memory**: when there is a mismatch between remembered chat context and persisted framework files, prefer the persisted files and inform the user if clarification is needed.
 18. **Framework state must not be created prematurely**: if the branch spec folder does not exist yet, do not create it preemptively. Wait for `1-initializer` or an explicit `--force` action that intentionally creates the framework state.
@@ -35,6 +37,21 @@ A framework step is considered **completed** only when all of the following are 
 4. `00-current-status.md` contains the recommended next step.
 
 If a stage file was updated but `00-current-status.md` was not updated accordingly, we should update `00-current-status.md` to reflect that updated stage.
+
+### Stage Tracking and Category Validation
+When updating `00-current-status.md`, strict category validation applies:
+1. **Mutually Exclusive Categories**: A stage cannot exist in more than one category at the same time. It belongs in exactly **one** of:
+   - `Current stage` (active work)
+   - `Completed steps` (finished work)
+   - `Incompleted stages` (started but deliberately skipped or forced past)
+2. **Persistent Current Stage**: The `Current stage` must remain the active stage until the user explicitly advances to another stage. It must **NEVER** be "None" or empty. A stage must not automatically move from `Current stage` to `Completed steps` just because it is completed. Only when the user explicitly moves to a higher stage (approval, “next step”, “continue with the next step”, or `--force`) should the previous `Current stage` move to `Completed steps` (if finished) or to `Incompleted stages` (if unfinished).
+3. **No Duplicates**: A stage number/name must not be repeated within the same category.
+4. **Incompleted Stages**: If a user decides to move to a higher step without finishing the active one, move the active step to `Incompleted stages`.
+5. **Next Step Logic (`Next recommended step`)**: 
+   - If the `Current stage` is **unfinished**, the `Next recommended step` must explicitly recommend finishing the current stage first, naming the stage.
+   - If the `Current stage` is **completed** but the user has not explicitly advanced yet, keep that same stage in `Current stage` and set `Next recommended step` to the next logical numbered framework stage.
+6. **Status Note**: You must always include a `Status note` explaining in plain language: which stage is currently active, whether it is completed or not, and what should happen next (finish current stage or move to next one).
+
 If a stage file exists but is missing essential content, treat that step as incomplete. 
 A later-stage file must not be treated as proof that earlier mandatory stages were completed. For example, if 04-implementation.md exists but 01-init.md is missing, the framework should not assume initialization happened.
 
@@ -49,6 +66,8 @@ Framework agents must respect numbered ownership:
 - Agents that are marked as **not allowed to change code** must not modify application code, tests, configs, infrastructure, or unrelated docs unless explicitly told to do so by the user, following the rule of "Spec first, then code". “Code” includes source files, tests, build/config files, migration files, infrastructure files, and automation scripts.
 - **Finalizer exception**: the finalizer stage (currently `6-finalizer`) may also update `06-finalization.md`, global `README` files, and other top-level guidance/instruction documents needed for wrap-up. It must still warn the user about remaining gaps instead of silently hiding them.
 - **Stage file update method**: when updating an existing framework file, prefer revising the existing structured content in place. Append amendment sections only when preserving prior decisions or change history is useful. Do not duplicate entire stage files inside the same file unless the user explicitly asks for a historical log style.
+- **Build validation check**: If there are no script or source code changes, do NOT validate the build or run tests unless explicitly told so. Validate the build *only* if code changes; not for markdown or documentation-only changes.
+- **No autonomous git operations**: Never use git commands (especially `add`, `commit`, and `push`) unless explicitly told to do so by the user, or if they are absolutely necessary to fulfill the user's specific request.
 
 ### Framework agents (staged workflow)
 
@@ -72,9 +91,11 @@ Purpose:
 
 Minimum output:
 - Current branch
-- **Current stage**: the highest-numbered stage that is currently active, meaning the stage the framework is presently working on after user approval, user request to continue, or a forced move forward; this does not move backward when the user requests changes to lower-numbered stages.
+- **Current stage**: the highest-numbered stage that is currently active. It remains active and anchored here until explicitly advanced by the user, even if the work for the stage is completed.
 - Completed steps
+- Incompleted stages
 - Next recommended step
+- **Status note**: A plain-language summary stating which stage is currently active, whether it is completed, and what should happen next.
 - Blockers / warnings
 - Last updated by
 - Last updated at
@@ -223,8 +244,8 @@ The AI should intelligently route common user instructions as follows:
 - **“what’s my status”** → route to `0-status-checker`
 - **“show my status”** → route to `0-status-checker`
 - **“where am I in the process?”** → route to `0-status-checker`
-- **“do the next step”**, **continue with the next step”**, **“next step”** → run `0-status-checker` first, then execute the next numbered framework step if prerequisites and state are valid and this step is considered completed, otherwise report them and wait for user confirmation on the next steps.
-- **“continue”** → run `0-status-checker`, re-establish context, and continue with the next numbered framework step only if prerequisites and state are valid and this step is considered completed; otherwise continue with the current active step unless there are blockers, in which case report them and wait for user confirmation on the next steps.
+- **“do the next step”**, **continue with the next step”**, **“next step”** → run `0-status-checker` first, then execute the next numbered framework step if prerequisites and state are valid and the Current stage is considered completed. This explicit user instruction is what moves the previously active fully-completed stage into `Completed steps` and designates the next framework step as the new `Current stage`. If the previous Current stage was not completed, report blockers instead.
+- **“continue”** → run `0-status-checker`, re-establish context. If the Current stage is completed, explicitly advance to the next numbered framework step (moving the old Current stage to `Completed steps` and anchoring the new one). If the Current stage is not completed, continue working on the Current stage unless blocked.
 - **“plan this”** → route to `2-planner`
 - **“design this”** → route to `3-designer`
 - **“implement this”** before step `1-initializer` → warn and stop unless `--force` is used

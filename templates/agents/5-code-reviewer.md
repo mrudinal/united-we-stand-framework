@@ -29,7 +29,9 @@ Perform a comprehensive review of the implemented code and tests, acting as both
 
 ## Next Step
 
-After code review, update `00-current-status.md` with current stage = `6-finalizer`, append `5-code-reviewer` to completed steps, and set **next step → 6-finalizer**.
+1. If the code review is not fully finished, update `00-current-status.md` with current stage = `5-code-reviewer` and set **next step → 5-code-reviewer**.
+2. If the code review is intentionally skipped/forced past, update current stage = `6-finalizer`, append `5-code-reviewer` to **Incompleted stages**, and set next step accordingly.
+3. If the code review is completed, update current stage = `6-finalizer`, append `5-code-reviewer` to **Completed steps**, and set **next step → 6-finalizer**.
 
 ---
 

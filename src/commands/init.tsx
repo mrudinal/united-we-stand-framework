@@ -92,7 +92,7 @@ export function runInitCommand(options: InitCommandOptions): void {
 
     const overviewFilePath = join(specDrivenDirectory, '00-current-status.md');
     const existingOverviewContent = readFileOrNull(overviewFilePath) ?? '';
-    const overviewBlockContent = buildOverviewStageBlock(currentBranch, sanitizedBranch, '2-planner', '1-initializer', '2-planner');
+    const overviewBlockContent = buildOverviewStageBlock(currentBranch, sanitizedBranch, '2-planner', '1-initializer', 'none', '2-planner');
     const updatedOverviewContent = upsertManagedBlock(existingOverviewContent, overviewBlockContent);
 
     if (!isDryRun) {

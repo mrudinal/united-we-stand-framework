@@ -6,6 +6,7 @@
 | Sanitized ID | `{{SANITIZED}}` |
 | Current stage | — |
 | Completed steps | none |
+| Incompleted stages | none |
 | Next step | 1-initializer |
 | Last updated | — |
 

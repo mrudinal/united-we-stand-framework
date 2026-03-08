@@ -82,6 +82,7 @@ describe('init command (branch spec setup)', () => {
 
         expect(overviewFileContent).toContain('| Current stage | 2-planner |');
         expect(overviewFileContent).toContain('| Completed steps | 1-initializer |');
+        expect(overviewFileContent).toContain('| Incompleted stages | none |');
         expect(overviewFileContent).toContain('| Next step | 2-planner |');
     });
 

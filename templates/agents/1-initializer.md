@@ -33,4 +33,6 @@ None — this is the first mandatory step.
 
 ## Next Step
 
-After initialization, update `00-current-status.md` with current stage = `2-planner`, append `1-initializer` to completed steps, and set **next step → 2-planner**.
+1. If initialization is not fully finished, update `00-current-status.md` with current stage = `1-initializer` and set **next step → 1-initializer**.
+2. If initialization is intentionally skipped/forced past, update current stage = `2-planner`, append `1-initializer` to **Incompleted stages**, and set **next step → 2-planner**.
+3. If initialization is completed, update current stage = `2-planner`, append `1-initializer` to **Completed steps**, and set **next step → 2-planner**.

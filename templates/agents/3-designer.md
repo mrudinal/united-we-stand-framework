@@ -52,4 +52,6 @@ The designer must explicitly list:
 
 ## Next Step
 
-After design, update `00-current-status.md` with current stage = `4-implementer`, append `3-designer` to completed steps, and set **next step → 0-status-checker** (if verification is needed) or **4-implementer**.
+1. If design is not fully finished, update `00-current-status.md` with current stage = `3-designer` and set **next step → 3-designer**.
+2. If design is intentionally skipped/forced past, update current stage = `4-implementer`, append `3-designer` to **Incompleted stages**, and set next step accordingly.
+3. If design is completed, update current stage = `4-implementer`, append `3-designer` to **Completed steps**, and set **next step → 0-status-checker** (if verification is needed) or **4-implementer**.
