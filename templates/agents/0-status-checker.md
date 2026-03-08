@@ -20,28 +20,21 @@ When explicitly requested, perform a deep review of the initialized scope, plan,
 
 Depending on what the user asks, operate in one of two modes:
 
-### Mode 1: Workflow Routing (Default)
-**Trigger**: The user asks "what's my status?", "what step are we in?", "do the next step", or just continues the chat.
-- **Goal**: Only provide the status of the workflow in terms of completed steps and the exact next sequential numbered stage.
-- **Restriction**: DO NOT perform deep architectural reviews, DO NOT look for gaps, and DO NOT analyze Spec vs Code mismatches. Keep it brief. 
-- Recommend the exact next sequential numbered stage (regardless of if it is optional or mandatory) so the AI can automatically execute *"do the next step"*.
-
-### Mode 2: Deep Review (Explicitly Requested)
-**Trigger**: The user explicitly asks to "check the implementation", "check the current deployment", or perform an "overall review".
+### Mode 1: Deep Review (Default Status Check)
+**Trigger**: The user asks "what's my status?", "show my status", "what step are we in?", "check the implementation", or perform an "overall review".
 - **Verify Architecture & Feasibility**: Act as the final gatekeeper before implementation. Review `02-plan.md` and `03-design.md` for architectural flaws, missing security boundaries, and unrealistic expectations.
-- Identify gaps or contradictions before implementation begins.
+- **Identify Gaps**: A **gap** is explicitly defined as any requirement, feature, or constraint requested by a previous lower-numbered step (like `1-initializer` or `2-planner`) that is entirely missing, ignored, or unsupported by a subsequent higher-numbered step (like `3-designer` or `4-implementer`). You must flag these missing links.
 - **User is King & Spec is Truth**: The spec is the rule. Explicitly flag if you detect code modifications that happened without their corresponding spec files being updated. When the user requests a modification, the specs must be updated first.
+
+### Mode 2: Workflow Routing (Explicit Next Step Request)
+**Trigger**: The user explicitly asks "what is the next step?", "do the next step", or just says "continue".
+- **Goal**: Only provide the status of the workflow in terms of completed steps and the exact next sequential numbered stage.
+- **Restriction**: DO NOT perform deep architectural reviews, DO NOT look for gaps, and DO NOT analyze Spec vs Code mismatches. Keep it incredibly brief and actionable.
+- Recommend the exact next sequential numbered stage (regardless of if it is optional or mandatory) so the AI can automatically execute *"do the next step"*.
 
 ## Outputs
 
-### For Mode 1 (Routing):
-- Current branch
-- Current stage
-- Completed steps
-- Incompleted stages
-- Next recommended step
-
-### For Mode 2 (Deep Review):
+### For Mode 1 (Deep Review):
 - Current branch
 - Current stage
 - Completed steps
@@ -50,13 +43,20 @@ Depending on what the user asks, operate in one of two modes:
 - Blockers / warnings
 - List of missing artifacts
 - Stale areas
-- Risks, gaps, or Spec vs Code mismatches
+- Risks, gaps (specifically requirements missed from earlier steps), or Spec vs Code mismatches
 - Last updated by
 - Last updated at
 
+### For Mode 2 (Routing):
+- Current branch
+- Current stage
+- Completed steps
+- Incompleted stages
+- Next recommended step
+
 ## Next Step
 
-After running the status checker, update `00-current-status.md` with the current status summary. Validate that stages are properly categorized between Current, Completed, and Incompleted without duplication.
+After running the status checker, update `00-current-status.md` with the current status summary (if there needs to be a change). Validate that stages are properly categorized between Current, Completed, Incompleted without duplication, and validate Next Recommended Step. If you find any inconsistencies in these categories (like a stage existing in multiple categories, or an impossible state according to the framework rules), **silently fix them** in `00-current-status.md` to align with the true state of the repository without complaining to the user.
 
 ---
 

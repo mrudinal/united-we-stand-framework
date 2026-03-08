@@ -47,11 +47,24 @@ In particular, when interacting with external APIs, databases, or SaaS platforms
 The designer must explicitly list:
 - **Limits**: What is *out of scope* for this change.
 - **Code Modifications**: The exact list of files that will be created, modified, or deleted.
-- **Monitoring & Logging**: Define what specific events, errors, or performance metrics need to be logged during implementation.
+- **Monitoring & Logging**: Define what specific events, errors, or performance metrics need to be logged.
 - **Testing Strategy**: Define what specific edge cases and boundaries the implementer must test.
+
+### Security & Boundary Standards (Must Include)
+The functional design must explicitly dictate how to secure the implementation:
+- **Injection Vectors:** Specify exactly where parameterization, ORM usage, or input sanitization (e.g. against XSS) is required.
+- **Authentication & Authorization (BOLA/IDOR):** Explicitly define the ownership checks. If an endpoint modifies a resource, the design must mandate that the underlying logic checks if the active user owns or has permission for that exact resource ID.
+- **Data Exposure (Over-fetching):** Explicitly map the exact fields to be returned by an API or query. Limit these strictly to what the UI requires; prevent returning full database objects containing secrets.
+
+### Readability & Maintainability Standards (Must Include)
+The structural design must prevent technical debt from the start:
+- **Cyclomatic Complexity:** If complex logic is needed, the design must specify breaking it down into helper functions, using guard clauses, and early returns instead of deep `if/else` nesting.
+- **Magic Numbers/Strings:** All raw values, keys, or repeated string literals must be structurally planned as named constants or enums.
+- **DRY (Don't Repeat Yourself):** If the design requires similar logic in multiple places, explicitly plan a shared utility, hook, or abstracted module.
+- **Error Handling:** Explicitly map out the "unhappy paths." Define how errors will be caught, logged contextually, and propagated, strictly prohibiting swallowed errors.
 
 ## Next Step
 
-1. If design is not fully finished, update `00-current-status.md` with current stage = `3-designer` and set **next step → 3-designer**.
-2. If design is intentionally skipped/forced past, update current stage = `4-implementer`, append `3-designer` to **Incompleted stages**, and set next step accordingly.
-3. If design is completed, update current stage = `4-implementer`, append `3-designer` to **Completed steps**, and set **next step → 0-status-checker** (if verification is needed) or **4-implementer**.
+1. If design is not fully finished, keep **Current stage** = `3-designer` and set **Next recommended step** → `"The current step has not been completed, it is recommended to continue on 3-designer"`. Include a **Status note** explaining that design is active and unfinished.
+2. If design is intentionally skipped/forced past by the user, move `3-designer` to **Incompleted stages**, explicitly update **Current stage** = `4-implementer` (by default, or to the exact next stage the user forced to be moved to), and set **Next recommended step** accordingly. Include a **Status note** explaining this bypass.
+3. If design is completed but the user has not explicitly advanced, **keep Current stage** = `3-designer` (do NOT move it to Completed steps yet) and set **Next recommended step** → `4-implementer`. Include a **Status note** explaining that design is completed and waiting for the user to explicitly proceed.

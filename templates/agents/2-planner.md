@@ -31,6 +31,6 @@ Identify which later stages are required.
 
 ## Next Step
 
-1. If planning is not fully finished, update `00-current-status.md` with current stage = `2-planner` and set **next step → 2-planner**.
-2. If planning is intentionally skipped/forced past, update current stage = `3-designer` (or `4-implementer`), append `2-planner` to **Incompleted stages**, and set next step accordingly.
-3. If planning is completed, update current stage = `3-designer` (or `4-implementer`), append `2-planner` to **Completed steps**, and set next step accordingly.
+1. If planning is not fully finished, keep **Current stage** = `2-planner` and set **Next recommended step** → `"The current step has not been completed, it is recommended to continue on 2-planner"`. Include a **Status note** explaining that planning is active and unfinished.
+2. If planning is intentionally skipped/forced past by the user, move `2-planner` to **Incompleted stages**, explicitly update **Current stage** = `3-designer` (by default, or to the exact next stage the user forced to be moved to), and set **Next recommended step** accordingly. Include a **Status note** explaining this bypass.
+3. If planning is completed but the user has not explicitly advanced, **keep Current stage** = `2-planner` (do NOT move it to Completed steps yet) and set **Next recommended step** → `3-designer`. Include a **Status note** explaining that planning is completed and waiting for the user to explicitly proceed.

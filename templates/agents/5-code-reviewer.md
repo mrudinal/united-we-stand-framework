@@ -29,9 +29,9 @@ Perform a comprehensive review of the implemented code and tests, acting as both
 
 ## Next Step
 
-1. If the code review is not fully finished, update `00-current-status.md` with current stage = `5-code-reviewer` and set **next step → 5-code-reviewer**.
-2. If the code review is intentionally skipped/forced past, update current stage = `6-finalizer`, append `5-code-reviewer` to **Incompleted stages**, and set next step accordingly.
-3. If the code review is completed, update current stage = `6-finalizer`, append `5-code-reviewer` to **Completed steps**, and set **next step → 6-finalizer**.
+1. If the code review is not fully finished, keep **Current stage** = `5-code-reviewer` and set **Next recommended step** → `"The current step has not been completed, it is recommended to continue on 5-code-reviewer"`. Include a **Status note** explaining that the review is active and unfinished.
+2. If the code review is intentionally skipped/forced past by the user, move `5-code-reviewer` to **Incompleted stages**, explicitly update **Current stage** = `6-finalizer` (by default, or to the exact next stage the user forced to be moved to), and set **Next recommended step** accordingly. Include a **Status note** explaining this bypass.
+3. If the code review is completed but the user has not explicitly advanced, **keep Current stage** = `5-code-reviewer` (do NOT move it to Completed steps yet) and set **Next recommended step** → `6-finalizer`. Include a **Status note** explaining that the review is completed and waiting for the user to explicitly proceed.
 
 ---
 

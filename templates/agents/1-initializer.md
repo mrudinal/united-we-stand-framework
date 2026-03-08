@@ -33,6 +33,6 @@ None — this is the first mandatory step.
 
 ## Next Step
 
-1. If initialization is not fully finished, update `00-current-status.md` with current stage = `1-initializer` and set **next step → 1-initializer**.
-2. If initialization is intentionally skipped/forced past, update current stage = `2-planner`, append `1-initializer` to **Incompleted stages**, and set **next step → 2-planner**.
-3. If initialization is completed, update current stage = `2-planner`, append `1-initializer` to **Completed steps**, and set **next step → 2-planner**.
+1. If initialization is not fully finished, keep **Current stage** = `1-initializer` and set **Next recommended step** → `"The current step has not been completed, it is recommended to continue on 1-initializer"`. Include a **Status note** explaining that initialization is active and unfinished.
+2. If initialization is intentionally skipped/forced past by the user, move `1-initializer` to **Incompleted stages**, explicitly update **Current stage** = `2-planner` (by default, or to the exact next stage the user forced to be moved to), and set **Next recommended step** accordingly. Include a **Status note** explaining this bypass.
+3. If initialization is completed but the user has not explicitly advanced, **keep Current stage** = `1-initializer` (do NOT move it to Completed steps yet) and set **Next recommended step** → `2-planner`. Include a **Status note** explaining that initialization is completed and waiting for the user to explicitly proceed.

@@ -35,9 +35,9 @@ Check if all implementations fit with the previous steps, and modify accordingly
 
 ## Next Step
 
-1. If implementation is not fully finished, update `00-current-status.md` with current stage = `4-implementer` and set **next step → 4-implementer**.
-2. If implementation is intentionally skipped/forced past, update current stage = `5-code-reviewer`, append `4-implementer` to **Incompleted stages**, and set next step accordingly.
-3. If implementation and testing are completed, update current stage = `5-code-reviewer`, append `4-implementer` to **Completed steps**, and set **next step → 5-code-reviewer**.
+1. If implementation is not fully finished, keep **Current stage** = `4-implementer` and set **Next recommended step** → `"The current step has not been completed, it is recommended to continue on 4-implementer"`. Include a **Status note** explaining that implementation is active and unfinished.
+2. If implementation is intentionally skipped/forced past by the user, move `4-implementer` to **Incompleted stages**, explicitly update **Current stage** = `5-code-reviewer` (by default, or to the exact next stage the user forced to be moved to), and set **Next recommended step** accordingly. Include a **Status note** explaining this bypass.
+3. If implementation and testing are completed but the user has not explicitly advanced, **keep Current stage** = `4-implementer` (do NOT move it to Completed steps yet) and set **Next recommended step** → `5-code-reviewer`. Include a **Status note** explaining that implementation is completed and waiting for the user to explicitly proceed.
 
 ---
 

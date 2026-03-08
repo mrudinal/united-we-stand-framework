@@ -37,5 +37,6 @@ Provide a summary and final recommendations.
 
 ## Next Step
 
-1. If finalization is not fully finished, update `00-current-status.md` with current stage = `6-finalizer` and set **next step → 6-finalizer**.
-2. If finalization is completed or skipped at the end, update current stage = `finalized`, append `6-finalizer` to **Completed steps**, and clear the next step. This is the final framework step — the workflow is done.
+1. If finalization is not fully finished, keep **Current stage** = `6-finalizer` and set **Next recommended step** → `"The current step has not been completed, it is recommended to continue on 6-finalizer"`. Include a **Status note** explaining that the finalization is active and unfinished.
+2. If finalization is intentionally skipped/forced past by the user, move `6-finalizer` to **Incompleted stages**, explicitly update **Current stage** = `finalized` (or closed), and clear the **Next recommended step**. Include a **Status note** explaining this bypass.
+3. If finalization is explicitly marked as completely finished by the user, or completed and the workflow is explicitly moved to closed, update **Current stage** = `finalized`, move `6-finalizer` to **Completed steps**, and clear the **Next recommended step**. Include a **Status note** stating the workflow is done.

@@ -48,7 +48,7 @@ When updating `00-current-status.md`, strict category validation applies:
 3. **No Duplicates**: A stage number/name must not be repeated within the same category.
 4. **Incompleted Stages**: If a user decides to move to a higher step without finishing the active one, move the active step to `Incompleted stages`.
 5. **Next Step Logic (`Next recommended step`)**: 
-   - If the `Current stage` is **unfinished**, the `Next recommended step` must explicitly recommend finishing the current stage first, naming the stage.
+   - If the `Current stage` is **unfinished**, the `Next recommended step` must explicitly state: "The current step has not been completed, it is recommended to continue on [stage-name]".
    - If the `Current stage` is **completed** but the user has not explicitly advanced yet, keep that same stage in `Current stage` and set `Next recommended step` to the next logical numbered framework stage.
 6. **Status Note**: You must always include a `Status note` explaining in plain language: which stage is currently active, whether it is completed or not, and what should happen next (finish current stage or move to next one).
 
@@ -241,11 +241,12 @@ Rules for standalone role agents:
 
 The AI should intelligently route common user instructions as follows:
 
-- **“what’s my status”** → route to `0-status-checker`
-- **“show my status”** → route to `0-status-checker`
-- **“where am I in the process?”** → route to `0-status-checker`
-- **“do the next step”**, **continue with the next step”**, **“next step”** → run `0-status-checker` first, then execute the next numbered framework step if prerequisites and state are valid and the Current stage is considered completed. This explicit user instruction is what moves the previously active fully-completed stage into `Completed steps` and designates the next framework step as the new `Current stage`. If the previous Current stage was not completed, report blockers instead.
-- **“continue”** → run `0-status-checker`, re-establish context. If the Current stage is completed, explicitly advance to the next numbered framework step (moving the old Current stage to `Completed steps` and anchoring the new one). If the Current stage is not completed, continue working on the Current stage unless blocked.
+- **“what’s my status”** → route to `0-status-checker` (runs Mode 1: Deep Review to explicitly find gaps and missing requirements).
+- **“show my status”** → route to `0-status-checker` (runs Mode 1: Deep Review).
+- **“where am I in the process?”** → route to `0-status-checker` (runs Mode 1: Deep Review).
+- **“check for gaps”** → route to `0-status-checker` (runs Mode 1: Deep Review).
+- **“do the next step”**, **continue with the next step”**, **“next step”** → run `0-status-checker` (runs Mode 2: Workflow Routing) first to verify, then execute the next numbered framework step if prerequisites and state are valid and the Current stage is considered completed. This explicit user instruction is what moves the previously active fully-completed stage into `Completed steps` and designates the next framework step as the new `Current stage`. If the previous Current stage was not completed, report blockers instead.
+- **“continue”** → run `0-status-checker` (runs Mode 2: Workflow Routing), re-establish context. If the Current stage is completed, explicitly advance to the next numbered framework step (moving the old Current stage to `Completed steps` and anchoring the new one). If the Current stage is not completed, continue working on the Current stage unless blocked.
 - **“plan this”** → route to `2-planner`
 - **“design this”** → route to `3-designer`
 - **“implement this”** before step `1-initializer` → warn and stop unless `--force` is used
