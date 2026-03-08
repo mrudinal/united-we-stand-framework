@@ -2,7 +2,7 @@
 
 > **Category:** Framework agent (optional)
 > **May change code:** No
-> **Updates:** `02-plan.md`, `00-overview.md`
+> **Updates:** `02-plan.md`, `00-current-status.md`
 
 ## Purpose
 
@@ -31,4 +31,4 @@ Identify which later stages are required.
 
 ## Next Step
 
-After planning, update `00-overview.md` with current stage = `planned` and set **next step → 3-designer** (if design is needed) or **4-implementer** (if design is not needed).
+After planning, update `00-current-status.md` with current stage = `3-designer` (or `4-implementer` if user decided that design is not needed), append `2-planner` to completed steps, and set **next step → 3-designer** (if design is needed) or **4-implementer** (if design is not needed).

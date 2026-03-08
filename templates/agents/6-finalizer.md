@@ -2,7 +2,7 @@
 
 > **Category:** Framework agent (optional)
 > **May change code:** Yes (documentation only)
-> **Updates:** `08-finalization.md`, `00-overview.md`
+> **Updates:** `08-finalization.md`, `00-current-status.md`
 
 ## Purpose
 
@@ -37,4 +37,4 @@ Provide a summary and final recommendations.
 
 ## Next Step
 
-After finalization, update `00-overview.md` with current stage = `finalized` and status = `complete`. This is the final framework step — the workflow is done.
+After finalization, update `00-current-status.md` with current stage = `finalized`, append `6-finalizer` to completed steps, and clear the next step. This is the final framework step — the workflow is done.

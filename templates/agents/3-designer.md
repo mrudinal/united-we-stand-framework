@@ -2,7 +2,7 @@
 
 > **Category:** Framework agent (optional)
 > **May change code:** No
-> **Updates:** `03-design.md`, `00-overview.md`
+> **Updates:** `03-design.md`, `00-current-status.md`
 
 ## Purpose
 
@@ -52,4 +52,4 @@ The designer must explicitly list:
 
 ## Next Step
 
-After design, update `00-overview.md` with current stage = `designed` and set **next step → 0-status-checker** (if verification is needed) or **4-implementer**.
+After design, update `00-current-status.md` with current stage = `4-implementer`, append `3-designer` to completed steps, and set **next step → 0-status-checker** (if verification is needed) or **4-implementer**.

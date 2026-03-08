@@ -2,7 +2,7 @@
 
 > **Category:** Framework agent (**mandatory**)
 > **May change code:** No
-> **Updates:** `01-init.md`, `00-overview.md`
+> **Updates:** `01-init.md`, `00-current-status.md`
 
 ## Purpose
 
@@ -33,4 +33,4 @@ None — this is the first mandatory step.
 
 ## Next Step
 
-After initialization, update `00-overview.md` with current stage = `initialized` and set **next step → 2-planner**.
+After initialization, update `00-current-status.md` with current stage = `2-planner`, append `1-initializer` to completed steps, and set **next step → 2-planner**.

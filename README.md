@@ -150,7 +150,7 @@ your-repo/
     │   └── test-writer.md                       ← standalone
     └── spec-driven/
         └── <sanitized-branch-name>/
-            ├── 00-overview.md
+            ├── 00-current-status.md
             ├── 01-init.md
             ├── 02-plan.md
             ├── 03-design.md

@@ -2,7 +2,7 @@
 
 > **Category:** Framework agent (optional)
 > **May change code:** No
-> **Updates:** `00-overview.md`
+> **Updates:** `00-current-status.md`
 
 ## Purpose
 
@@ -35,19 +35,26 @@ Depending on what the user asks, operate in one of two modes:
 ## Outputs
 
 ### For Mode 1 (Routing):
-- Current step we are in.
-- The exact next step to execute (e.g., `3-designer` or `4-implementer`).
+- Current branch
+- Current stage
+- Completed steps
+- Next recommended step
 
 ### For Mode 2 (Deep Review):
-- Status summary of every framework stage.
-- List of missing artifacts.
-- The exact next step to execute.
-- Stale areas.
-- Risks, gaps, or Spec vs Code mismatches.
+- Current branch
+- Current stage
+- Completed steps
+- Next recommended step
+- Blockers / warnings
+- List of missing artifacts
+- Stale areas
+- Risks, gaps, or Spec vs Code mismatches
+- Last updated by
+- Last updated at
 
 ## Next Step
 
-After running the status checker, update `00-overview.md` with the current status summary.
+After running the status checker, update `00-current-status.md` with the current status summary.
 
 ---
 

@@ -116,7 +116,7 @@ export interface SpecFileEntry {
 }
 
 const SPEC_DRIVEN_FILENAMES = [
-    '00-overview.md',
+    '00-current-status.md',
     '01-init.md',
     '02-plan.md',
     '03-design.md',
@@ -157,13 +157,13 @@ export function buildCapturedIdeaBlock(ideaText: string): string {
 
 /**
  * Builds the managed block content for the branch overview header
- * in 00-overview.md, including stage, status, and next step metadata.
+ * in 00-current-status.md, including stage, status, and next step metadata.
  */
 export function buildOverviewStageBlock(
     branchName: string,
     sanitizedName: string,
     currentStage: string,
-    currentStatus: string,
+    completedSteps: string,
     nextStep: string,
 ): string {
     const todayDate = new Date().toISOString().slice(0, 10);
@@ -175,7 +175,7 @@ export function buildOverviewStageBlock(
 | Branch | \`${branchName}\` |
 | Sanitized ID | \`${sanitizedName}\` |
 | Current stage | ${currentStage} |
-| Status | ${currentStatus} |
+| Completed steps | ${completedSteps} |
 | Next step | ${nextStep} |
 | Last updated | ${todayDate} |
 `;

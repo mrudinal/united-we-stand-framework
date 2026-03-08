@@ -1,8 +1,8 @@
-# 5 — Implementer
+# 4 — Implementer
 
 > **Category:** Framework agent (**mandatory**)
 > **May change code:** ✅ Yes — this is the **first** framework agent allowed to make code changes.
-> **Updates:** `04-implementation.md`, `00-overview.md`
+> **Updates:** `04-implementation.md`, `00-current-status.md`
 
 ## Purpose
 
@@ -35,7 +35,7 @@ Check if all implementations fit with the previous steps, and modify accordingly
 
 ## Next Step
 
-After implementation and testing, update `00-overview.md` with current stage = `implemented-and-tested` and set **next step → 5-code-reviewer**.
+After implementation and testing, update `00-current-status.md` with current stage = `5-code-reviewer`, append `4-implementer` to completed steps, and set **next step → 5-code-reviewer**.
 
 ---
 

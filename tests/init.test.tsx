@@ -44,7 +44,7 @@ describe('init command (branch spec setup)', () => {
         const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizedBranch);
 
         expect(existsSync(specDirectory)).toBe(true);
-        expect(existsSync(join(specDirectory, '00-overview.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '00-current-status.md'))).toBe(true);
         expect(existsSync(join(specDirectory, '01-init.md'))).toBe(true);
         expect(existsSync(join(specDirectory, '02-plan.md'))).toBe(true);
         expect(existsSync(join(specDirectory, '03-design.md'))).toBe(true);
@@ -78,9 +78,10 @@ describe('init command (branch spec setup)', () => {
 
         const currentBranch = getCurrentBranchName(tempRepoDirectory);
         const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizeBranchName(currentBranch));
-        const overviewFileContent = readFileSync(join(specDirectory, '00-overview.md'), 'utf-8');
+        const overviewFileContent = readFileSync(join(specDirectory, '00-current-status.md'), 'utf-8');
 
-        expect(overviewFileContent).toContain('| Current stage | initialized |');
+        expect(overviewFileContent).toContain('| Current stage | 2-planner |');
+        expect(overviewFileContent).toContain('| Completed steps | 1-initializer |');
         expect(overviewFileContent).toContain('| Next step | 2-planner |');
     });
 

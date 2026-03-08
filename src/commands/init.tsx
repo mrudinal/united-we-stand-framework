@@ -3,7 +3,7 @@
  *
  * Detects the current git branch, creates the spec-driven folder with all
  * spec files, saves the user's idea into 01-init.md, and updates
- * 00-overview.md with the "initialized" stage.
+ * 00-current-status.md with the "initialized" stage.
  */
 
 import { join } from 'node:path';
@@ -75,7 +75,7 @@ export function runInitCommand(options: InitCommandOptions): void {
     ensureDirectoryExists(specDrivenDirectory, isDryRun, logger);
 
     for (const specFile of loadBranchSpecFiles(currentBranch, sanitizedBranch)) {
-        if (specFile.filename === '00-overview.md' || specFile.filename === '01-init.md') {
+        if (specFile.filename === '00-current-status.md' || specFile.filename === '01-init.md') {
             continue;
         }
         writeFileIfMissing(join(specDrivenDirectory, specFile.filename), specFile.content, isDryRun, logger);
@@ -90,9 +90,9 @@ export function runInitCommand(options: InitCommandOptions): void {
     }
     logger.updated(initFilePath);
 
-    const overviewFilePath = join(specDrivenDirectory, '00-overview.md');
-    const overviewBlockContent = buildOverviewStageBlock(currentBranch, sanitizedBranch, 'initialized', 'initialized', '2-planner');
+    const overviewFilePath = join(specDrivenDirectory, '00-current-status.md');
     const existingOverviewContent = readFileOrNull(overviewFilePath) ?? '';
+    const overviewBlockContent = buildOverviewStageBlock(currentBranch, sanitizedBranch, '2-planner', '1-initializer', '2-planner');
     const updatedOverviewContent = upsertManagedBlock(existingOverviewContent, overviewBlockContent);
 
     if (!isDryRun) {

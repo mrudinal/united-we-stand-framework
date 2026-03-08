@@ -5,7 +5,7 @@
 | Branch | `{{BRANCH}}` |
 | Sanitized ID | `{{SANITIZED}}` |
 | Current stage | — |
-| Status | not started |
+| Completed steps | none |
 | Next step | 1-initializer |
 | Last updated | — |
 

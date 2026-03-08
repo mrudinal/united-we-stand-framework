@@ -2,7 +2,7 @@
 
 > **Category:** Framework agent (optional)
 > **May change code:** No
-> **Updates:** `05-code-review.md`, `00-overview.md`
+> **Updates:** `05-code-review.md`, `00-current-status.md`
 
 ## Purpose
 
@@ -29,7 +29,7 @@ Perform a comprehensive review of the implemented code and tests, acting as both
 
 ## Next Step
 
-After code review, update `00-overview.md` with current stage = `reviewed` and set **next step → 6-finalizer**.
+After code review, update `00-current-status.md` with current stage = `6-finalizer`, append `5-code-reviewer` to completed steps, and set **next step → 6-finalizer**.
 
 ---
 
