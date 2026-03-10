@@ -68,6 +68,18 @@ describe('install command', () => {
         expect(existsSync(join(agentsDirectory, 'debugger.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'project-manager.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'documentation-writer.md'))).toBe(true);
+        expect(existsSync(join(agentsDirectory, 'refactorer.md'))).toBe(true);
+        expect(existsSync(join(agentsDirectory, 'release-coordinator.md'))).toBe(true);
+    });
+
+    it('creates framework, steering, playbook, and framework readme files', async () => {
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+        const frameworkRoot = join(tempRepoDirectory, '.united-we-stand');
+        expect(existsSync(join(frameworkRoot, 'README.md'))).toBe(true);
+        expect(existsSync(join(frameworkRoot, 'framework', '00-index.md'))).toBe(true);
+        expect(existsSync(join(frameworkRoot, 'framework', 'profiles', '00-profile-selection.md'))).toBe(true);
+        expect(existsSync(join(frameworkRoot, 'steering', '00-index.md'))).toBe(true);
+        expect(existsSync(join(frameworkRoot, 'playbooks', '00-index.md'))).toBe(true);
     });
 
     it('does NOT create branch spec-driven files', async () => {

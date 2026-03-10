@@ -14,6 +14,7 @@ import { upsertManagedBlock } from '../lib/markers.js';
 import { createLogger } from '../lib/logger.js';
 import {
     loadInitSpecTemplate,
+    loadCurrentStatusSpecTemplate,
     buildCapturedIdeaBlock,
     buildOverviewStageBlock,
     loadBranchSpecFiles,
@@ -39,7 +40,7 @@ function upsertCapturedIdeaBlock(existingContent: string, ideaText: string): str
         return existingContent.replace(markerPattern, ideaBlock);
     }
 
-    if (existingContent.includes('_Not yet captured.')) {
+    if (/## Raw idea/i.test(existingContent)) {
         return existingContent.replace(
             /## Raw idea[\s\S]*?(?=\n## |\n$|$)/m,
             ideaBlock + '\n',
@@ -69,16 +70,16 @@ export function runBranchInitCommand(options: InitCommandOptions): void {
     const currentBranch = getCurrentBranchName(workingDirectory);
     const sanitizedBranch = sanitizeBranchName(currentBranch);
 
-    logger.info(`Branch: ${currentBranch} → ${sanitizedBranch}`);
+    logger.info(`Branch: ${currentBranch} -> ${sanitizedBranch}`);
 
     const specDrivenDirectory = join(workingDirectory, '.united-we-stand', 'spec-driven', sanitizedBranch);
     ensureDirectoryExists(specDrivenDirectory, isDryRun, logger);
 
     for (const specFile of loadBranchSpecFiles(currentBranch, sanitizedBranch)) {
-        if (specFile.filename === '00-current-status.md' || specFile.filename === '01-init.md') {
+        if (specFile.relativePath === '00-current-status.md' || specFile.relativePath === '01-init.md') {
             continue;
         }
-        writeFileIfMissing(join(specDrivenDirectory, specFile.filename), specFile.content, isDryRun, logger);
+        writeFileIfMissing(join(specDrivenDirectory, specFile.relativePath), specFile.content, isDryRun, logger);
     }
 
     const initFilePath = join(specDrivenDirectory, '01-init.md');
@@ -91,8 +92,17 @@ export function runBranchInitCommand(options: InitCommandOptions): void {
     logger.updated(initFilePath);
 
     const overviewFilePath = join(specDrivenDirectory, '00-current-status.md');
-    const existingOverviewContent = readFileOrNull(overviewFilePath) ?? '';
-    const overviewBlockContent = buildOverviewStageBlock(currentBranch, sanitizedBranch, '2-planner', '1-initializer', 'none', '2-planner');
+    const existingOverviewContent = readFileOrNull(overviewFilePath)
+        ?? loadCurrentStatusSpecTemplate(currentBranch, sanitizedBranch);
+    const overviewBlockContent = buildOverviewStageBlock(
+        currentBranch,
+        sanitizedBranch,
+        '1-initializer',
+        'none',
+        'none',
+        '2-planner',
+        'Initialization is complete. Advance explicitly when ready to move to planning.',
+    );
     const updatedOverviewContent = upsertManagedBlock(existingOverviewContent, overviewBlockContent);
 
     if (!isDryRun) {

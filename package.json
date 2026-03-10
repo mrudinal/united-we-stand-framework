@@ -9,7 +9,7 @@
   "main": "./dist/index.js",
   "files": [
     "dist",
-    "templates",
+    ".united-we-stand",
     "README.md",
     "LICENSE"
   ],

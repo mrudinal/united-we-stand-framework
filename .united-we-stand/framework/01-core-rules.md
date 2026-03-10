@@ -1,0 +1,101 @@
+# Core Rules
+
+This file is the canonical source for global framework invariants.
+
+## Non-Negotiable Rules
+
+1. **Spec-driven development**  
+   Branch specs are authoritative working memory for workflow state.
+
+2. **User intent precedence (User is King and Spec is Truth)**  
+   Latest confirmed user intent has highest authority. When intent changes direction, update relevant specs first, then update code if role allows.
+
+3. **Branch-aware operation**  
+   All framework work is branch-aware and uses `.united-we-stand/spec-driven/<sanitized-current-branch>/`.
+
+4. **Persistent context over chat memory**  
+   Persisted framework files outrank remembered chat state when conflict exists.
+
+5. **No silent stage jumps**  
+   Respect prerequisites and anchored stage model. Optional stages may be skipped only with explicit user instruction or `--force` behavior.
+
+6. **No hallucinated completion**  
+   Missing stage files are not proof of completed work.
+
+7. **Role-scoped edits only**  
+   Agents may edit only files allowed by role scope and explicit user instruction.
+
+8. **Spec first, then code**  
+   If user changes intent, update spec context first, then code.
+
+9. **No autonomous git operations**  
+   Never run `git add`, `git commit`, `git push`, `git rebase`, `git reset`, or branch-switch operations unless user explicitly requests it.
+
+10. **Status-first resumption**  
+    Resumed chats must consult `00-current-status.md` before deciding the next action.
+
+11. **Deterministic routing**  
+    Natural-language command routing must follow `04-command-routing.md`.
+
+## Stage Mandatory Set
+
+Mandatory framework stages:
+
+- `1-initializer`
+- `4-implementer`
+
+Optional framework stages:
+
+- `0-status-checker`
+- `2-planner`
+- `3-designer`
+- `5-code-reviewer`
+- `6-finalizer`
+
+## Branch Name Sanitization
+
+Use deterministic branch folder names:
+
+1. lowercase the branch name
+2. replace `/` and `\` with `-`
+3. replace unsupported characters with `-`
+4. collapse repeated `-`
+5. trim leading/trailing `-`
+
+Example: `feature/New Checkout UI` -> `feature-new-checkout-ui`
+
+## File Modification Rules
+
+- Framework stages can update their own numbered file and `00-current-status.md` by default.
+- Lower-numbered stage files may be updated when needed to reflect confirmed intent or reconcile drift.
+- Higher-numbered stage files should not be edited by lower-numbered stages unless user explicitly requests bypass behavior.
+- Review-focused stages should report discrepancies before rewriting earlier stage files.
+- Finalizer may update wrap-up documentation (for example top-level `README.md`) when explicitly relevant to branch closure.
+- Standalone role agents do not update stage files unless explicitly asked.
+
+## Stage File Update Method
+
+- Prefer updating existing structured sections in place.
+- Add amendment/history sections only when preserving decision history is useful.
+- Do not duplicate full stage content in the same file unless user explicitly requests log-style duplication.
+
+## Missing Files and Folder Behavior
+
+- If branch folder does not exist yet, do not create it during passive inspection.
+- Branch folder is normally created by `1-initializer` or explicit branch-init action.
+- If folder exists and stage file is missing, corresponding stage may create it when run.
+- If `00-current-status.md` is missing in an existing branch folder, reconstruct conservatively from available stage files and report reconstruction.
+- If files are malformed or contradictory, preserve content and repair conservatively.
+
+## Standalone Role Agent Rules
+
+Standalone specialists can run at any time but do not automatically become framework stages.
+
+- They should read `AGENTS.md`, relevant role docs, and branch context when needed.
+- By default they do not mutate branch stage files.
+- If asked to persist output, they should write only explicitly requested files.
+
+## Build and Test Rule
+
+- If no source or script code changed, do not run build/test unless user asks.
+- For code changes, validate proportionately to risk and changed surface.

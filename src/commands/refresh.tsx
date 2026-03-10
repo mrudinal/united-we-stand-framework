@@ -2,7 +2,8 @@
  * Refresh command: re-applies templates and updates managed blocks.
  *
  * Re-upserts AGENTS.md and copilot instructions managed blocks, and
- * recreates any missing agent files. Existing files are preserved.
+ * recreates any missing framework docs, steering docs, playbooks, and agents.
+ * Existing files are preserved.
  */
 
 import { join } from 'node:path';
@@ -12,6 +13,10 @@ import { createLogger } from '../lib/logger.js';
 import {
     loadAgentsMdBlockTemplate,
     loadCopilotInstructionsTemplate,
+    loadFrameworkReadmeTemplate,
+    loadFrameworkFiles,
+    loadSteeringFiles,
+    loadPlaybookFiles,
     loadFrameworkAgentFiles,
     loadStandaloneAgentFiles,
 } from '../lib/templates.js';
@@ -48,8 +53,30 @@ export function runRefreshCommand(options: RefreshCommandOptions): void {
     const copilotInstructionsPath = join(githubDirectory, 'copilot-instructions.md');
     upsertFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
 
+    const frameworkRootDirectory = join(workingDirectory, '.united-we-stand');
+    ensureDirectoryExists(frameworkRootDirectory, isDryRun, logger);
+    writeFileIfMissing(join(frameworkRootDirectory, 'README.md'), loadFrameworkReadmeTemplate(), isDryRun, logger);
+
+    const frameworkDirectory = join(frameworkRootDirectory, 'framework');
+    ensureDirectoryExists(frameworkDirectory, isDryRun, logger);
+    for (const frameworkFile of loadFrameworkFiles()) {
+        writeFileIfMissing(join(frameworkRootDirectory, frameworkFile.relativePath), frameworkFile.content, isDryRun, logger);
+    }
+
+    const steeringDirectory = join(frameworkRootDirectory, 'steering');
+    ensureDirectoryExists(steeringDirectory, isDryRun, logger);
+    for (const steeringFile of loadSteeringFiles()) {
+        writeFileIfMissing(join(frameworkRootDirectory, steeringFile.relativePath), steeringFile.content, isDryRun, logger);
+    }
+
+    const playbooksDirectory = join(frameworkRootDirectory, 'playbooks');
+    ensureDirectoryExists(playbooksDirectory, isDryRun, logger);
+    for (const playbookFile of loadPlaybookFiles()) {
+        writeFileIfMissing(join(frameworkRootDirectory, playbookFile.relativePath), playbookFile.content, isDryRun, logger);
+    }
+
     // Recreate any missing agent files (existing ones are kept intact).
-    const agentsDirectory = join(workingDirectory, '.united-we-stand', 'agents');
+    const agentsDirectory = join(frameworkRootDirectory, 'agents');
     ensureDirectoryExists(agentsDirectory, isDryRun, logger);
 
     for (const agentFile of loadFrameworkAgentFiles()) {

@@ -1,7 +1,7 @@
 /**
  * Doctor command: checks repository health and reports missing files.
  *
- * Separates checks into framework-level (set up by `init`) and
+ * Separates checks into framework-level (set up by `install`) and
  * branch-level (set up by `branch-init`) with targeted recommendations.
  */
 
@@ -11,7 +11,14 @@ import { sanitizeBranchName } from '../lib/branch.js';
 import { doesFileExist, readFileOrNull } from '../lib/fs.js';
 import { hasManagedBlock } from '../lib/markers.js';
 import { createLogger } from '../lib/logger.js';
-import { loadFrameworkAgentFiles, loadStandaloneAgentFiles, loadBranchSpecFiles } from '../lib/templates.js';
+import {
+    loadFrameworkFiles,
+    loadSteeringFiles,
+    loadPlaybookFiles,
+    loadFrameworkAgentFiles,
+    loadStandaloneAgentFiles,
+    listBranchSpecRelativePaths,
+} from '../lib/templates.js';
 
 /** Options accepted by the doctor command. */
 export interface DoctorCommandOptions {
@@ -45,20 +52,20 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     }
 
     console.log('');
-    logger.info('united-we-stand doctor — checking repository health\n');
+    logger.info('united-we-stand doctor - checking repository health\n');
 
     // Verify this is a git repository.
     const isGitRepo = isGitRepository(workingDirectory);
     reportCheck('Git repository detected', isGitRepo, 'framework');
     if (!isGitRepo) {
-        logger.error('Not a git repository. Run `united-we-stand init` inside a git repo.');
+        logger.error('Not a git repository. Run `united-we-stand install` inside a git repo.');
         process.exitCode = 1;
         return;
     }
 
-    // === Framework-level checks (created by `init`) ===
+    // === Framework-level checks (created by `install`) ===
     console.log('');
-    logger.info('Framework files (set up by `united-we-stand init`):');
+    logger.info('Framework files (set up by `united-we-stand install`):');
 
     // Check AGENTS.md existence and managed block.
     const agentsMdPath = join(workingDirectory, 'AGENTS.md');
@@ -78,8 +85,41 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
         reportCheck('.github/copilot-instructions.md has managed block', hasManagedBlock(copilotContent), 'framework');
     }
 
+    const frameworkRootDirectory = join(workingDirectory, '.united-we-stand');
+    reportCheck('.united-we-stand/ directory exists', doesFileExist(frameworkRootDirectory), 'framework');
+
+    const frameworkReadmePath = join(frameworkRootDirectory, 'README.md');
+    reportCheck('.united-we-stand/README.md exists', doesFileExist(frameworkReadmePath), 'framework');
+
+    const frameworkDirectory = join(frameworkRootDirectory, 'framework');
+    reportCheck('.united-we-stand/framework/ directory exists', doesFileExist(frameworkDirectory), 'framework');
+
+    console.log('');
+    logger.info('Framework docs:');
+    for (const frameworkFile of loadFrameworkFiles()) {
+        reportCheck(`  ${frameworkFile.relativePath}`, doesFileExist(join(frameworkRootDirectory, frameworkFile.relativePath)), 'framework');
+    }
+
+    const steeringDirectory = join(frameworkRootDirectory, 'steering');
+    reportCheck('.united-we-stand/steering/ directory exists', doesFileExist(steeringDirectory), 'framework');
+
+    console.log('');
+    logger.info('Steering docs:');
+    for (const steeringFile of loadSteeringFiles()) {
+        reportCheck(`  ${steeringFile.relativePath}`, doesFileExist(join(frameworkRootDirectory, steeringFile.relativePath)), 'framework');
+    }
+
+    const playbooksDirectory = join(frameworkRootDirectory, 'playbooks');
+    reportCheck('.united-we-stand/playbooks/ directory exists', doesFileExist(playbooksDirectory), 'framework');
+
+    console.log('');
+    logger.info('Playbooks:');
+    for (const playbookFile of loadPlaybookFiles()) {
+        reportCheck(`  ${playbookFile.relativePath}`, doesFileExist(join(frameworkRootDirectory, playbookFile.relativePath)), 'framework');
+    }
+
     // Check agents directory.
-    const agentsDirectory = join(workingDirectory, '.united-we-stand', 'agents');
+    const agentsDirectory = join(frameworkRootDirectory, 'agents');
     reportCheck('.united-we-stand/agents/ directory exists', doesFileExist(agentsDirectory), 'framework');
 
     // Check individual framework agent files.
@@ -102,13 +142,13 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     const specDrivenDirectory = join(workingDirectory, '.united-we-stand', 'spec-driven', sanitizedBranch);
 
     console.log('');
-    logger.info(`Branch spec files — ${currentBranch} (${sanitizedBranch}):`);
+    logger.info(`Branch spec files - ${currentBranch} (${sanitizedBranch}):`);
     const specDirectoryExists = doesFileExist(specDrivenDirectory);
     reportCheck(`spec-driven/${sanitizedBranch}/ directory exists`, specDirectoryExists, 'branch');
 
     if (specDirectoryExists) {
-        for (const specFile of loadBranchSpecFiles(currentBranch, sanitizedBranch)) {
-            reportCheck(`  ${specFile.filename}`, doesFileExist(join(specDrivenDirectory, specFile.filename)), 'branch');
+        for (const specRelativePath of listBranchSpecRelativePaths()) {
+            reportCheck(`  ${specRelativePath}`, doesFileExist(join(specDrivenDirectory, specRelativePath)), 'branch');
         }
     }
 
@@ -117,7 +157,7 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     if (frameworkHealthy && branchHealthy) {
         logger.success('All checks passed. Repository is fully set up.');
     } else if (!frameworkHealthy) {
-        logger.warn('Framework files missing. Run `united-we-stand init` to set up.');
+        logger.warn('Framework files missing. Run `united-we-stand install` to set up.');
     } else {
         logger.warn(`Branch "${currentBranch}" not initialized. Run \`united-we-stand branch-init "<idea>"\` to set up.`);
     }

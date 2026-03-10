@@ -32,7 +32,7 @@ describe('init command (branch spec setup)', () => {
         rmSync(tempRepoDirectory, { recursive: true, force: true });
     });
 
-    it('creates branch spec directory and all numbered spec files', () => {
+    it('creates branch spec directory with core, appendices, and subfolders', () => {
         runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
@@ -51,6 +51,23 @@ describe('init command (branch spec setup)', () => {
         expect(existsSync(join(specDirectory, '04-implementation.md'))).toBe(true);
         expect(existsSync(join(specDirectory, '05-code-review.md'))).toBe(true);
         expect(existsSync(join(specDirectory, '06-finalization.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '07-decisions.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '08-traceability.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '09-risks-issues.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '10-test-strategy.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '11-change-log.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '12-handoff.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '13-retrospective.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'modules', 'example-module.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'api', 'contracts.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'api', 'endpoints.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'api', 'auth-boundaries.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'data', 'schema-notes.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'data', 'migrations.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'data', 'data-boundaries.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'ux', 'user-flows.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'ux', 'screen-states.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, 'ux', 'copy-notes.md'))).toBe(true);
     });
 
     it('captures the idea in 01-init.md', () => {
@@ -69,7 +86,7 @@ describe('init command (branch spec setup)', () => {
         expect(initFileContent).toContain('<!-- united-we-stand:captured-idea:end -->');
     });
 
-    it('sets overview stage to initialized and next step to 2-planner', () => {
+    it('keeps initializer as current stage and recommends 2-planner next', () => {
         runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
@@ -80,10 +97,11 @@ describe('init command (branch spec setup)', () => {
         const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizeBranchName(currentBranch));
         const overviewFileContent = readFileSync(join(specDirectory, '00-current-status.md'), 'utf-8');
 
-        expect(overviewFileContent).toContain('| Current stage | 2-planner |');
-        expect(overviewFileContent).toContain('| Completed steps | 1-initializer |');
+        expect(overviewFileContent).toContain('| Current stage | 1-initializer |');
+        expect(overviewFileContent).toContain('| Completed steps | none |');
         expect(overviewFileContent).toContain('| Incompleted stages | none |');
-        expect(overviewFileContent).toContain('| Next step | 2-planner |');
+        expect(overviewFileContent).toContain('| Next recommended step | 2-planner |');
+        expect(overviewFileContent).toContain('| Status note | Initialization is complete. Advance explicitly when ready to move to planning. |');
     });
 
     it('uses default idea text if none provided', () => {

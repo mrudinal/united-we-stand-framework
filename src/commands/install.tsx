@@ -1,7 +1,8 @@
 /**
  * Install command: sets up the united-we-stand framework in the target repository.
  *
- * Creates AGENTS.md, copilot instructions, and all agent markdown files.
+ * Creates AGENTS.md, copilot instructions, and the full `.united-we-stand/`
+ * framework tree (framework, steering, agents, playbooks).
  * With --force, ignores existing user edits and overwrites files with global templates.
  */
 
@@ -12,6 +13,10 @@ import { createLogger } from '../lib/logger.js';
 import {
     loadAgentsMdBlockTemplate,
     loadCopilotInstructionsTemplate,
+    loadFrameworkReadmeTemplate,
+    loadFrameworkFiles,
+    loadSteeringFiles,
+    loadPlaybookFiles,
     loadFrameworkAgentFiles,
     loadStandaloneAgentFiles,
 } from '../lib/templates.js';
@@ -45,19 +50,62 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
 
     const agentsMdPath = join(workingDirectory, 'AGENTS.md');
     const githubDirectory = join(workingDirectory, '.github');
+    const frameworkRootDirectory = join(workingDirectory, '.united-we-stand');
+    const frameworkDirectory = join(frameworkRootDirectory, 'framework');
+    const steeringDirectory = join(frameworkRootDirectory, 'steering');
+    const playbooksDirectory = join(frameworkRootDirectory, 'playbooks');
+    const agentsDirectory = join(frameworkRootDirectory, 'agents');
+
     ensureDirectoryExists(githubDirectory, isDryRun, logger);
+    ensureDirectoryExists(frameworkRootDirectory, isDryRun, logger);
+    ensureDirectoryExists(frameworkDirectory, isDryRun, logger);
+    ensureDirectoryExists(steeringDirectory, isDryRun, logger);
+    ensureDirectoryExists(playbooksDirectory, isDryRun, logger);
+    ensureDirectoryExists(agentsDirectory, isDryRun, logger);
+
     const copilotInstructionsPath = join(githubDirectory, 'copilot-instructions.md');
+    const frameworkReadmePath = join(frameworkRootDirectory, 'README.md');
 
     if (force) {
         overwriteFileWithManagedBlock(agentsMdPath, loadAgentsMdBlockTemplate(), isDryRun, logger);
         overwriteFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
+        writeFileWithDirectories(frameworkReadmePath, loadFrameworkReadmeTemplate(), isDryRun, logger);
+        logger.updated(frameworkReadmePath + ' (FORCED OVERWRITE)');
     } else {
         upsertFileWithManagedBlock(agentsMdPath, loadAgentsMdBlockTemplate(), isDryRun, logger);
         upsertFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
+        writeFileIfMissing(frameworkReadmePath, loadFrameworkReadmeTemplate(), isDryRun, logger);
     }
 
-    const agentsDirectory = join(workingDirectory, '.united-we-stand', 'agents');
-    ensureDirectoryExists(agentsDirectory, isDryRun, logger);
+    for (const frameworkFile of loadFrameworkFiles()) {
+        const filePath = join(frameworkRootDirectory, frameworkFile.relativePath);
+        if (force) {
+            writeFileWithDirectories(filePath, frameworkFile.content, isDryRun, logger);
+            logger.updated(filePath + ' (FORCED OVERWRITE)');
+        } else {
+            writeFileIfMissing(filePath, frameworkFile.content, isDryRun, logger);
+        }
+    }
+
+    for (const steeringFile of loadSteeringFiles()) {
+        const filePath = join(frameworkRootDirectory, steeringFile.relativePath);
+        if (force) {
+            writeFileWithDirectories(filePath, steeringFile.content, isDryRun, logger);
+            logger.updated(filePath + ' (FORCED OVERWRITE)');
+        } else {
+            writeFileIfMissing(filePath, steeringFile.content, isDryRun, logger);
+        }
+    }
+
+    for (const playbookFile of loadPlaybookFiles()) {
+        const filePath = join(frameworkRootDirectory, playbookFile.relativePath);
+        if (force) {
+            writeFileWithDirectories(filePath, playbookFile.content, isDryRun, logger);
+            logger.updated(filePath + ' (FORCED OVERWRITE)');
+        } else {
+            writeFileIfMissing(filePath, playbookFile.content, isDryRun, logger);
+        }
+    }
 
     for (const agentFile of loadFrameworkAgentFiles()) {
         const filePath = join(agentsDirectory, agentFile.filename);
