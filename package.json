@@ -17,6 +17,7 @@
     "build": "tsc",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "test": "vitest run",
+    "test:e2e": "node ./tests/e2e-cli.mjs",
     "test:watch": "vitest",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
