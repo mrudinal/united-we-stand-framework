@@ -1,5 +1,5 @@
 {
-  "name": "united-we-stand",
+  "name": "@rudinmax87/united-we-stand",
   "version": "0.1.0",
   "description": "Repo-scoped AI workflow context framework — persists branch-aware specs and agent roles as markdown files.",
   "type": "module",
@@ -16,6 +16,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prepare:publish:github": "npm run build && node ./scripts/prepare-github-publish.mjs",
     "test": "vitest run",
     "test:e2e": "node ./tests/e2e-cli.mjs",
     "test:watch": "vitest",
@@ -44,6 +45,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
   },
   "repository": {
     "type": "git",

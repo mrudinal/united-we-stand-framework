@@ -1,220 +1,105 @@
-# united-we-stand
+# united-we-stand source repository
 
-Repo-scoped AI workflow framework that stores persistent markdown context in your repository.
+This repository is the source, build, test, and publish workspace for the `united-we-stand` package.
 
-## What It Installs
+It is maintainer documentation for this repository, not the installed end-user framework guide.
 
-`united-we-stand install` writes:
+The runtime framework README that gets installed into target repositories is:
 
-- `AGENTS.md` (managed block)
-- `.github/copilot-instructions.md` (managed block)
-- `.united-we-stand/README.md`
-- `.united-we-stand/framework/**/*.md`
-- `.united-we-stand/steering/**/*.md`
-- `.united-we-stand/agents/**/*.md`
-- `.united-we-stand/playbooks/**/*.md`
+- [`.united-we-stand/README.md`](C:/Users/Max/Desktop/Frameworks/united-we-stand-framework/.united-we-stand/README.md)
 
-`united-we-stand branch-init "<idea>"` then creates:
+## What This Repository Contains
 
-- `.spec-driven/<sanitized-current-branch>/**`
-- `.spec-driven/.branch-routing.json` (branch-to-folder exception map, created when needed)
+- `src/`
+  - CLI entrypoint, commands, and library code
+- `.united-we-stand/`
+  - framework markdown assets that are installed into target repositories
+- `tests/`
+  - unit, integration, and built-CLI smoke coverage
+- `scripts/`
+  - maintainer scripts, including GitHub publish artifact preparation
+- `dist/`
+  - generated build output
 
-Runtime note:
-
-- `install --force` recreates `.united-we-stand/**` safely and does not modify `.spec-driven/**`.
-
-## Installation
-
-Install the published package globally:
-
-```bash
-npm install -g united-we-stand
-```
-
-Install from this source repository for local development/testing:
-
-```bash
-npm install
-npm run build
-npm install -g .
-```
-
-Requirements: Node.js 18+ and git.
-
-## Use In A Repository
-
-In the target git repository:
-
-```bash
-# install framework files in current git repo
-united-we-stand install
-
-# initialize branch memory for the current branch
-united-we-stand branch-init "Add JWT-based authentication"
-
-# initialize branch memory in detached HEAD with explicit branch name
-united-we-stand branch-init --branch feature/auth "Add JWT-based authentication"
-
-# recreate missing framework files and refresh managed blocks
-united-we-stand refresh
-
-# run health checks
-united-we-stand doctor
-
-# run branch health checks for explicit branch name
-united-we-stand doctor --branch feature/auth
-```
-
-`branch-init` requires framework files to already exist (run `install` first).
-If a new branch folder name collides with an existing `.spec-driven/<folder>`, `branch-init` will ask for confirmation or a different folder name in interactive mode.
-After `branch-init`, the branch remains in active initializer mode until `01-init.md` is completed enough to move forward explicitly.
-`doctor` validates file presence plus branch/runtime semantics, including status consistency, required sections, `state.json` alignment, and branch identity.
-
-Common options:
-
-- `--cwd <path>`
-- `--dry-run`
-- `branch-init --branch <name>` (override branch detection; useful in detached HEAD)
-- `doctor --branch <name>` (check branch memory for explicit branch name)
-- `install --force` (overwrite installed framework files)
-
-## Recommended Repository Tree
+## Repository Layout
 
 ```text
 repo-root/
-|-- AGENTS.md
-|-- README.md
-|-- .github/
-|   `-- copilot-instructions.md
+|-- src/
+|   |-- cli.tsx
+|   |-- index.tsx
+|   |-- commands/
+|   `-- lib/
+|-- tests/
+|-- scripts/
 |-- .united-we-stand/
-|   |-- README.md
-|   |-- framework/
-|   |   |-- 00-index.md
-|   |   |-- 01-core-rules.md
-|   |   |-- 02-state-model.md
-|   |   |-- 03-stage-lifecycle.md
-|   |   |-- 04-command-routing.md
-|   |   |-- 05-conflict-resolution.md
-|   |   |-- 06-spec-writing-standard.md
-|   |   |-- 07-definition-of-done.md
-|   |   |-- 08-skip-force-policy.md
-|   |   |-- 09-traceability-model.md
-|   |   |-- 10-review-model.md
-|   |   |-- 11-glossary.md
-|   |   `-- profiles/
-|   |       |-- 00-profile-selection.md
-|   |       |-- generic.md
-|   |       |-- javascript-typescript.md
-|   |       |-- python.md
-|   |       |-- go.md
-|   |       |-- java.md
-|   |       |-- csharp.md
-|   |       |-- rust.md
-|   |       |-- php.md
-|   |       |-- ruby.md
-|   |       |-- web-app.md
-|   |       |-- api-service.md
-|   |       |-- cli-tool.md
-|   |       |-- library-package.md
-|   |       |-- mobile-app.md
-|   |       `-- data-pipeline.md
-|   |-- steering/
-|   |   |-- 00-index.md
-|   |   |-- product-steering.md
-|   |   |-- architecture-steering.md
-|   |   |-- coding-steering.md
-|   |   |-- testing-steering.md
-|   |   |-- security-steering.md
-|   |   |-- observability-steering.md
-|   |   |-- documentation-steering.md
-|   |   |-- ux-steering.md
-|   |   |-- data-steering.md
-|   |   `-- repo-conventions.md
-|   |-- agents/
-|   |   |-- 0-status-checker.md
-|   |   |-- 1-initializer.md
-|   |   |-- 2-planner.md
-|   |   |-- 3-designer.md
-|   |   |-- 4-implementer.md
-|   |   |-- 5-code-reviewer.md
-|   |   |-- 6-finalizer.md
-|   |   |-- debugger.md
-|   |   |-- documentation-writer.md
-|   |   |-- project-manager.md
-|   |   |-- refactorer.md
-|   |   |-- test-strategist.md
-|   |   |-- performance-reviewer.md
-|   |   |-- accessibility-reviewer.md
-|   |   |-- api-contract-writer.md
-|   |   |-- data-modeler.md
-|   |   |-- migration-planner.md
-|   |   |-- observability-reviewer.md
-|   |   `-- release-coordinator.md
-|   `-- playbooks/
-|       |-- 00-index.md
-|       |-- greenfield-feature.md
-|       |-- existing-feature-enhancement.md
-|       |-- bugfix.md
-|       |-- refactor.md
-|       |-- migration.md
-|       |-- security-hotfix.md
-|       |-- docs-only-change.md
-|       |-- data-model-change.md
-|       |-- api-change.md
-|       |-- ui-ux-change.md
-|       `-- release-preparation.md
-`-- .spec-driven/
-    |-- .branch-routing.json
-    `-- <sanitized-current-branch>/
-        |-- state.json
-        |-- 00-current-status.md
-        |-- 01-init.md
-        |-- 02-plan.md
-        |-- 03-design.md
-        |-- 04-implementation.md
-        |-- 05-code-review.md
-        |-- 06-finalization.md
-        |-- 07-decisions.md
-        |-- 08-traceability.md
-        |-- 09-risks-issues.md
-        |-- 10-test-strategy.md
-        |-- 11-change-log.md
-        |-- 12-handoff.md
-        |-- 13-retrospective.md
-        |-- modules/
-        |   `-- example-module.md
-        |-- api/
-        |   |-- contracts.md
-        |   |-- endpoints.md
-        |   `-- auth-boundaries.md
-        |-- data/
-        |   |-- schema-notes.md
-        |   |-- migrations.md
-        |   `-- data-boundaries.md
-        `-- ux/
-            |-- user-flows.md
-            |-- screen-states.md
-            `-- copy-notes.md
+|-- dist/
+|-- package.json
+|-- package-lock.json
+`-- README.md
 ```
 
-## Managed Block Behavior
+## What The Package Exports
 
-`AGENTS.md` and `.github/copilot-instructions.md` are maintained with markers:
+The package installs a global CLI named:
 
-```markdown
-<!-- united-we-stand:start -->
-...managed content...
-<!-- united-we-stand:end -->
+- `united-we-stand`
+
+The built package ships:
+
+- `dist/**`
+- `.united-we-stand/**`
+- `README.md`
+- `LICENSE`
+
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
-Rules:
+Build the package:
 
-- Missing file: created.
-- Existing file with no marker: block appended.
-- Existing file with marker: only marker block replaced.
-- Content outside marker block is preserved.
+```bash
+npm run build
+```
 
-## Development
+Run unit/integration tests:
+
+```bash
+npm test
+```
+
+Run built-CLI smoke tests:
+
+```bash
+npm run test:e2e
+```
+
+## Source Of Truth Areas
+
+- framework runtime assets: `.united-we-stand/**`
+- CLI behavior: `src/commands/**` and `src/lib/**`
+- package metadata: `package.json`
+- publish preparation for GitHub Packages: `scripts/prepare-github-publish.mjs`
+
+## Publish Targets
+
+This repository is prepared for two private user-scoped publish targets:
+
+- private npm package: `@rudinmax87/united-we-stand`
+- private GitHub Packages package: `@mrudinal/united-we-stand`
+
+Because the required scopes are different, the repository uses:
+
+- the root `package.json` for npm publishing
+- a generated `.publish/github/package.json` artifact for GitHub Packages publishing
+
+## Export / Publish This Repository
+
+### 1. Validate before publishing
 
 ```bash
 npm install
@@ -222,6 +107,59 @@ npm run build
 npm test
 npm run test:e2e
 ```
+
+### 2. Publish to private npm
+
+The root package is configured for:
+
+- package name: `@rudinmax87/united-we-stand`
+- restricted access by default
+
+Publish steps:
+
+```bash
+npm login
+npm publish
+```
+
+### 3. Publish to private GitHub Packages
+
+Prepare the GitHub-scoped artifact:
+
+```bash
+npm run prepare:publish:github
+```
+
+That creates:
+
+- `.publish/github/package.json`
+- `.publish/github/dist/**`
+- `.publish/github/.united-we-stand/**`
+
+Then publish from that generated folder:
+
+```bash
+cd .publish/github
+npm publish
+```
+
+The generated GitHub Packages artifact uses:
+
+- package name: `@mrudinal/united-we-stand`
+- registry: `https://npm.pkg.github.com`
+
+## End-User Documentation
+
+If you need the installed user-facing documentation, read:
+
+- [`.united-we-stand/README.md`](C:/Users/Max/Desktop/Frameworks/united-we-stand-framework/.united-we-stand/README.md)
+
+That file explains:
+
+- how users install the package
+- how they run `install`, `branch-init`, `doctor`, and `refresh`
+- framework stages and standalone agents
+- runtime branch-memory layout inside their repositories
 
 ## License
 
