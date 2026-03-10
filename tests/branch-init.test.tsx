@@ -91,7 +91,7 @@ describe('init command (branch spec setup)', () => {
         expect(initFileContent).toContain('<!-- united-we-stand:captured-idea:end -->');
     });
 
-    it('keeps initializer as current stage and recommends 2-planner next', async () => {
+    it('keeps initializer active until the initializer content is completed', async () => {
         await runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
@@ -105,8 +105,8 @@ describe('init command (branch spec setup)', () => {
         expect(overviewFileContent).toContain('| Current stage | 1-initializer |');
         expect(overviewFileContent).toContain('| Completed steps | none |');
         expect(overviewFileContent).toContain('| Incompleted stages | none |');
-        expect(overviewFileContent).toContain('| Next recommended step | 2-planner |');
-        expect(overviewFileContent).toContain('| Status note | Initialization is complete. Advance explicitly when ready to move to planning. |');
+        expect(overviewFileContent).toContain('| Next recommended step | 1-initializer |');
+        expect(overviewFileContent).toContain('| Status note | Initializer is active. Capture scope, assumptions, open questions, and success criteria before moving to planning. |');
     });
 
     it('writes machine-readable runtime state.json', async () => {
@@ -121,12 +121,48 @@ describe('init command (branch spec setup)', () => {
         const stateContent = readFileSync(join(specDirectory, 'state.json'), 'utf-8');
         const parsedState = JSON.parse(stateContent) as Record<string, unknown>;
 
+        expect(parsedState.branchName).toBe(currentBranch);
+        expect(parsedState.sanitizedBranchName).toBe(sanitizeBranchName(currentBranch));
+        expect(parsedState.branchMemoryFolder).toBe(sanitizeBranchName(currentBranch));
         expect(parsedState.currentStage).toBe('1-initializer');
-        expect(parsedState.nextRecommendedStep).toBe('2-planner');
+        expect(parsedState.nextRecommendedStep).toBe('1-initializer');
         expect(parsedState.initialized).toBe(true);
         expect(parsedState.finalized).toBe(false);
         expect(Array.isArray(parsedState.completedSteps)).toBe(true);
         expect(Array.isArray(parsedState.incompletedStages)).toBe(true);
+    });
+
+    it('records branch identity in state.json for routing exceptions', async () => {
+        const routingFilePath = join(tempRepoDirectory, '.spec-driven', '.branch-routing.json');
+        mkdirSync(join(tempRepoDirectory, '.spec-driven'), { recursive: true });
+        writeFileSync(
+            routingFilePath,
+            JSON.stringify({
+                version: 1,
+                mappings: {
+                    'feature/exception-branch': 'custom-memory-folder',
+                },
+                updatedAt: new Date().toISOString(),
+            }, null, 2),
+            'utf-8',
+        );
+
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'feature/exception-branch',
+            ideaText: 'exception mapping test',
+        });
+
+        const stateContent = readFileSync(
+            join(tempRepoDirectory, '.spec-driven', 'custom-memory-folder', 'state.json'),
+            'utf-8',
+        );
+        const parsedState = JSON.parse(stateContent) as Record<string, unknown>;
+
+        expect(parsedState.branchName).toBe('feature/exception-branch');
+        expect(parsedState.sanitizedBranchName).toBe('feature-exception-branch');
+        expect(parsedState.branchMemoryFolder).toBe('custom-memory-folder');
     });
 
     it('uses default idea text if none provided', async () => {

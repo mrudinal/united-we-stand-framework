@@ -3,7 +3,7 @@
  *
  * Detects the current git branch, creates the branch memory folder with all
  * spec files, saves the user's idea into 01-init.md, and updates
- * 00-current-status.md with the "initialized" stage.
+ * 00-current-status.md to reflect that initializer work is active.
  */
 
 import { join } from 'node:path';
@@ -34,6 +34,7 @@ import {
 } from '../lib/templates.js';
 import {
     buildInitializedBranchRuntimeState,
+    parseBranchRuntimeState,
     serializeBranchRuntimeState,
 } from '../lib/runtime-state.js';
 
@@ -88,15 +89,35 @@ function parseCurrentBranchFromStatus(statusContent: string): string | null {
     return null;
 }
 
-function isSpecFolderAlreadyLinkedToBranch(specFolderPath: string, branchName: string): boolean {
+function readLinkedBranchIdentity(specFolderPath: string): { branchName: string | null; branchMemoryFolder: string | null } {
+    const runtimeStatePath = join(specFolderPath, 'state.json');
+    const runtimeStateContent = readFileOrNull(runtimeStatePath);
+    const parsedRuntimeState = runtimeStateContent ? parseBranchRuntimeState(runtimeStateContent) : null;
+    if (parsedRuntimeState) {
+        return {
+            branchName: parsedRuntimeState.branchName,
+            branchMemoryFolder: parsedRuntimeState.branchMemoryFolder,
+        };
+    }
+
     const statusPath = join(specFolderPath, '00-current-status.md');
     const statusContent = readFileOrNull(statusPath);
     if (!statusContent) {
-        return false;
+        return {
+            branchName: null,
+            branchMemoryFolder: null,
+        };
     }
 
-    const linkedBranchName = parseCurrentBranchFromStatus(statusContent);
-    return linkedBranchName === branchName;
+    return {
+        branchName: parseCurrentBranchFromStatus(statusContent),
+        branchMemoryFolder: null,
+    };
+}
+
+function isSpecFolderAlreadyLinkedToBranch(specFolderPath: string, branchName: string): boolean {
+    const linkedBranchIdentity = readLinkedBranchIdentity(specFolderPath);
+    return linkedBranchIdentity.branchName === branchName;
 }
 
 const REUSE_EXISTING_FOLDER_TOKEN = '__REUSE_EXISTING_FOLDER__';
@@ -260,8 +281,8 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
         '1-initializer',
         'none',
         'none',
-        '2-planner',
-        'Initialization is complete. Advance explicitly when ready to move to planning.',
+        '1-initializer',
+        'Initializer is active. Capture scope, assumptions, open questions, and success criteria before moving to planning.',
     );
     const updatedOverviewContent = upsertManagedBlock(existingOverviewContent, overviewBlockContent);
 
@@ -271,7 +292,11 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
     logger.updated(overviewFilePath);
 
     const runtimeStatePath = join(specDrivenDirectory, 'state.json');
-    const initializedRuntimeState = buildInitializedBranchRuntimeState();
+    const initializedRuntimeState = buildInitializedBranchRuntimeState({
+        branchName: currentBranch,
+        sanitizedBranchName,
+        branchMemoryFolder: branchMemoryFolderName,
+    });
     if (!isDryRun) {
         writeFileWithDirectories(
             runtimeStatePath,

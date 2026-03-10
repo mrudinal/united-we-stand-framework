@@ -13,6 +13,7 @@ import { hasManagedBlock } from '../lib/markers.js';
 import { createLogger } from '../lib/logger.js';
 import { readBranchRoutingMap, resolveBranchMemoryFolderName } from '../lib/branch-routing.js';
 import {
+    type BranchRuntimeState,
     parseBranchRuntimeState,
     validateBranchRuntimeState,
 } from '../lib/runtime-state.js';
@@ -100,6 +101,15 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
         '## Recommended next actions',
         '## Documentation updates performed',
     ],
+};
+
+const STAGE_FILE_TO_STAGE_NAME: Record<string, string> = {
+    '01-init.md': '1-initializer',
+    '02-plan.md': '2-planner',
+    '03-design.md': '3-designer',
+    '04-implementation.md': '4-implementer',
+    '05-code-review.md': '5-code-reviewer',
+    '06-finalization.md': '6-finalizer',
 };
 
 function escapeRegExpText(rawText: string): string {
@@ -215,6 +225,42 @@ function areStageListsEquivalent(left: string[], right: string[]): boolean {
     const normalizedLeft = Array.from(new Set(left)).sort();
     const normalizedRight = Array.from(new Set(right)).sort();
     return JSON.stringify(normalizedLeft) === JSON.stringify(normalizedRight);
+}
+
+function getStagesRequiringSubstantiveContent(snapshot: StatusSnapshot): Set<string> {
+    const requiredStages = new Set<string>([
+        ...snapshot.completedSteps,
+        ...snapshot.incompletedStages,
+    ]);
+
+    // An anchored current stage only requires substantive content once it is
+    // complete enough to recommend a different next step.
+    if (snapshot.nextRecommendedStep !== snapshot.currentStage) {
+        requiredStages.add(snapshot.currentStage);
+    }
+
+    return requiredStages;
+}
+
+function validateBranchIdentity(
+    runtimeState: BranchRuntimeState,
+    expectedBranchName: string,
+    expectedSanitizedBranchName: string,
+    expectedBranchMemoryFolder: string,
+): string[] {
+    const identityErrors: string[] = [];
+
+    if (runtimeState.branchName !== expectedBranchName) {
+        identityErrors.push(`branchName is "${runtimeState.branchName}" instead of "${expectedBranchName}".`);
+    }
+    if (runtimeState.sanitizedBranchName !== expectedSanitizedBranchName) {
+        identityErrors.push(`sanitizedBranchName is "${runtimeState.sanitizedBranchName}" instead of "${expectedSanitizedBranchName}".`);
+    }
+    if (runtimeState.branchMemoryFolder !== expectedBranchMemoryFolder) {
+        identityErrors.push(`branchMemoryFolder is "${runtimeState.branchMemoryFolder}" instead of "${expectedBranchMemoryFolder}".`);
+    }
+
+    return identityErrors;
 }
 
 function isSectionContentPlaceholderOnly(markdownContent: string, heading: string): boolean {
@@ -442,9 +488,25 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                                 runtimeStateErrors.length > 0 ? runtimeStateErrors.join(' | ') : undefined,
                             );
 
+                            const identityErrors = validateBranchIdentity(
+                                parsedRuntimeState,
+                                selectedBranch,
+                                sanitizedBranch,
+                                branchMemoryFolderName,
+                            );
+                            reportCheck(
+                                '  state.json branch identity matches resolved branch context',
+                                identityErrors.length === 0,
+                                'branch',
+                                identityErrors.length > 0 ? identityErrors.join(' | ') : undefined,
+                            );
+
                             if (parsedStatus.snapshot) {
                                 const statusAndStateMatch = (
-                                    parsedStatus.snapshot.currentStage === parsedRuntimeState.currentStage
+                                    parsedStatus.snapshot.currentBranch === parsedRuntimeState.branchName
+                                    && branchMemoryFolderName === parsedRuntimeState.branchMemoryFolder
+                                    && sanitizedBranch === parsedRuntimeState.sanitizedBranchName
+                                    && parsedStatus.snapshot.currentStage === parsedRuntimeState.currentStage
                                     && areStageListsEquivalent(parsedStatus.snapshot.completedSteps, parsedRuntimeState.completedSteps)
                                     && areStageListsEquivalent(parsedStatus.snapshot.incompletedStages, parsedRuntimeState.incompletedStages)
                                     && parsedStatus.snapshot.nextRecommendedStep === parsedRuntimeState.nextRecommendedStep
@@ -460,6 +522,10 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                             }
                         }
                     }
+
+                    const stagesRequiringSubstantiveContent = parsedStatus.snapshot
+                        ? getStagesRequiringSubstantiveContent(parsedStatus.snapshot)
+                        : new Set<string>();
 
                     for (const [stageFileName, requiredHeadings] of Object.entries(REQUIRED_STAGE_SECTIONS)) {
                         const stageFilePath = join(specDrivenDirectory, stageFileName);
@@ -479,7 +545,8 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                             missingHeadings.length > 0 ? `Missing: ${missingHeadings.join(', ')}` : undefined,
                         );
 
-                        if (missingHeadings.length === 0) {
+                        const stageName = STAGE_FILE_TO_STAGE_NAME[stageFileName];
+                        if (missingHeadings.length === 0 && stageName && stagesRequiringSubstantiveContent.has(stageName)) {
                             const placeholderHeadings = requiredHeadings.filter(
                                 (requiredHeading) => isSectionContentPlaceholderOnly(stageFileContent, requiredHeading),
                             );

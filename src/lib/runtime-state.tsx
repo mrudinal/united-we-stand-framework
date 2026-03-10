@@ -1,4 +1,7 @@
 export interface BranchRuntimeState {
+    branchName: string;
+    sanitizedBranchName: string;
+    branchMemoryFolder: string;
     currentStage: string;
     completedSteps: string[];
     incompletedStages: string[];
@@ -9,12 +12,23 @@ export interface BranchRuntimeState {
     finalized: boolean;
 }
 
-export function buildInitializedBranchRuntimeState(): BranchRuntimeState {
+export interface BuildInitializedBranchRuntimeStateOptions {
+    branchName: string;
+    sanitizedBranchName: string;
+    branchMemoryFolder: string;
+}
+
+export function buildInitializedBranchRuntimeState(
+    options: BuildInitializedBranchRuntimeStateOptions,
+): BranchRuntimeState {
     return {
+        branchName: options.branchName,
+        sanitizedBranchName: options.sanitizedBranchName,
+        branchMemoryFolder: options.branchMemoryFolder,
         currentStage: '1-initializer',
         completedSteps: [],
         incompletedStages: [],
-        nextRecommendedStep: '2-planner',
+        nextRecommendedStep: '1-initializer',
         lastUpdatedBy: '1-initializer',
         lastUpdatedAt: new Date().toISOString(),
         initialized: true,
@@ -30,7 +44,10 @@ export function parseBranchRuntimeState(rawContent: string): BranchRuntimeState 
         }
 
         if (
-            typeof parsed.currentStage !== 'string'
+            typeof parsed.branchName !== 'string'
+            || typeof parsed.sanitizedBranchName !== 'string'
+            || typeof parsed.branchMemoryFolder !== 'string'
+            || typeof parsed.currentStage !== 'string'
             || !Array.isArray(parsed.completedSteps)
             || !Array.isArray(parsed.incompletedStages)
             || typeof parsed.nextRecommendedStep !== 'string'
@@ -43,6 +60,9 @@ export function parseBranchRuntimeState(rawContent: string): BranchRuntimeState 
         }
 
         return {
+            branchName: parsed.branchName,
+            sanitizedBranchName: parsed.sanitizedBranchName,
+            branchMemoryFolder: parsed.branchMemoryFolder,
             currentStage: parsed.currentStage,
             completedSteps: parsed.completedSteps.filter((value): value is string => typeof value === 'string'),
             incompletedStages: parsed.incompletedStages.filter((value): value is string => typeof value === 'string'),
@@ -64,6 +84,15 @@ export function serializeBranchRuntimeState(state: BranchRuntimeState): string {
 export function validateBranchRuntimeState(state: BranchRuntimeState): string[] {
     const validationErrors: string[] = [];
 
+    if (!state.branchName.trim()) {
+        validationErrors.push('branchName is empty.');
+    }
+    if (!state.sanitizedBranchName.trim()) {
+        validationErrors.push('sanitizedBranchName is empty.');
+    }
+    if (!state.branchMemoryFolder.trim()) {
+        validationErrors.push('branchMemoryFolder is empty.');
+    }
     if (!state.currentStage.trim()) {
         validationErrors.push('currentStage is empty.');
     }
@@ -75,6 +104,9 @@ export function validateBranchRuntimeState(state: BranchRuntimeState): string[] 
     }
     if (!state.lastUpdatedAt.trim() || Number.isNaN(Date.parse(state.lastUpdatedAt))) {
         validationErrors.push('lastUpdatedAt is not a valid ISO date.');
+    }
+    if (state.sanitizedBranchName !== state.sanitizedBranchName.toLowerCase()) {
+        validationErrors.push('sanitizedBranchName must be lowercase.');
     }
 
     const completedSet = new Set(state.completedSteps);
