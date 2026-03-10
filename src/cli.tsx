@@ -59,15 +59,18 @@ program
 
 program
     .command('branch-init')
-    .description('Initialize the current branch with an idea description and scaffold spec files.')
+    .description('Initialize branch memory under .spec-driven/<sanitized-branch> with an idea description.')
     .argument('[idea]', 'short description of the branch goal / idea')
     .option('--cwd <path>', 'run as if started in <path>')
     .option('--dry-run', 'show what would be done without writing files')
+    .option('--branch <name>', 'explicit branch name override (useful in detached HEAD)')
     .action(async function (this: Command, ideaText: string) {
+        const globalOptions = this.optsWithGlobals();
         await runBranchInitCommand({
             workingDirectory: resolveWorkingDirectory(this),
             isDryRun: isDryRunEnabled(this),
             ideaText,
+            branchNameOverride: globalOptions.branch,
         });
     });
 
@@ -92,10 +95,13 @@ program
     .description('Check repository health and report missing files.')
     .option('--cwd <path>', 'run as if started in <path>')
     .option('--dry-run', 'show what would be done without writing files')
+    .option('--branch <name>', 'inspect branch memory for the provided branch name')
     .action(function (this: Command) {
+        const globalOptions = this.optsWithGlobals();
         runDoctorCommand({
             workingDirectory: resolveWorkingDirectory(this),
             isDryRun: isDryRunEnabled(this),
+            branchNameOverride: globalOptions.branch,
         });
     });
 

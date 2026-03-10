@@ -11,7 +11,7 @@ This file is the canonical source for global framework invariants.
    Latest confirmed user intent has highest authority. When intent changes direction, update relevant specs first, then update code if role allows.
 
 3. **Branch-aware operation**  
-   All framework work is branch-aware and uses `.united-we-stand/spec-driven/<sanitized-current-branch>/`.
+   All framework work is branch-aware and uses `.spec-driven/<sanitized-current-branch>/`.
 
 4. **Persistent context over chat memory**  
    Persisted framework files outrank remembered chat state when conflict exists.
@@ -36,6 +36,12 @@ This file is the canonical source for global framework invariants.
 
 11. **Deterministic routing**  
     Natural-language command routing must follow `04-command-routing.md`.
+
+12. **Runtime memory isolation**  
+    Treat `.united-we-stand/` as installed framework content. Runtime branch memory writes must target `.spec-driven/` only.
+
+13. **Detached HEAD safety**  
+    Never attach branch memory to `head`. If branch detection is detached/ambiguous, require an explicit branch name before writing branch memory.
 
 ## Stage Mandatory Set
 
@@ -82,7 +88,7 @@ Example: `feature/New Checkout UI` -> `feature-new-checkout-ui`
 ## Missing Files and Folder Behavior
 
 - If branch folder does not exist yet, do not create it during passive inspection.
-- Branch folder is normally created by `1-initializer` or explicit branch-init action.
+- Branch folder under `.spec-driven/` is normally created by `1-initializer` or explicit branch-init action.
 - If folder exists and stage file is missing, corresponding stage may create it when run.
 - If `00-current-status.md` is missing in an existing branch folder, reconstruct conservatively from available stage files and report reconstruction.
 - If files are malformed or contradictory, preserve content and repair conservatively.

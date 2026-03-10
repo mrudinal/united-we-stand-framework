@@ -1,6 +1,6 @@
-﻿# .united-we-stand
+# .united-we-stand
 
-This folder contains the markdown framework installed by `united-we-stand`.
+This folder contains installed framework guidance for `united-we-stand`.
 
 ## Layers
 
@@ -8,7 +8,14 @@ This folder contains the markdown framework installed by `united-we-stand`.
 - `steering/`: repository-specific steering
 - `agents/`: numbered framework agents plus standalone specialists
 - `playbooks/`: scenario-specific routing guides
-- `spec-driven/<sanitized-branch>/`: branch memory created by `branch-init`
+
+## Runtime Branch Memory
+
+Runtime branch memory is intentionally stored outside this folder at:
+
+- `.spec-driven/<sanitized-branch>/`
+
+This design keeps `.united-we-stand/` safely reinstallable with `install --force`.
 
 ## Branch Files
 

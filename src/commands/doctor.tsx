@@ -6,7 +6,7 @@
  */
 
 import { join } from 'node:path';
-import { isGitRepository, getCurrentBranchName } from '../lib/git.js';
+import { isGitRepository, tryGetCurrentBranchName } from '../lib/git.js';
 import { sanitizeBranchName } from '../lib/branch.js';
 import { doesFileExist, readFileOrNull } from '../lib/fs.js';
 import { hasManagedBlock } from '../lib/markers.js';
@@ -24,6 +24,7 @@ import {
 export interface DoctorCommandOptions {
     workingDirectory: string;
     isDryRun: boolean;
+    branchNameOverride?: string;
 }
 
 /**
@@ -32,7 +33,7 @@ export interface DoctorCommandOptions {
 export function runDoctorCommand(options: DoctorCommandOptions): void {
     // Doctor never writes files; always uses non-dry-run logger for display.
     const logger = createLogger(false);
-    const { workingDirectory } = options;
+    const { workingDirectory, branchNameOverride } = options;
 
     let frameworkHealthy = true;
     let branchHealthy = true;
@@ -137,18 +138,48 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     }
 
     // === Branch-level checks (created by `branch-init`) ===
-    const currentBranch = getCurrentBranchName(workingDirectory);
-    const sanitizedBranch = sanitizeBranchName(currentBranch);
-    const specDrivenDirectory = join(workingDirectory, '.united-we-stand', 'spec-driven', sanitizedBranch);
+    const selectedBranch = branchNameOverride && branchNameOverride.trim().length > 0
+        ? branchNameOverride.trim()
+        : tryGetCurrentBranchName(workingDirectory);
 
     console.log('');
-    logger.info(`Branch spec files - ${currentBranch} (${sanitizedBranch}):`);
-    const specDirectoryExists = doesFileExist(specDrivenDirectory);
-    reportCheck(`spec-driven/${sanitizedBranch}/ directory exists`, specDirectoryExists, 'branch');
+    if (!selectedBranch) {
+        reportCheck(
+            'Current branch is attached (not detached HEAD)',
+            false,
+            'branch',
+            'Detached HEAD detected. Use --branch <name> to run branch checks.',
+        );
+        logger.warn('Skipping branch-file checks because no deterministic branch name is available.');
+    } else {
+        if (selectedBranch.toUpperCase() === 'HEAD') {
+            reportCheck(
+                'Branch name is not reserved value HEAD',
+                false,
+                'branch',
+                'Use --branch <name> with a real branch name.',
+            );
+        } else {
+            const sanitizedBranch = sanitizeBranchName(selectedBranch);
+            if (!sanitizedBranch) {
+                reportCheck(
+                    'Branch name sanitizes to a valid folder name',
+                    false,
+                    'branch',
+                    `Invalid branch value: "${selectedBranch}"`,
+                );
+            } else {
+                const specDrivenDirectory = join(workingDirectory, '.spec-driven', sanitizedBranch);
+                logger.info(`Branch spec files - ${selectedBranch} (${sanitizedBranch}):`);
+                const specDirectoryExists = doesFileExist(specDrivenDirectory);
+                reportCheck(`.spec-driven/${sanitizedBranch}/ directory exists`, specDirectoryExists, 'branch');
 
-    if (specDirectoryExists) {
-        for (const specRelativePath of listBranchSpecRelativePaths()) {
-            reportCheck(`  ${specRelativePath}`, doesFileExist(join(specDrivenDirectory, specRelativePath)), 'branch');
+                if (specDirectoryExists) {
+                    for (const specRelativePath of listBranchSpecRelativePaths()) {
+                        reportCheck(`  ${specRelativePath}`, doesFileExist(join(specDrivenDirectory, specRelativePath)), 'branch');
+                    }
+                }
+            }
         }
     }
 
@@ -159,6 +190,6 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     } else if (!frameworkHealthy) {
         logger.warn('Framework files missing. Run `united-we-stand install` to set up.');
     } else {
-        logger.warn(`Branch "${currentBranch}" not initialized. Run \`united-we-stand branch-init "<idea>"\` to set up.`);
+        logger.warn('Branch memory not initialized. Run `united-we-stand branch-init "<idea>"` to set up.');
     }
 }

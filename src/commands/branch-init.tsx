@@ -1,7 +1,7 @@
 /**
  * Init command: initializes the current branch with an idea description.
  *
- * Detects the current git branch, creates the spec-driven folder with all
+ * Detects the current git branch, creates the branch memory folder with all
  * spec files, saves the user's idea into 01-init.md, and updates
  * 00-current-status.md with the "initialized" stage.
  */
@@ -9,7 +9,13 @@
 import { join } from 'node:path';
 import { isGitRepository, getCurrentBranchName } from '../lib/git.js';
 import { sanitizeBranchName } from '../lib/branch.js';
-import { ensureDirectoryExists, readFileOrNull, writeFileWithDirectories, writeFileIfMissing } from '../lib/fs.js';
+import {
+    ensureDirectoryExists,
+    readFileOrNull,
+    writeFileWithDirectories,
+    writeFileIfMissing,
+    doesFileExist,
+} from '../lib/fs.js';
 import { upsertManagedBlock } from '../lib/markers.js';
 import { createLogger } from '../lib/logger.js';
 import {
@@ -24,6 +30,7 @@ export interface InitCommandOptions {
     workingDirectory: string;
     isDryRun: boolean;
     ideaText?: string;
+    branchNameOverride?: string;
 }
 
 const IDEA_MARKER_START = '<!-- united-we-stand:captured-idea:start -->';
@@ -57,7 +64,12 @@ function escapeRegExpChars(rawString: string): string {
 
 export function runBranchInitCommand(options: InitCommandOptions): void {
     const logger = createLogger(options.isDryRun);
-    const { workingDirectory, isDryRun, ideaText } = options;
+    const {
+        workingDirectory,
+        isDryRun,
+        ideaText,
+        branchNameOverride,
+    } = options;
 
     if (!isGitRepository(workingDirectory)) {
         logger.error(`Not a git repository: ${workingDirectory}`);
@@ -66,13 +78,47 @@ export function runBranchInitCommand(options: InitCommandOptions): void {
         return;
     }
 
+    const frameworkIndexPath = join(workingDirectory, '.united-we-stand', 'framework', '00-index.md');
+    if (!doesFileExist(frameworkIndexPath)) {
+        logger.error('Framework files are not installed in this repository.');
+        logger.info('Run `united-we-stand install` first, then run `united-we-stand branch-init "<idea>"`.');
+        process.exitCode = 1;
+        return;
+    }
+
     const safeIdeaText = ideaText || 'Work on the current branch';
-    const currentBranch = getCurrentBranchName(workingDirectory);
+    let currentBranch: string;
+    if (branchNameOverride && branchNameOverride.trim().length > 0) {
+        currentBranch = branchNameOverride.trim();
+    } else {
+        try {
+            currentBranch = getCurrentBranchName(workingDirectory);
+        } catch {
+            logger.error('Unable to determine branch name because repository is in detached HEAD state.');
+            logger.info('Checkout a named branch and retry, or run `united-we-stand branch-init --branch <name> "<idea>"`.');
+            process.exitCode = 1;
+            return;
+        }
+    }
+
+    if (currentBranch.toUpperCase() === 'HEAD') {
+        logger.error('Refusing to initialize branch memory for reserved branch name "HEAD".');
+        logger.info('Use a real branch name or provide `--branch <name>` with a non-HEAD value.');
+        process.exitCode = 1;
+        return;
+    }
+
     const sanitizedBranch = sanitizeBranchName(currentBranch);
+    if (!sanitizedBranch) {
+        logger.error(`Unable to sanitize branch name: "${currentBranch}"`);
+        logger.info('Use a branch name that contains letters or numbers, or provide `--branch <name>`.');
+        process.exitCode = 1;
+        return;
+    }
 
     logger.info(`Branch: ${currentBranch} -> ${sanitizedBranch}`);
 
-    const specDrivenDirectory = join(workingDirectory, '.united-we-stand', 'spec-driven', sanitizedBranch);
+    const specDrivenDirectory = join(workingDirectory, '.spec-driven', sanitizedBranch);
     ensureDirectoryExists(specDrivenDirectory, isDryRun, logger);
 
     for (const specFile of loadBranchSpecFiles(currentBranch, sanitizedBranch)) {

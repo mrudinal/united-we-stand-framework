@@ -25,7 +25,7 @@ Then read:
 - selected profile files under `profiles/`
 - repo steering docs under `../steering/`
 - role contracts under `../agents/`
-- branch files under `../spec-driven/<sanitized-current-branch>/`
+- branch files under `.spec-driven/<sanitized-current-branch>/`
 
 ## Canonical Ownership Map
 
@@ -44,6 +44,8 @@ Then read:
 ## Design Goals
 
 - Preserve durable branch memory.
+- Keep `.united-we-stand/` reinstallable and template-only during runtime.
+- Keep runtime branch memory isolated under `.spec-driven/`.
 - Keep rules deterministic across chats and tools.
 - Avoid contradictory duplication.
 - Keep language-specific implementation guidance in profiles.

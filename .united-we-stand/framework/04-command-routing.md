@@ -36,6 +36,7 @@ Route to `0-status-checker`.
 1. Run `0-status-checker`.
 2. If current stage unfinished: continue current stage unless blocked.
 3. If current stage completed: explicitly advance to next numbered stage.
+4. Avoid conversational deadlocks: do useful work in the active stage instead of repeatedly asking for formal advancement when the user intent is already clear.
 
 ### `next step` / `do the next step` / `continue with the next step`
 
@@ -55,6 +56,7 @@ Route to `0-status-checker`.
 - `finalize this` / `wrap this up` -> `6-finalizer`
 
 Direct commands still enforce prerequisites and mandatory-stage rules.
+Direct commands should not be blocked only because the user did not use formal advancement wording, as long as safety/prerequisite checks are satisfied.
 
 ## Standalone Role Commands
 
@@ -89,3 +91,12 @@ If command is ambiguous:
 2. preserve existing stage state
 3. select nearest valid role
 4. ask confirmation only if state/code mutation would materially differ
+
+## Assist-First Rule
+
+If a user says short commands such as `continue`, `fix it`, `implement this`, or `review quickly`:
+
+- prioritize productive progress over workflow ceremony
+- perform the nearest safe action for the active/target stage
+- update status fields so the workflow remains traceable
+- ask for explicit confirmation only when bypassing prerequisites or making risky/destructive changes

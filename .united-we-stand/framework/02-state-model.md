@@ -1,6 +1,6 @@
 # State Model
 
-`00-current-status.md` is the canonical branch status file.
+`00-current-status.md` is the canonical branch status file, stored under `.spec-driven/<sanitized-current-branch>/`.
 
 ## Required Fields
 

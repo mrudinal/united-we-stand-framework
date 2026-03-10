@@ -84,8 +84,8 @@ describe('install command', () => {
 
     it('does NOT create branch spec-driven files', async () => {
         await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
-        const specDrivenDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven');
-        expect(existsSync(specDrivenDirectory)).toBe(false);
+        const runtimeSpecDirectory = join(tempRepoDirectory, '.spec-driven');
+        expect(existsSync(runtimeSpecDirectory)).toBe(false);
     });
 
     it('is idempotent — running logic twice produces same output', async () => {

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
 import { runBranchInitCommand } from '../src/commands/branch-init.js';
+import { runInstallCommand } from '../src/commands/install.js';
 import { getCurrentBranchName } from '../src/lib/git.js';
 import { sanitizeBranchName } from '../src/lib/branch.js';
 
@@ -20,15 +21,18 @@ const originalConsoleError = console.error;
 describe('init command (branch spec setup)', () => {
     let tempRepoDirectory: string;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         tempRepoDirectory = createTempGitRepository();
         console.log = () => { };
         console.error = () => { };
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+        process.exitCode = 0;
     });
 
     afterEach(() => {
         console.log = originalConsoleLog;
         console.error = originalConsoleError;
+        process.exitCode = 0;
         rmSync(tempRepoDirectory, { recursive: true, force: true });
     });
 
@@ -41,7 +45,7 @@ describe('init command (branch spec setup)', () => {
 
         const currentBranch = getCurrentBranchName(tempRepoDirectory);
         const sanitizedBranch = sanitizeBranchName(currentBranch);
-        const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizedBranch);
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', sanitizedBranch);
 
         expect(existsSync(specDirectory)).toBe(true);
         expect(existsSync(join(specDirectory, '00-current-status.md'))).toBe(true);
@@ -78,7 +82,7 @@ describe('init command (branch spec setup)', () => {
         });
 
         const currentBranch = getCurrentBranchName(tempRepoDirectory);
-        const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizeBranchName(currentBranch));
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', sanitizeBranchName(currentBranch));
         const initFileContent = readFileSync(join(specDirectory, '01-init.md'), 'utf-8');
 
         expect(initFileContent).toContain('my super cool feature');
@@ -94,7 +98,7 @@ describe('init command (branch spec setup)', () => {
         });
 
         const currentBranch = getCurrentBranchName(tempRepoDirectory);
-        const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizeBranchName(currentBranch));
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', sanitizeBranchName(currentBranch));
         const overviewFileContent = readFileSync(join(specDirectory, '00-current-status.md'), 'utf-8');
 
         expect(overviewFileContent).toContain('| Current stage | 1-initializer |');
@@ -111,7 +115,7 @@ describe('init command (branch spec setup)', () => {
         });
 
         const currentBranch = getCurrentBranchName(tempRepoDirectory);
-        const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizeBranchName(currentBranch));
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', sanitizeBranchName(currentBranch));
         const initFileContent = readFileSync(join(specDirectory, '01-init.md'), 'utf-8');
 
         expect(initFileContent).toContain('Work on the current branch');
@@ -125,7 +129,54 @@ describe('init command (branch spec setup)', () => {
         });
 
         const currentBranch = getCurrentBranchName(tempRepoDirectory);
-        const specDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven', sanitizeBranchName(currentBranch));
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', sanitizeBranchName(currentBranch));
         expect(existsSync(specDirectory)).toBe(false);
+    });
+
+    it('fails safely in detached HEAD without --branch override', () => {
+        const commitHash = execSync('git rev-parse HEAD', { cwd: tempRepoDirectory, stdio: 'pipe', encoding: 'utf-8' }).trim();
+        execSync(`git checkout --detach ${commitHash}`, { cwd: tempRepoDirectory, stdio: 'pipe' });
+
+        runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            ideaText: 'detached flow',
+        });
+
+        expect(process.exitCode).toBe(1);
+        expect(existsSync(join(tempRepoDirectory, '.spec-driven', 'head'))).toBe(false);
+    });
+
+    it('allows detached HEAD when explicit --branch override is provided', () => {
+        const commitHash = execSync('git rev-parse HEAD', { cwd: tempRepoDirectory, stdio: 'pipe', encoding: 'utf-8' }).trim();
+        execSync(`git checkout --detach ${commitHash}`, { cwd: tempRepoDirectory, stdio: 'pipe' });
+
+        runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            ideaText: 'override flow',
+            branchNameOverride: 'feature/manual-override',
+        });
+
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'feature-manual-override');
+        expect(existsSync(specDirectory)).toBe(true);
+        expect(existsSync(join(specDirectory, '00-current-status.md'))).toBe(true);
+    });
+
+    it('requires install before branch-init to enforce protocol scaffolding', () => {
+        const rawRepoWithoutInstall = createTempGitRepository();
+        try {
+            runBranchInitCommand({
+                workingDirectory: rawRepoWithoutInstall,
+                isDryRun: false,
+                ideaText: 'should fail before install',
+            });
+
+            expect(process.exitCode).toBe(1);
+            expect(existsSync(join(rawRepoWithoutInstall, '.spec-driven'))).toBe(false);
+        } finally {
+            rmSync(rawRepoWithoutInstall, { recursive: true, force: true });
+            process.exitCode = 0;
+        }
     });
 });

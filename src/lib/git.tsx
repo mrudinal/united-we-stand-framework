@@ -26,18 +26,31 @@ export function isGitRepository(targetDirectory: string): boolean {
 
 /**
  * Returns the current git branch name for the given directory.
- * Falls back to "HEAD" when in a detached HEAD state.
+ * Returns null when the repository is in detached HEAD state or branch cannot be determined.
  */
-export function getCurrentBranchName(targetDirectory: string): string {
+export function tryGetCurrentBranchName(targetDirectory: string): string | null {
     try {
-        const branchName = execSync('git rev-parse --abbrev-ref HEAD', {
+        const symbolicRef = execSync('git symbolic-ref --quiet --short HEAD', {
             cwd: targetDirectory,
             stdio: 'pipe',
             encoding: 'utf-8',
         }).trim();
 
-        return branchName || 'HEAD';
+        return symbolicRef || null;
     } catch {
-        return 'HEAD';
+        return null;
     }
+}
+
+/**
+ * Returns the current git branch name for the given directory.
+ * Throws when the repository is in detached HEAD state.
+ */
+export function getCurrentBranchName(targetDirectory: string): string {
+    const branchName = tryGetCurrentBranchName(targetDirectory);
+    if (!branchName) {
+        throw new Error('Unable to determine current branch (detached HEAD).');
+    }
+
+    return branchName;
 }

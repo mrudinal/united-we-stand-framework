@@ -10,7 +10,7 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 4. Read `.united-we-stand/framework/profiles/00-profile-selection.md` and apply relevant profiles.
 5. Read `.united-we-stand/steering/00-index.md` and relevant steering docs.
 6. Read relevant role contracts in `.united-we-stand/agents/` and scenario guides in `.united-we-stand/playbooks/`.
-7. Read branch state under `.united-we-stand/spec-driven/<sanitized-current-branch>/` if present.
+7. Read branch state under `.spec-driven/<sanitized-current-branch>/` if present.
 
 ### Core Workflow Rules
 
@@ -20,8 +20,11 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - Keep specs and decisions updated when acting as framework stages.
 - Update `00-current-status.md` whenever workflow state changes.
 - Keep `Current stage` anchored until user explicitly advances or bypasses.
+- Avoid deadlocks: when user intent is clear (`continue`, `implement`, `fix`, `review`), take the nearest safe action and keep status traceability updated.
 - Do not assume missing stage files are completed.
 - Do not create branch state folders preemptively; `branch-init` or explicit user instruction should create them.
+- Runtime branch memory is writable under `.spec-driven/` only.
+- Treat `.united-we-stand/` as installed framework content (do not use it for runtime branch memory updates).
 - Use persistent files over chat memory when they conflict.
 
 Canonical source of these rules:
@@ -114,10 +117,10 @@ To keep this entrypoint stable and reusable, detailed rules are intentionally mo
   steering/    # repo-specific product/engineering steering
   agents/      # numbered framework stages + standalone specialists
   playbooks/   # scenario-specific workflow guides
-  spec-driven/
-    <sanitized-current-branch>/
-      00-current-status.md
-      01-init.md ... 06-finalization.md
-      07-decisions.md ... 13-retrospective.md
-      modules/ api/ data/ ux/
+.spec-driven/
+  <sanitized-current-branch>/
+    00-current-status.md
+    01-init.md ... 06-finalization.md
+    07-decisions.md ... 13-retrospective.md
+    modules/ api/ data/ ux/
 ```
