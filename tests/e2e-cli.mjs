@@ -14,6 +14,9 @@ if (!existsSync(builtCliPath)) {
     throw new Error('Built CLI not found at dist/cli.js. Run `npm run build` before `npm run test:e2e`.');
 }
 
+/**
+ * Runs a git command inside the temporary repository.
+ */
 function runGit(tempRepositoryPath, gitArguments) {
     execFileSync('git', gitArguments, {
         cwd: tempRepositoryPath,
@@ -22,6 +25,9 @@ function runGit(tempRepositoryPath, gitArguments) {
     });
 }
 
+/**
+ * Runs the built CLI and returns exit status plus combined output.
+ */
 function runCli(cliArguments) {
     const commandResult = spawnSync(process.execPath, [builtCliPath, ...cliArguments], {
         cwd: repositoryRoot,
@@ -35,6 +41,9 @@ function runCli(cliArguments) {
     };
 }
 
+/**
+ * Creates a committed temp repository with a deterministic `main` branch.
+ */
 function createTempGitRepository() {
     const tempRepositoryPath = mkdtempSync(join(tmpdir(), 'united-we-stand-e2e-'));
     writeFileSync(join(tempRepositoryPath, 'README.md'), '# temp repo\n', 'utf-8');
@@ -47,6 +56,9 @@ function createTempGitRepository() {
     return tempRepositoryPath;
 }
 
+/**
+ * Creates and cleans up a temp repository around a single scenario.
+ */
 function withTempRepository(runScenario) {
     const tempRepositoryPath = createTempGitRepository();
     try {
@@ -56,6 +68,9 @@ function withTempRepository(runScenario) {
     }
 }
 
+/**
+ * Asserts that a CLI command completed successfully.
+ */
 function expectSuccessfulCommand(commandResult, label) {
     assert.equal(
         commandResult.exitCode,
@@ -64,6 +79,9 @@ function expectSuccessfulCommand(commandResult, label) {
     );
 }
 
+/**
+ * Verifies the main install -> branch-init -> doctor flow against the built CLI.
+ */
 function scenarioHappyPathPassesDoctor() {
     withTempRepository((tempRepositoryPath) => {
         expectSuccessfulCommand(
@@ -89,6 +107,9 @@ function scenarioHappyPathPassesDoctor() {
     });
 }
 
+/**
+ * Verifies that doctor still flags placeholder-only content for completed stages.
+ */
 function scenarioDoctorFailsCompletedPlaceholderStage() {
     withTempRepository((tempRepositoryPath) => {
         expectSuccessfulCommand(
@@ -148,6 +169,9 @@ function scenarioDoctorFailsCompletedPlaceholderStage() {
     });
 }
 
+/**
+ * Verifies that collision protection blocks unsafe folder reuse in non-interactive mode.
+ */
 function scenarioCollisionFailsNonInteractiveReuse() {
     withTempRepository((tempRepositoryPath) => {
         expectSuccessfulCommand(

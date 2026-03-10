@@ -11,10 +11,16 @@ interface BranchRoutingPayload {
     updatedAt: string;
 }
 
+/**
+ * Returns the absolute path to the optional branch-routing map file.
+ */
 function getRoutingFilePath(workingDirectory: string): string {
     return join(workingDirectory, '.spec-driven', BRANCH_ROUTING_FILENAME);
 }
 
+/**
+ * Reads the branch-routing map and returns only valid string-to-string mappings.
+ */
 export function readBranchRoutingMap(workingDirectory: string): Record<string, string> {
     const filePath = getRoutingFilePath(workingDirectory);
     const rawContent = readFileOrNull(filePath);
@@ -40,6 +46,9 @@ export function readBranchRoutingMap(workingDirectory: string): Record<string, s
     }
 }
 
+/**
+ * Writes the branch-routing map with metadata for later branch-folder resolution.
+ */
 export function writeBranchRoutingMap(
     workingDirectory: string,
     mappings: Record<string, string>,
@@ -57,6 +66,9 @@ export function writeBranchRoutingMap(
     logger.updated(filePath);
 }
 
+/**
+ * Resolves the effective branch memory folder name for a branch.
+ */
 export function resolveBranchMemoryFolderName(
     branchName: string,
     defaultSanitizedFolderName: string,

@@ -8,6 +8,9 @@ import { runBranchInitCommand } from '../src/commands/branch-init.js';
 import { runDoctorCommand } from '../src/commands/doctor.js';
 import { serializeBranchRuntimeState } from '../src/lib/runtime-state.js';
 
+/**
+ * Creates an isolated git repository for doctor-command tests.
+ */
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-doctor-test-'));
     execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });
@@ -15,6 +18,9 @@ function createTempGitRepository(): string {
     return tempDirectory;
 }
 
+/**
+ * Builds minimal status markdown for doctor validation scenarios.
+ */
 function buildStatusMarkdown(
     currentStage: string,
     completedSteps: string,

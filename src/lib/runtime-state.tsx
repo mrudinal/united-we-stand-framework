@@ -18,6 +18,9 @@ export interface BuildInitializedBranchRuntimeStateOptions {
     branchMemoryFolder: string;
 }
 
+/**
+ * Builds the initial runtime state for a newly created branch memory folder.
+ */
 export function buildInitializedBranchRuntimeState(
     options: BuildInitializedBranchRuntimeStateOptions,
 ): BranchRuntimeState {
@@ -36,6 +39,9 @@ export function buildInitializedBranchRuntimeState(
     };
 }
 
+/**
+ * Parses a branch runtime state JSON document into a validated object shape.
+ */
 export function parseBranchRuntimeState(rawContent: string): BranchRuntimeState | null {
     try {
         const parsed = JSON.parse(rawContent) as Partial<BranchRuntimeState>;
@@ -77,10 +83,16 @@ export function parseBranchRuntimeState(rawContent: string): BranchRuntimeState 
     }
 }
 
+/**
+ * Serializes branch runtime state into stable JSON text with a trailing newline.
+ */
 export function serializeBranchRuntimeState(state: BranchRuntimeState): string {
     return `${JSON.stringify(state, null, 2)}\n`;
 }
 
+/**
+ * Validates required fields and semantic invariants for branch runtime state.
+ */
 export function validateBranchRuntimeState(state: BranchRuntimeState): string[] {
     const validationErrors: string[] = [];
 

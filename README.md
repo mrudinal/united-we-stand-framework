@@ -25,19 +25,31 @@ Runtime note:
 
 ## Installation
 
+Install the published package globally:
+
 ```bash
 npm install -g united-we-stand
 ```
 
+Install from this source repository for local development/testing:
+
+```bash
+npm install
+npm run build
+npm install -g .
+```
+
 Requirements: Node.js 18+ and git.
 
-## Usage
+## Use In A Repository
+
+In the target git repository:
 
 ```bash
 # install framework files in current git repo
 united-we-stand install
 
-# initialize branch memory
+# initialize branch memory for the current branch
 united-we-stand branch-init "Add JWT-based authentication"
 
 # initialize branch memory in detached HEAD with explicit branch name
@@ -55,7 +67,8 @@ united-we-stand doctor --branch feature/auth
 
 `branch-init` requires framework files to already exist (run `install` first).
 If a new branch folder name collides with an existing `.spec-driven/<folder>`, `branch-init` will ask for confirmation or a different folder name in interactive mode.
-`doctor` validates both file presence and branch/runtime semantics (status consistency, required sections, and `state.json` alignment).
+After `branch-init`, the branch remains in active initializer mode until `01-init.md` is completed enough to move forward explicitly.
+`doctor` validates file presence plus branch/runtime semantics, including status consistency, required sections, `state.json` alignment, and branch identity.
 
 Common options:
 
@@ -207,6 +220,7 @@ Rules:
 npm install
 npm run build
 npm test
+npm run test:e2e
 ```
 
 ## License

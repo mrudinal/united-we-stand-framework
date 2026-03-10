@@ -8,6 +8,9 @@ import { runInstallCommand } from '../src/commands/install.js';
 import { getCurrentBranchName } from '../src/lib/git.js';
 import { sanitizeBranchName } from '../src/lib/branch.js';
 
+/**
+ * Creates an isolated git repository for branch-init tests.
+ */
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-init-test-'));
     execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });

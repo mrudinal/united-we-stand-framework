@@ -112,10 +112,16 @@ const STAGE_FILE_TO_STAGE_NAME: Record<string, string> = {
     '06-finalization.md': '6-finalizer',
 };
 
+/**
+ * Escapes text for safe interpolation into a RegExp.
+ */
 function escapeRegExpText(rawText: string): string {
     return rawText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/**
+ * Reads a single table field value from `00-current-status.md`.
+ */
 function readStatusFieldValue(statusMarkdown: string, fieldLabel: string): string | null {
     const fieldPattern = new RegExp(`\\|\\s*${escapeRegExpText(fieldLabel)}\\s*\\|\\s*([^|]+)\\|`, 'i');
     const fieldMatch = statusMarkdown.match(fieldPattern);
@@ -126,6 +132,9 @@ function readStatusFieldValue(statusMarkdown: string, fieldLabel: string): strin
     return fieldMatch[1].replace(/`/g, '').trim();
 }
 
+/**
+ * Parses a comma-separated stage list while normalizing `none`.
+ */
 function parseStageList(rawValue: string): string[] {
     const normalizedValue = rawValue.trim();
     if (!normalizedValue || /^none$/i.test(normalizedValue)) {
@@ -140,6 +149,9 @@ function parseStageList(rawValue: string): string[] {
     return Array.from(new Set(parsedValues));
 }
 
+/**
+ * Parses the required status snapshot fields from status markdown.
+ */
 function parseStatusSnapshot(statusMarkdown: string): { snapshot: StatusSnapshot | null; errors: string[] } {
     const errors: string[] = [];
 
@@ -183,6 +195,9 @@ function parseStatusSnapshot(statusMarkdown: string): { snapshot: StatusSnapshot
     return { snapshot, errors: [] };
 }
 
+/**
+ * Validates semantic invariants for the parsed status snapshot.
+ */
 function validateStatusSnapshot(snapshot: StatusSnapshot): string[] {
     const errors: string[] = [];
     if (!snapshot.currentStage || /^none$/i.test(snapshot.currentStage)) {
@@ -221,12 +236,18 @@ function validateStatusSnapshot(snapshot: StatusSnapshot): string[] {
     return errors;
 }
 
+/**
+ * Compares stage lists as sets instead of raw array order.
+ */
 function areStageListsEquivalent(left: string[], right: string[]): boolean {
     const normalizedLeft = Array.from(new Set(left)).sort();
     const normalizedRight = Array.from(new Set(right)).sort();
     return JSON.stringify(normalizedLeft) === JSON.stringify(normalizedRight);
 }
 
+/**
+ * Returns the stage set that should already have substantive content.
+ */
 function getStagesRequiringSubstantiveContent(snapshot: StatusSnapshot): Set<string> {
     const requiredStages = new Set<string>([
         ...snapshot.completedSteps,
@@ -242,6 +263,9 @@ function getStagesRequiringSubstantiveContent(snapshot: StatusSnapshot): Set<str
     return requiredStages;
 }
 
+/**
+ * Verifies that machine-readable branch identity matches the resolved branch context.
+ */
 function validateBranchIdentity(
     runtimeState: BranchRuntimeState,
     expectedBranchName: string,
@@ -263,6 +287,9 @@ function validateBranchIdentity(
     return identityErrors;
 }
 
+/**
+ * Returns whether a required markdown section still contains only placeholder content.
+ */
 function isSectionContentPlaceholderOnly(markdownContent: string, heading: string): boolean {
     const headingPattern = new RegExp(`${escapeRegExpText(heading)}\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i');
     const sectionMatch = markdownContent.match(headingPattern);
@@ -480,6 +507,7 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                         );
 
                         if (parsedRuntimeState) {
+                            // Validate machine-readable state first, then compare it back to status markdown.
                             const runtimeStateErrors = validateBranchRuntimeState(parsedRuntimeState);
                             reportCheck(
                                 '  state.json semantics are consistent',
@@ -527,6 +555,7 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                         ? getStagesRequiringSubstantiveContent(parsedStatus.snapshot)
                         : new Set<string>();
 
+                    // Keep template-only future stages acceptable until the workflow actually reaches them.
                     for (const [stageFileName, requiredHeadings] of Object.entries(REQUIRED_STAGE_SECTIONS)) {
                         const stageFilePath = join(specDrivenDirectory, stageFileName);
                         if (!doesFileExist(stageFilePath)) {

@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
 import { getCurrentBranchName, tryGetCurrentBranchName } from '../src/lib/git.js';
 
+/**
+ * Creates an isolated git repository for branch-detection tests.
+ */
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-git-test-'));
     execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });

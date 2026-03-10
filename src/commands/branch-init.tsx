@@ -48,6 +48,9 @@ export interface InitCommandOptions {
 const IDEA_MARKER_START = '<!-- united-we-stand:captured-idea:start -->';
 const IDEA_MARKER_END = '<!-- united-we-stand:captured-idea:end -->';
 
+/**
+ * Inserts or replaces the captured-idea block inside `01-init.md`.
+ */
 function upsertCapturedIdeaBlock(existingContent: string, ideaText: string): string {
     const ideaBlock = `${IDEA_MARKER_START}\n${buildCapturedIdeaBlock(ideaText).trimEnd()}\n${IDEA_MARKER_END}`;
 
@@ -70,10 +73,16 @@ function upsertCapturedIdeaBlock(existingContent: string, ideaText: string): str
     return existingContent + separator + ideaBlock + '\n';
 }
 
+/**
+ * Escapes marker text for safe use inside RegExp constructors.
+ */
 function escapeRegExpChars(rawString: string): string {
     return rawString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/**
+ * Reads the current branch name from status markdown for backward compatibility.
+ */
 function parseCurrentBranchFromStatus(statusContent: string): string | null {
     const currentBranchMatch = statusContent.match(/\|\s*Current branch\s*\|\s*`?([^|`]+)`?\s*\|/i);
     if (currentBranchMatch && currentBranchMatch[1]) {
@@ -89,6 +98,9 @@ function parseCurrentBranchFromStatus(statusContent: string): string | null {
     return null;
 }
 
+/**
+ * Reads machine-readable branch identity first and falls back to status markdown.
+ */
 function readLinkedBranchIdentity(specFolderPath: string): { branchName: string | null; branchMemoryFolder: string | null } {
     const runtimeStatePath = join(specFolderPath, 'state.json');
     const runtimeStateContent = readFileOrNull(runtimeStatePath);
@@ -115,6 +127,9 @@ function readLinkedBranchIdentity(specFolderPath: string): { branchName: string 
     };
 }
 
+/**
+ * Returns whether an existing spec folder is already linked to the requested branch.
+ */
 function isSpecFolderAlreadyLinkedToBranch(specFolderPath: string, branchName: string): boolean {
     const linkedBranchIdentity = readLinkedBranchIdentity(specFolderPath);
     return linkedBranchIdentity.branchName === branchName;
@@ -122,6 +137,9 @@ function isSpecFolderAlreadyLinkedToBranch(specFolderPath: string, branchName: s
 
 const REUSE_EXISTING_FOLDER_TOKEN = '__REUSE_EXISTING_FOLDER__';
 
+/**
+ * Prompts the user to resolve a branch-folder collision when interactive input is available.
+ */
 async function promptForCollisionResolution(defaultFolderName: string): Promise<string | null> {
     if (!input.isTTY || !output.isTTY) {
         return null;
@@ -214,6 +232,7 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
     if (!branchRoutingMap[currentBranch]) {
         let didUserConfirmReuse = false;
         while (true) {
+            // Reuse is only safe when the existing folder is already linked to the same branch.
             const candidateDirectoryPath = join(specDrivenRootDirectory, branchMemoryFolderName);
             const hasFolderCollision = doesFileExist(candidateDirectoryPath)
                 && !isSpecFolderAlreadyLinkedToBranch(candidateDirectoryPath, currentBranch);
@@ -310,6 +329,7 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
     const currentMappedFolderName = branchRoutingMap[currentBranch];
     const shouldPersistException = branchMemoryFolderName !== sanitizedBranchName;
 
+    // Persist routing only when the actual folder differs from the default sanitized branch name.
     if (shouldPersistException && currentMappedFolderName !== branchMemoryFolderName) {
         const nextBranchRoutingMap = {
             ...branchRoutingMap,

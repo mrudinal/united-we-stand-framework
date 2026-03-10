@@ -6,6 +6,9 @@ import { execSync } from 'node:child_process';
 import { runInstallCommand } from '../src/commands/install.js';
 import { MARKER_START, MARKER_END } from '../src/lib/markers.js';
 
+/**
+ * Creates an isolated git repository for install-command tests.
+ */
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-postinstall-'));
     execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });
