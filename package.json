@@ -18,7 +18,6 @@
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postinstall": "node ./dist/scripts/postinstall.js",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "keywords": [

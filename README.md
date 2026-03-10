@@ -21,8 +21,8 @@ AI chat sessions are **ephemeral**. Every new conversation starts from zero cont
 
 ## How it works
 
-1. Install and run `united-we-stand init` inside any git repository.
-2. The CLI detects the current branch and creates:
+1. Install globally: `npm install -g united-we-stand`.
+2. Navigate to your repository and run `united-we-stand install`. This detects the repo and creates:
    - `AGENTS.md` at the repo root (with managed block)
    - `.github/copilot-instructions.md` (with managed block)
     - `.united-we-stand/agents/*.md` — agent definitions
@@ -51,14 +51,15 @@ npx united-we-stand init
 
 ## Usage
 
-### Initialize a repository
+### Install framework into a repository
 
 ```bash
 cd your-repo
-united-we-stand init
+united-we-stand install
 ```
 
-Creates all framework files for the current branch. Safe to re-run — it's idempotent.
+Creates all framework files and agent templates in the current repository. 
+If templates are ever out of sync, use `united-we-stand install --force` to permanently overwrite them with global defaults.
 
 ### Initialize a branch with an idea
 
@@ -98,10 +99,10 @@ Reports whether all expected files exist and managed blocks are in place.
 
 | Command | Purpose |
 |---------|---------|
-| `united-we-stand init` | Full initialization: AGENTS.md, Copilot instructions, agents, branch specs |
-| `united-we-stand refresh` | Re-apply templates and update managed blocks |
+| `united-we-stand install [--force]` | Install framework files into the current repo. Use `--force` to overwrite local changes to agents/framework. |
+| `united-we-stand refresh` | Re-apply templates and update managed blocks safely |
 | `united-we-stand doctor` | Check repo health and recommend fixes |
-| `united-we-stand branch-init "<idea>"` | Initialize the current branch with an idea description |
+| `united-we-stand branch-init "<idea>"`| Initialize the current branch with an idea description |
 
 ---
 
@@ -240,7 +241,7 @@ npm run build
 npm test
 
 # Run CLI locally
-node dist/cli.js init --cwd /path/to/test/repo
+node dist/cli.js install --cwd /path/to/test/repo
 ```
 
 ---

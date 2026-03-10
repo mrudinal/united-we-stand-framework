@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from 'no
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { runPostinstall } from '../src/scripts/postinstall.js';
+import { runInstallCommand } from '../src/commands/install.js';
 import { MARKER_START, MARKER_END } from '../src/lib/markers.js';
 
 function createTempGitRepository(): string {
@@ -17,7 +17,7 @@ const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
 const originalInitCwd = process.env.INIT_CWD;
 
-describe('postinstall script', () => {
+describe('install command', () => {
     let tempRepoDirectory: string;
 
     beforeEach(() => {
@@ -39,7 +39,7 @@ describe('postinstall script', () => {
     });
 
     it('creates AGENTS.md with managed block', async () => {
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const agentsMdContent = readFileSync(join(tempRepoDirectory, 'AGENTS.md'), 'utf-8');
         expect(agentsMdContent).toContain(MARKER_START);
         expect(agentsMdContent).toContain(MARKER_END);
@@ -47,12 +47,12 @@ describe('postinstall script', () => {
     });
 
     it('creates .github/copilot-instructions.md', async () => {
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         expect(existsSync(join(tempRepoDirectory, '.github', 'copilot-instructions.md'))).toBe(true);
     });
 
     it('creates framework agent files', async () => {
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const agentsDirectory = join(tempRepoDirectory, '.united-we-stand', 'agents');
         expect(existsSync(join(agentsDirectory, '0-status-checker.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, '1-initializer.md'))).toBe(true);
@@ -63,7 +63,7 @@ describe('postinstall script', () => {
     });
 
     it('creates standalone role agent files', async () => {
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const agentsDirectory = join(tempRepoDirectory, '.united-we-stand', 'agents');
         expect(existsSync(join(agentsDirectory, 'debugger.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'project-manager.md'))).toBe(true);
@@ -71,16 +71,16 @@ describe('postinstall script', () => {
     });
 
     it('does NOT create branch spec-driven files', async () => {
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const specDrivenDirectory = join(tempRepoDirectory, '.united-we-stand', 'spec-driven');
         expect(existsSync(specDrivenDirectory)).toBe(false);
     });
 
     it('is idempotent — running logic twice produces same output', async () => {
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const firstAgentsMd = readFileSync(join(tempRepoDirectory, 'AGENTS.md'), 'utf-8');
 
-        await runPostinstall();
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const secondAgentsMd = readFileSync(join(tempRepoDirectory, 'AGENTS.md'), 'utf-8');
 
         expect(secondAgentsMd).toBe(firstAgentsMd);

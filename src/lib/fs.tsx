@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { upsertManagedBlock } from './markers.js';
+import { upsertManagedBlock, wrapInManagedBlock } from './markers.js';
 import type { Logger } from './logger.js';
 
 /**
@@ -126,4 +126,30 @@ export function upsertFileWithManagedBlock(
     } else {
         logger.updated(filePath);
     }
+}
+
+/**
+ * Completely overwrites a file with the given managed block content.
+ * WARNING: Destructively ignores existing user content and only writes the managed block.
+ * Used for --force commands.
+ */
+export function overwriteFileWithManagedBlock(
+    filePath: string,
+    innerContent: string,
+    isDryRun: boolean,
+    logger: Logger,
+): void {
+    const wrappedContent = wrapInManagedBlock(innerContent) + '\n';
+
+    if (isDryRun) {
+        logger.updated(filePath + ' (FORCED OVERWRITE)');
+        return;
+    }
+
+    const parentDirectory = dirname(filePath);
+    if (!existsSync(parentDirectory)) {
+        mkdirSync(parentDirectory, { recursive: true });
+    }
+    writeFileSync(filePath, wrappedContent, 'utf-8');
+    logger.updated(filePath + ' (FORCED OVERWRITE)');
 }

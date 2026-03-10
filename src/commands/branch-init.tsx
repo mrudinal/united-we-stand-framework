@@ -54,7 +54,7 @@ function escapeRegExpChars(rawString: string): string {
     return rawString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function runInitCommand(options: InitCommandOptions): void {
+export function runBranchInitCommand(options: InitCommandOptions): void {
     const logger = createLogger(options.isDryRun);
     const { workingDirectory, isDryRun, ideaText } = options;
 

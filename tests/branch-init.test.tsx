@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { runInitCommand } from '../src/commands/init.js';
+import { runBranchInitCommand } from '../src/commands/branch-init.js';
 import { getCurrentBranchName } from '../src/lib/git.js';
 import { sanitizeBranchName } from '../src/lib/branch.js';
 
@@ -33,7 +33,7 @@ describe('init command (branch spec setup)', () => {
     });
 
     it('creates branch spec directory and all numbered spec files', () => {
-        runInitCommand({
+        runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
             ideaText: 'my feature idea',
@@ -54,7 +54,7 @@ describe('init command (branch spec setup)', () => {
     });
 
     it('captures the idea in 01-init.md', () => {
-        runInitCommand({
+        runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
             ideaText: 'my super cool feature',
@@ -70,7 +70,7 @@ describe('init command (branch spec setup)', () => {
     });
 
     it('sets overview stage to initialized and next step to 2-planner', () => {
-        runInitCommand({
+        runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
             ideaText: 'idea',
@@ -87,7 +87,7 @@ describe('init command (branch spec setup)', () => {
     });
 
     it('uses default idea text if none provided', () => {
-        runInitCommand({
+        runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
         });
@@ -100,7 +100,7 @@ describe('init command (branch spec setup)', () => {
     });
 
     it('does not write files in dry-run mode', () => {
-        runInitCommand({
+        runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: true,
             ideaText: 'idea',

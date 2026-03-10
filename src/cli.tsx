@@ -7,7 +7,8 @@
 
 import { Command } from 'commander';
 import { resolve } from 'node:path';
-import { runInitCommand } from './commands/init.js';
+import { runBranchInitCommand } from './commands/branch-init.js';
+import { runInstallCommand } from './commands/install.js';
 import { runRefreshCommand } from './commands/refresh.js';
 import { runDoctorCommand } from './commands/doctor.js';
 
@@ -37,16 +38,33 @@ function isDryRunEnabled(command: Command): boolean {
     return command.optsWithGlobals().dryRun === true;
 }
 
-// ---- init ----------------------------------------------------------
+// ---- install -------------------------------------------------------
 
 program
-    .command('init')
+    .command('install')
+    .description('Install specs, agents, and framework into the current repository.')
+    .option('--cwd <path>', 'run as if started in <path>')
+    .option('--dry-run', 'show what would be done without writing files')
+    .option('--force', 'overwrite existing framework and agent files with global defaults')
+    .action(async function (this: Command) {
+        const globalOptions = this.optsWithGlobals();
+        await runInstallCommand({
+            workingDirectory: resolveWorkingDirectory(this),
+            isDryRun: isDryRunEnabled(this),
+            force: globalOptions.force === true,
+        });
+    });
+
+// ---- branch-init ---------------------------------------------------
+
+program
+    .command('branch-init')
     .description('Initialize the current branch with an idea description and scaffold spec files.')
     .argument('[idea]', 'short description of the branch goal / idea')
     .option('--cwd <path>', 'run as if started in <path>')
     .option('--dry-run', 'show what would be done without writing files')
     .action(async function (this: Command, ideaText: string) {
-        await runInitCommand({
+        await runBranchInitCommand({
             workingDirectory: resolveWorkingDirectory(this),
             isDryRun: isDryRunEnabled(this),
             ideaText,
