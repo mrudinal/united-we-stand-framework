@@ -14,6 +14,8 @@ This folder contains installed framework guidance for `united-we-stand`.
 Runtime branch memory is intentionally stored outside this folder at:
 
 - `.spec-driven/<sanitized-branch>/`
+- `.spec-driven/.branch-routing.json` (optional branch-to-folder exception map)
+- `.spec-driven/<sanitized-branch>/state.json` (machine-readable runtime state)
 
 This design keeps `.united-we-stand/` safely reinstallable with `install --force`.
 

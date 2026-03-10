@@ -97,4 +97,29 @@ describe('install command', () => {
 
         expect(secondAgentsMd).toBe(firstAgentsMd);
     });
+
+    it('keeps user-customized framework markdown when install is not forced', async () => {
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+
+        const coreRulesPath = join(tempRepoDirectory, '.united-we-stand', 'framework', '01-core-rules.md');
+        writeFileSync(coreRulesPath, '# user custom rules\n\ncustom content\n', 'utf-8');
+
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+        const preservedContent = readFileSync(coreRulesPath, 'utf-8');
+
+        expect(preservedContent).toContain('custom content');
+    });
+
+    it('resets customized framework markdown when install is forced', async () => {
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+
+        const coreRulesPath = join(tempRepoDirectory, '.united-we-stand', 'framework', '01-core-rules.md');
+        writeFileSync(coreRulesPath, '# user custom rules\n\ncustom content\n', 'utf-8');
+
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: true });
+        const resetContent = readFileSync(coreRulesPath, 'utf-8');
+
+        expect(resetContent).not.toContain('custom content');
+        expect(resetContent).toContain('# Core Rules');
+    });
 });

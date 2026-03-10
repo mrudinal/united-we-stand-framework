@@ -7,6 +7,8 @@
  */
 
 import { join } from 'node:path';
+import { createInterface } from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 import { isGitRepository, getCurrentBranchName } from '../lib/git.js';
 import { sanitizeBranchName } from '../lib/branch.js';
 import {
@@ -19,12 +21,21 @@ import {
 import { upsertManagedBlock } from '../lib/markers.js';
 import { createLogger } from '../lib/logger.js';
 import {
+    readBranchRoutingMap,
+    writeBranchRoutingMap,
+    resolveBranchMemoryFolderName,
+} from '../lib/branch-routing.js';
+import {
     loadInitSpecTemplate,
     loadCurrentStatusSpecTemplate,
     buildCapturedIdeaBlock,
     buildOverviewStageBlock,
     loadBranchSpecFiles,
 } from '../lib/templates.js';
+import {
+    buildInitializedBranchRuntimeState,
+    serializeBranchRuntimeState,
+} from '../lib/runtime-state.js';
 
 export interface InitCommandOptions {
     workingDirectory: string;
@@ -62,7 +73,60 @@ function escapeRegExpChars(rawString: string): string {
     return rawString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function runBranchInitCommand(options: InitCommandOptions): void {
+function parseCurrentBranchFromStatus(statusContent: string): string | null {
+    const currentBranchMatch = statusContent.match(/\|\s*Current branch\s*\|\s*`?([^|`]+)`?\s*\|/i);
+    if (currentBranchMatch && currentBranchMatch[1]) {
+        return currentBranchMatch[1].trim();
+    }
+
+    // Backward-compatibility with older templates that used `Branch`.
+    const legacyBranchMatch = statusContent.match(/\|\s*Branch\s*\|\s*`?([^|`]+)`?\s*\|/i);
+    if (legacyBranchMatch && legacyBranchMatch[1]) {
+        return legacyBranchMatch[1].trim();
+    }
+
+    return null;
+}
+
+function isSpecFolderAlreadyLinkedToBranch(specFolderPath: string, branchName: string): boolean {
+    const statusPath = join(specFolderPath, '00-current-status.md');
+    const statusContent = readFileOrNull(statusPath);
+    if (!statusContent) {
+        return false;
+    }
+
+    const linkedBranchName = parseCurrentBranchFromStatus(statusContent);
+    return linkedBranchName === branchName;
+}
+
+const REUSE_EXISTING_FOLDER_TOKEN = '__REUSE_EXISTING_FOLDER__';
+
+async function promptForCollisionResolution(defaultFolderName: string): Promise<string | null> {
+    if (!input.isTTY || !output.isTTY) {
+        return null;
+    }
+
+    const prompt = createInterface({ input, output });
+    try {
+        const shouldReuseExisting = (await prompt.question(
+            `Branch memory folder ".spec-driven/${defaultFolderName}" already exists. Reuse it? [y/N]: `,
+        )).trim().toLowerCase();
+
+        if (shouldReuseExisting === 'y' || shouldReuseExisting === 'yes') {
+            return REUSE_EXISTING_FOLDER_TOKEN;
+        }
+
+        const alternateFolderName = (await prompt.question(
+            'Enter a different folder name for this branch memory (empty to cancel): ',
+        )).trim();
+
+        return alternateFolderName || null;
+    } finally {
+        prompt.close();
+    }
+}
+
+export async function runBranchInitCommand(options: InitCommandOptions): Promise<void> {
     const logger = createLogger(options.isDryRun);
     const {
         workingDirectory,
@@ -108,20 +172,70 @@ export function runBranchInitCommand(options: InitCommandOptions): void {
         return;
     }
 
-    const sanitizedBranch = sanitizeBranchName(currentBranch);
-    if (!sanitizedBranch) {
+    const sanitizedBranchName = sanitizeBranchName(currentBranch);
+    if (!sanitizedBranchName) {
         logger.error(`Unable to sanitize branch name: "${currentBranch}"`);
         logger.info('Use a branch name that contains letters or numbers, or provide `--branch <name>`.');
         process.exitCode = 1;
         return;
     }
 
-    logger.info(`Branch: ${currentBranch} -> ${sanitizedBranch}`);
+    const branchRoutingMap = readBranchRoutingMap(workingDirectory);
+    let branchMemoryFolderName = resolveBranchMemoryFolderName(
+        currentBranch,
+        sanitizedBranchName,
+        branchRoutingMap,
+    );
 
-    const specDrivenDirectory = join(workingDirectory, '.spec-driven', sanitizedBranch);
+    const specDrivenRootDirectory = join(workingDirectory, '.spec-driven');
+
+    // Collision policy is enforced only when establishing a new branch routing.
+    if (!branchRoutingMap[currentBranch]) {
+        let didUserConfirmReuse = false;
+        while (true) {
+            const candidateDirectoryPath = join(specDrivenRootDirectory, branchMemoryFolderName);
+            const hasFolderCollision = doesFileExist(candidateDirectoryPath)
+                && !isSpecFolderAlreadyLinkedToBranch(candidateDirectoryPath, currentBranch);
+
+            if (!hasFolderCollision) {
+                break;
+            }
+
+            const promptResult = await promptForCollisionResolution(branchMemoryFolderName);
+            if (!promptResult) {
+                logger.error(`Folder collision detected at ".spec-driven/${branchMemoryFolderName}".`);
+                logger.info('Run in interactive mode to confirm reuse or provide a different folder name.');
+                process.exitCode = 1;
+                return;
+            }
+
+            if (promptResult === REUSE_EXISTING_FOLDER_TOKEN) {
+                didUserConfirmReuse = true;
+                break;
+            }
+
+            const sanitizedPromptFolderName = sanitizeBranchName(promptResult);
+            if (!sanitizedPromptFolderName) {
+                logger.warn(`Provided folder name "${promptResult}" is not valid after sanitization.`);
+                continue;
+            }
+
+            branchMemoryFolderName = sanitizedPromptFolderName;
+        }
+
+        // If user explicitly confirmed reuse of an already-existing collided folder, proceed.
+        if (didUserConfirmReuse) {
+            logger.info(`Using existing branch memory folder ".spec-driven/${branchMemoryFolderName}" by user confirmation.`);
+        }
+    }
+
+    logger.info(`Branch: ${currentBranch} -> ${branchMemoryFolderName}`);
+
+    ensureDirectoryExists(specDrivenRootDirectory, isDryRun, logger);
+    const specDrivenDirectory = join(specDrivenRootDirectory, branchMemoryFolderName);
     ensureDirectoryExists(specDrivenDirectory, isDryRun, logger);
 
-    for (const specFile of loadBranchSpecFiles(currentBranch, sanitizedBranch)) {
+    for (const specFile of loadBranchSpecFiles(currentBranch, branchMemoryFolderName)) {
         if (specFile.relativePath === '00-current-status.md' || specFile.relativePath === '01-init.md') {
             continue;
         }
@@ -139,10 +253,10 @@ export function runBranchInitCommand(options: InitCommandOptions): void {
 
     const overviewFilePath = join(specDrivenDirectory, '00-current-status.md');
     const existingOverviewContent = readFileOrNull(overviewFilePath)
-        ?? loadCurrentStatusSpecTemplate(currentBranch, sanitizedBranch);
+        ?? loadCurrentStatusSpecTemplate(currentBranch, branchMemoryFolderName);
     const overviewBlockContent = buildOverviewStageBlock(
         currentBranch,
-        sanitizedBranch,
+        branchMemoryFolderName,
         '1-initializer',
         'none',
         'none',
@@ -155,6 +269,33 @@ export function runBranchInitCommand(options: InitCommandOptions): void {
         writeFileWithDirectories(overviewFilePath, updatedOverviewContent, false, logger);
     }
     logger.updated(overviewFilePath);
+
+    const runtimeStatePath = join(specDrivenDirectory, 'state.json');
+    const initializedRuntimeState = buildInitializedBranchRuntimeState();
+    if (!isDryRun) {
+        writeFileWithDirectories(
+            runtimeStatePath,
+            serializeBranchRuntimeState(initializedRuntimeState),
+            false,
+            logger,
+        );
+    }
+    logger.updated(runtimeStatePath);
+
+    const currentMappedFolderName = branchRoutingMap[currentBranch];
+    const shouldPersistException = branchMemoryFolderName !== sanitizedBranchName;
+
+    if (shouldPersistException && currentMappedFolderName !== branchMemoryFolderName) {
+        const nextBranchRoutingMap = {
+            ...branchRoutingMap,
+            [currentBranch]: branchMemoryFolderName,
+        };
+        writeBranchRoutingMap(workingDirectory, nextBranchRoutingMap, isDryRun, logger);
+    } else if (!shouldPersistException && currentMappedFolderName) {
+        const nextBranchRoutingMap = { ...branchRoutingMap };
+        delete nextBranchRoutingMap[currentBranch];
+        writeBranchRoutingMap(workingDirectory, nextBranchRoutingMap, isDryRun, logger);
+    }
 
     logger.success(`Branch "${currentBranch}" initialized.`);
 }

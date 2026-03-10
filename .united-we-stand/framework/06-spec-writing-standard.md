@@ -3,6 +3,7 @@
 This file defines canonical structure for branch markdown files so multiple AI tools behave consistently.
 
 Branch files are runtime memory under `.spec-driven/<sanitized-current-branch>/`.
+Machine-readable runtime state lives in `.spec-driven/<sanitized-current-branch>/state.json`.
 
 ## General Writing Rules
 

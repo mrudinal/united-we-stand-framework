@@ -6,3 +6,4 @@ Before acting:
 1. Read `AGENTS.md`.
 2. Follow the linked files under `.united-we-stand/` for framework, steering, agents, and playbooks.
 3. Read and update branch state under `.spec-driven/<sanitized-current-branch>/`.
+4. If present, read `.spec-driven/.branch-routing.json` to resolve branch-folder exceptions.

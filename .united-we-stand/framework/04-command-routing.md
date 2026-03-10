@@ -100,3 +100,11 @@ If a user says short commands such as `continue`, `fix it`, `implement this`, or
 - perform the nearest safe action for the active/target stage
 - update status fields so the workflow remains traceable
 - ask for explicit confirmation only when bypassing prerequisites or making risky/destructive changes
+
+## Branch-Init Collision Rule
+
+When branch-memory initialization would create a folder that already exists for a different branch context:
+
+- ask user to confirm reuse, or
+- ask user to provide a different folder name
+- persist exceptions in `.spec-driven/.branch-routing.json`

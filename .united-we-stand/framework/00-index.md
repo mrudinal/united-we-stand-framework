@@ -26,6 +26,7 @@ Then read:
 - repo steering docs under `../steering/`
 - role contracts under `../agents/`
 - branch files under `.spec-driven/<sanitized-current-branch>/`
+- branch-routing exceptions in `.spec-driven/.branch-routing.json` when present
 
 ## Canonical Ownership Map
 

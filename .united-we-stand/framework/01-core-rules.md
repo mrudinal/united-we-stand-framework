@@ -43,6 +43,12 @@ This file is the canonical source for global framework invariants.
 13. **Detached HEAD safety**  
     Never attach branch memory to `head`. If branch detection is detached/ambiguous, require an explicit branch name before writing branch memory.
 
+14. **Branch-folder collision safety**  
+    When creating new branch memory, if target folder already exists and is not already linked to the same branch, require explicit user confirmation or a different folder name.
+
+15. **Branch exception routing**  
+    If a branch uses a non-default memory folder, persist that exception in `.spec-driven/.branch-routing.json` and use it for subsequent branch-folder resolution.
+
 ## Stage Mandatory Set
 
 Mandatory framework stages:

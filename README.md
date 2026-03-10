@@ -17,6 +17,7 @@ Repo-scoped AI workflow framework that stores persistent markdown context in you
 `united-we-stand branch-init "<idea>"` then creates:
 
 - `.spec-driven/<sanitized-current-branch>/**`
+- `.spec-driven/.branch-routing.json` (branch-to-folder exception map, created when needed)
 
 Runtime note:
 
@@ -53,6 +54,8 @@ united-we-stand doctor --branch feature/auth
 ```
 
 `branch-init` requires framework files to already exist (run `install` first).
+If a new branch folder name collides with an existing `.spec-driven/<folder>`, `branch-init` will ask for confirmation or a different folder name in interactive mode.
+`doctor` validates both file presence and branch/runtime semantics (status consistency, required sections, and `state.json` alignment).
 
 Common options:
 
@@ -148,7 +151,9 @@ repo-root/
 |       |-- ui-ux-change.md
 |       `-- release-preparation.md
 `-- .spec-driven/
+    |-- .branch-routing.json
     `-- <sanitized-current-branch>/
+        |-- state.json
         |-- 00-current-status.md
         |-- 01-init.md
         |-- 02-plan.md

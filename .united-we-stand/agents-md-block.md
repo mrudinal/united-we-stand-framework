@@ -11,6 +11,8 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 5. Read `.united-we-stand/steering/00-index.md` and relevant steering docs.
 6. Read relevant role contracts in `.united-we-stand/agents/` and scenario guides in `.united-we-stand/playbooks/`.
 7. Read branch state under `.spec-driven/<sanitized-current-branch>/` if present.
+8. If `.spec-driven/.branch-routing.json` exists, use it to resolve branch-to-folder exceptions.
+9. Read `.spec-driven/<sanitized-current-branch>/state.json` when present as machine-readable runtime state.
 
 ### Core Workflow Rules
 
@@ -25,6 +27,8 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - Do not create branch state folders preemptively; `branch-init` or explicit user instruction should create them.
 - Runtime branch memory is writable under `.spec-driven/` only.
 - Treat `.united-we-stand/` as installed framework content (do not use it for runtime branch memory updates).
+- If branch folder naming uses an exception, persist and read `.spec-driven/.branch-routing.json`.
+- Keep `.spec-driven/<branch>/state.json` aligned with `00-current-status.md`.
 - Use persistent files over chat memory when they conflict.
 
 Canonical source of these rules:
@@ -118,7 +122,9 @@ To keep this entrypoint stable and reusable, detailed rules are intentionally mo
   agents/      # numbered framework stages + standalone specialists
   playbooks/   # scenario-specific workflow guides
 .spec-driven/
+  .branch-routing.json  # optional branch-folder exception map
   <sanitized-current-branch>/
+    state.json
     00-current-status.md
     01-init.md ... 06-finalization.md
     07-decisions.md ... 13-retrospective.md

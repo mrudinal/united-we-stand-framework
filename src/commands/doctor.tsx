@@ -11,6 +11,11 @@ import { sanitizeBranchName } from '../lib/branch.js';
 import { doesFileExist, readFileOrNull } from '../lib/fs.js';
 import { hasManagedBlock } from '../lib/markers.js';
 import { createLogger } from '../lib/logger.js';
+import { readBranchRoutingMap, resolveBranchMemoryFolderName } from '../lib/branch-routing.js';
+import {
+    parseBranchRuntimeState,
+    validateBranchRuntimeState,
+} from '../lib/runtime-state.js';
 import {
     loadFrameworkFiles,
     loadSteeringFiles,
@@ -25,6 +30,215 @@ export interface DoctorCommandOptions {
     workingDirectory: string;
     isDryRun: boolean;
     branchNameOverride?: string;
+}
+
+interface StatusSnapshot {
+    currentBranch: string;
+    currentStage: string;
+    completedSteps: string[];
+    incompletedStages: string[];
+    nextRecommendedStep: string;
+    statusNote: string;
+    blockersOrWarnings: string;
+    lastUpdatedBy: string;
+    lastUpdatedAt: string;
+}
+
+const STATUS_FIELD_LABELS = {
+    currentBranch: 'Current branch',
+    currentStage: 'Current stage',
+    completedSteps: 'Completed steps',
+    incompletedStages: 'Incompleted stages',
+    nextRecommendedStep: 'Next recommended step',
+    statusNote: 'Status note',
+    blockersOrWarnings: 'Blockers / warnings',
+    lastUpdatedBy: 'Last updated by',
+    lastUpdatedAt: 'Last updated at',
+} as const;
+
+const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
+    '01-init.md': [
+        '## Raw idea / problem statement',
+        '## Scope (in)',
+        '## Scope (out)',
+        '## Assumptions',
+        '## Open questions',
+        '## Success criteria',
+    ],
+    '02-plan.md': [
+        '## Objectives',
+        '## High-level task breakdown',
+        '## Dependencies',
+        '## Risks / unknowns',
+        '## Suggested execution order',
+    ],
+    '03-design.md': [
+        '## Architecture / approach',
+        '## Key components',
+        '## Interfaces / data flow',
+        '## Constraints',
+        '## Design decisions',
+    ],
+    '04-implementation.md': [
+        '## What changed',
+        '## Why it changed',
+        '## Files touched',
+        '## Validation and tests executed',
+        '## Remaining gaps / follow-ups',
+    ],
+    '05-code-review.md': [
+        '## Quality & maintainability findings',
+        '## Security / boundary findings',
+        '## Severity / priority',
+        '## Recommended fixes',
+        '## Reviewed scope and non-reviewed scope',
+    ],
+    '06-finalization.md': [
+        '## Final summary',
+        '## Delivered scope',
+        '## Known gaps',
+        '## Recommended next actions',
+        '## Documentation updates performed',
+    ],
+};
+
+function escapeRegExpText(rawText: string): string {
+    return rawText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function readStatusFieldValue(statusMarkdown: string, fieldLabel: string): string | null {
+    const fieldPattern = new RegExp(`\\|\\s*${escapeRegExpText(fieldLabel)}\\s*\\|\\s*([^|]+)\\|`, 'i');
+    const fieldMatch = statusMarkdown.match(fieldPattern);
+    if (!fieldMatch || !fieldMatch[1]) {
+        return null;
+    }
+
+    return fieldMatch[1].replace(/`/g, '').trim();
+}
+
+function parseStageList(rawValue: string): string[] {
+    const normalizedValue = rawValue.trim();
+    if (!normalizedValue || /^none$/i.test(normalizedValue)) {
+        return [];
+    }
+
+    const parsedValues = normalizedValue
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
+
+    return Array.from(new Set(parsedValues));
+}
+
+function parseStatusSnapshot(statusMarkdown: string): { snapshot: StatusSnapshot | null; errors: string[] } {
+    const errors: string[] = [];
+
+    const currentBranch = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.currentBranch)
+        ?? readStatusFieldValue(statusMarkdown, 'Branch');
+    const currentStage = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.currentStage);
+    const completedSteps = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.completedSteps);
+    const incompletedStages = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.incompletedStages);
+    const nextRecommendedStep = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.nextRecommendedStep);
+    const statusNote = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.statusNote);
+    const blockersOrWarnings = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.blockersOrWarnings);
+    const lastUpdatedBy = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.lastUpdatedBy);
+    const lastUpdatedAt = readStatusFieldValue(statusMarkdown, STATUS_FIELD_LABELS.lastUpdatedAt);
+
+    if (!currentBranch) errors.push('Missing status field: Current branch');
+    if (!currentStage) errors.push('Missing status field: Current stage');
+    if (!completedSteps) errors.push('Missing status field: Completed steps');
+    if (!incompletedStages) errors.push('Missing status field: Incompleted stages');
+    if (!nextRecommendedStep) errors.push('Missing status field: Next recommended step');
+    if (!statusNote) errors.push('Missing status field: Status note');
+    if (!blockersOrWarnings) errors.push('Missing status field: Blockers / warnings');
+    if (!lastUpdatedBy) errors.push('Missing status field: Last updated by');
+    if (!lastUpdatedAt) errors.push('Missing status field: Last updated at');
+
+    if (errors.length > 0) {
+        return { snapshot: null, errors };
+    }
+
+    const snapshot: StatusSnapshot = {
+        currentBranch: currentBranch!,
+        currentStage: currentStage!,
+        completedSteps: parseStageList(completedSteps!),
+        incompletedStages: parseStageList(incompletedStages!),
+        nextRecommendedStep: nextRecommendedStep!,
+        statusNote: statusNote!,
+        blockersOrWarnings: blockersOrWarnings!,
+        lastUpdatedBy: lastUpdatedBy!,
+        lastUpdatedAt: lastUpdatedAt!,
+    };
+
+    return { snapshot, errors: [] };
+}
+
+function validateStatusSnapshot(snapshot: StatusSnapshot): string[] {
+    const errors: string[] = [];
+    if (!snapshot.currentStage || /^none$/i.test(snapshot.currentStage)) {
+        errors.push('Current stage is empty or none.');
+    }
+    if (!snapshot.nextRecommendedStep || /^none$/i.test(snapshot.nextRecommendedStep)) {
+        errors.push('Next recommended step is empty or none.');
+    }
+    if (!snapshot.statusNote) {
+        errors.push('Status note is empty.');
+    }
+    if (!snapshot.lastUpdatedBy) {
+        errors.push('Last updated by is empty.');
+    }
+    if (!snapshot.lastUpdatedAt || Number.isNaN(Date.parse(snapshot.lastUpdatedAt))) {
+        errors.push('Last updated at is not a valid date.');
+    }
+
+    const completedSet = new Set(snapshot.completedSteps);
+    const incompletedSet = new Set(snapshot.incompletedStages);
+    if (completedSet.size !== snapshot.completedSteps.length) {
+        errors.push('Completed steps contains duplicates.');
+    }
+    if (incompletedSet.size !== snapshot.incompletedStages.length) {
+        errors.push('Incompleted stages contains duplicates.');
+    }
+    if (completedSet.has(snapshot.currentStage) || incompletedSet.has(snapshot.currentStage)) {
+        errors.push('Current stage also appears in completed or incompleted categories.');
+    }
+    for (const completedStage of completedSet) {
+        if (incompletedSet.has(completedStage)) {
+            errors.push(`Stage "${completedStage}" appears in both completed and incompleted categories.`);
+        }
+    }
+
+    return errors;
+}
+
+function areStageListsEquivalent(left: string[], right: string[]): boolean {
+    const normalizedLeft = Array.from(new Set(left)).sort();
+    const normalizedRight = Array.from(new Set(right)).sort();
+    return JSON.stringify(normalizedLeft) === JSON.stringify(normalizedRight);
+}
+
+function isSectionContentPlaceholderOnly(markdownContent: string, heading: string): boolean {
+    const headingPattern = new RegExp(`${escapeRegExpText(heading)}\\s*\\n([\\s\\S]*?)(?=\\n##\\s|$)`, 'i');
+    const sectionMatch = markdownContent.match(headingPattern);
+    if (!sectionMatch || !sectionMatch[1]) {
+        return false;
+    }
+
+    const sectionBody = sectionMatch[1]
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .trim();
+
+    if (!sectionBody) {
+        return true;
+    }
+
+    const normalizedBody = sectionBody.toLowerCase();
+    return (
+        normalizedBody === 'tbd'
+        || normalizedBody === 'unknown'
+        || normalizedBody === 'not applicable'
+        || normalizedBody === '_not yet defined. run `1-initializer` to capture the branch intent._'
+    );
 }
 
 /**
@@ -138,6 +352,7 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     }
 
     // === Branch-level checks (created by `branch-init`) ===
+    const branchRoutingMap = readBranchRoutingMap(workingDirectory);
     const selectedBranch = branchNameOverride && branchNameOverride.trim().length > 0
         ? branchNameOverride.trim()
         : tryGetCurrentBranchName(workingDirectory);
@@ -169,14 +384,112 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                     `Invalid branch value: "${selectedBranch}"`,
                 );
             } else {
-                const specDrivenDirectory = join(workingDirectory, '.spec-driven', sanitizedBranch);
-                logger.info(`Branch spec files - ${selectedBranch} (${sanitizedBranch}):`);
+                const branchMemoryFolderName = resolveBranchMemoryFolderName(
+                    selectedBranch,
+                    sanitizedBranch,
+                    branchRoutingMap,
+                );
+                const specDrivenDirectory = join(workingDirectory, '.spec-driven', branchMemoryFolderName);
+                logger.info(`Branch spec files - ${selectedBranch} (${branchMemoryFolderName}):`);
                 const specDirectoryExists = doesFileExist(specDrivenDirectory);
-                reportCheck(`.spec-driven/${sanitizedBranch}/ directory exists`, specDirectoryExists, 'branch');
+                reportCheck(`.spec-driven/${branchMemoryFolderName}/ directory exists`, specDirectoryExists, 'branch');
 
                 if (specDirectoryExists) {
                     for (const specRelativePath of listBranchSpecRelativePaths()) {
                         reportCheck(`  ${specRelativePath}`, doesFileExist(join(specDrivenDirectory, specRelativePath)), 'branch');
+                    }
+
+                    const runtimeStatePath = join(specDrivenDirectory, 'state.json');
+                    const runtimeStateExists = doesFileExist(runtimeStatePath);
+                    reportCheck('  state.json', runtimeStateExists, 'branch');
+
+                    const statusMarkdownPath = join(specDrivenDirectory, '00-current-status.md');
+                    const statusMarkdownContent = readFileOrNull(statusMarkdownPath) ?? '';
+                    const parsedStatus = parseStatusSnapshot(statusMarkdownContent);
+                    reportCheck(
+                        '  status required fields are present',
+                        parsedStatus.errors.length === 0,
+                        'branch',
+                        parsedStatus.errors.length > 0 ? parsedStatus.errors.join(' | ') : undefined,
+                    );
+
+                    if (parsedStatus.snapshot) {
+                        const statusSemanticErrors = validateStatusSnapshot(parsedStatus.snapshot);
+                        reportCheck(
+                            '  status semantics are consistent',
+                            statusSemanticErrors.length === 0,
+                            'branch',
+                            statusSemanticErrors.length > 0 ? statusSemanticErrors.join(' | ') : undefined,
+                        );
+                    }
+
+                    if (runtimeStateExists) {
+                        const runtimeStateContent = readFileOrNull(runtimeStatePath) ?? '';
+                        const parsedRuntimeState = parseBranchRuntimeState(runtimeStateContent);
+                        reportCheck(
+                            '  state.json schema is valid',
+                            parsedRuntimeState !== null,
+                            'branch',
+                            parsedRuntimeState ? undefined : 'Invalid JSON or missing required fields.',
+                        );
+
+                        if (parsedRuntimeState) {
+                            const runtimeStateErrors = validateBranchRuntimeState(parsedRuntimeState);
+                            reportCheck(
+                                '  state.json semantics are consistent',
+                                runtimeStateErrors.length === 0,
+                                'branch',
+                                runtimeStateErrors.length > 0 ? runtimeStateErrors.join(' | ') : undefined,
+                            );
+
+                            if (parsedStatus.snapshot) {
+                                const statusAndStateMatch = (
+                                    parsedStatus.snapshot.currentStage === parsedRuntimeState.currentStage
+                                    && areStageListsEquivalent(parsedStatus.snapshot.completedSteps, parsedRuntimeState.completedSteps)
+                                    && areStageListsEquivalent(parsedStatus.snapshot.incompletedStages, parsedRuntimeState.incompletedStages)
+                                    && parsedStatus.snapshot.nextRecommendedStep === parsedRuntimeState.nextRecommendedStep
+                                    && parsedStatus.snapshot.lastUpdatedBy === parsedRuntimeState.lastUpdatedBy
+                                );
+
+                                reportCheck(
+                                    '  state.json and 00-current-status.md are aligned',
+                                    statusAndStateMatch,
+                                    'branch',
+                                    statusAndStateMatch ? undefined : 'Status markdown and runtime state diverge.',
+                                );
+                            }
+                        }
+                    }
+
+                    for (const [stageFileName, requiredHeadings] of Object.entries(REQUIRED_STAGE_SECTIONS)) {
+                        const stageFilePath = join(specDrivenDirectory, stageFileName);
+                        if (!doesFileExist(stageFilePath)) {
+                            continue;
+                        }
+
+                        const stageFileContent = readFileOrNull(stageFilePath) ?? '';
+                        const missingHeadings = requiredHeadings.filter(
+                            (requiredHeading) => !stageFileContent.toLowerCase().includes(requiredHeading.toLowerCase()),
+                        );
+
+                        reportCheck(
+                            `  ${stageFileName} required sections present`,
+                            missingHeadings.length === 0,
+                            'branch',
+                            missingHeadings.length > 0 ? `Missing: ${missingHeadings.join(', ')}` : undefined,
+                        );
+
+                        if (missingHeadings.length === 0) {
+                            const placeholderHeadings = requiredHeadings.filter(
+                                (requiredHeading) => isSectionContentPlaceholderOnly(stageFileContent, requiredHeading),
+                            );
+                            reportCheck(
+                                `  ${stageFileName} required sections have substantive content`,
+                                placeholderHeadings.length === 0,
+                                'branch',
+                                placeholderHeadings.length > 0 ? `Placeholder-only: ${placeholderHeadings.join(', ')}` : undefined,
+                            );
+                        }
                     }
                 }
             }
@@ -190,6 +503,6 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
     } else if (!frameworkHealthy) {
         logger.warn('Framework files missing. Run `united-we-stand install` to set up.');
     } else {
-        logger.warn('Branch memory not initialized. Run `united-we-stand branch-init "<idea>"` to set up.');
+        logger.warn('Branch runtime/spec issues detected. Review failed branch checks above and repair branch memory files.');
     }
 }

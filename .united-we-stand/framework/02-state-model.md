@@ -1,6 +1,7 @@
 # State Model
 
 `00-current-status.md` is the canonical branch status file, stored under `.spec-driven/<sanitized-current-branch>/`.
+`state.json` is the machine-readable runtime companion file in the same folder.
 
 ## Required Fields
 
@@ -52,6 +53,7 @@
 
 If any stage file changes and status is stale, update `00-current-status.md` to match reality.
 If status auto-correction is made, report that correction briefly in chat output.
+Keep `state.json` synchronized with the same status state.
 
 ## Auto-Correction Scope
 
