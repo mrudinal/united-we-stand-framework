@@ -26,6 +26,9 @@ Review implementation for conformance, quality, security, and test sufficiency.
 - User may request narrower review scope.
 - Report findings and recommended fixes.
 - Do not perform implementation rewrites unless user explicitly requests and routing changes.
+- If the user asks to modify review notes, update `05-code-review.md` in place.
+- Do not create or populate `06-finalization.md` from a review amendment alone.
+- Keep `Current stage = 5-code-reviewer` unless the user explicitly advances or switches stages.
 
 ## Required Output (`05-code-review.md`)
 

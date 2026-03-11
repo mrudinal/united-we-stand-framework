@@ -28,6 +28,9 @@ Define architecture, boundaries, and implementation approach before coding.
 - For complex integrations (external APIs, databases, third-party services), include explicit sequence/flow diagrams.
 - Explicitly list out-of-scope items and exact files expected to change when this reduces implementation ambiguity.
 - Do not implement code.
+- If the user asks to add or modify design content, update `03-design.md` in place.
+- Do not create or populate `04-implementation.md` from a design amendment alone.
+- Keep `Current stage = 3-designer` unless the user explicitly advances or switches stages.
 
 ## Required Output (`03-design.md`)
 

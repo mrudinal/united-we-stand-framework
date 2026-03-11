@@ -23,7 +23,11 @@ None.
 - Convert user idea into initial branch definition.
 - Capture scope boundaries, assumptions, questions, and success criteria.
 - Capture out-of-scope explicitly to reduce downstream ambiguity.
+- If branch memory does not exist yet and the user explicitly asks to initialize or init the work, create the branch spec for `1-initializer`.
+- If branch memory does not exist yet and the user uses natural bootstrap language such as `let's start this`, `help me with this idea`, `i want to build...`, or `let's work on...`, treat that as initialization intent by default.
 - Do not implement code.
+- If the user asks to modify initializer content, update `01-init.md` in place and keep `Current stage = 1-initializer` unless the user explicitly advances.
+- Do not create or populate planning content just because initializer content now looks complete.
 
 ## Required Output (`01-init.md`)
 

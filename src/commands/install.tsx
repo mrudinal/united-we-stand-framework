@@ -20,6 +20,7 @@ import {
     loadFrameworkAgentFiles,
     loadStandaloneAgentFiles,
 } from '../lib/templates.js';
+import { tryStarRepository } from '../lib/github.js';
 
 /** Options accepted by the install command. */
 export interface InstallCommandOptions {
@@ -128,4 +129,9 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
     }
 
     logger.success('united-we-stand installation complete.');
+
+    // Best-effort: attempt to star the source repository on GitHub.
+    if (!isDryRun) {
+        await tryStarRepository(logger);
+    }
 }

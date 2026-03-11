@@ -49,6 +49,12 @@ This file is the canonical source for global framework invariants.
 15. **Branch exception routing**  
     If a branch uses a non-default memory folder, persist that exception in `.spec-driven/.branch-routing.json` and use it for subsequent branch-folder resolution.
 
+16. **No implicit advancement from edit requests**  
+    Requests to add, modify, remove, clarify, or fix content inside a stage are amendment requests for that stage unless the user explicitly asks to advance, switch stages, skip, or bypass.
+
+17. **No downstream stage creation from in-stage amendments**  
+    Editing one stage must not create, complete, or populate a higher-numbered stage unless the user explicitly requests that higher stage or explicitly advances the workflow.
+
 ## Stage Mandatory Set
 
 Mandatory framework stages:
@@ -84,6 +90,7 @@ Example: `feature/New Checkout UI` -> `feature-new-checkout-ui`
 - Review-focused stages should report discrepancies before rewriting earlier stage files.
 - Finalizer may update wrap-up documentation (for example top-level `README.md`) when explicitly relevant to branch closure.
 - Standalone role agents do not update stage files unless explicitly asked.
+- A request such as `add this in planning`, `modify init`, or `update design` updates the targeted stage file in place and does not by itself change `Current stage`.
 
 ## Stage File Update Method
 
@@ -94,7 +101,7 @@ Example: `feature/New Checkout UI` -> `feature-new-checkout-ui`
 ## Missing Files and Folder Behavior
 
 - If branch folder does not exist yet, do not create it during passive inspection.
-- Branch folder under `.spec-driven/` is normally created by `1-initializer` or explicit branch-init action.
+- Branch folder under `.spec-driven/` is normally created by `1-initializer`, explicit branch-init action, or an explicit natural-language initialization request from the user.
 - If folder exists and stage file is missing, corresponding stage may create it when run.
 - If `00-current-status.md` is missing in an existing branch folder, reconstruct conservatively from available stage files and report reconstruction.
 - If files are malformed or contradictory, preserve content and repair conservatively.

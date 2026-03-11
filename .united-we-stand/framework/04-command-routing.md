@@ -44,6 +44,26 @@ Route to `0-status-checker`.
 2. If current stage completed and prerequisites pass: advance to next numbered stage.
 3. If current stage unfinished: report blocker unless user explicitly skips or uses force semantics.
 
+## Stage Amendment Commands
+
+Requests that explicitly ask to add, modify, update, remove, fix, clarify, or rewrite content inside a stage are amendment requests, not progression requests.
+
+Examples:
+
+- `add this in planning`
+- `modify init`
+- `update the design`
+- `remove this from finalization`
+- `fix the plan wording`
+
+Routing behavior:
+
+1. Update the targeted stage file in place.
+2. Do not auto-advance to another stage.
+3. Do not create or populate a higher-numbered stage from that request alone.
+4. Keep `Current stage` anchored unless the user explicitly says to advance, switch stages, skip, or bypass.
+5. Keep `state.json` and `00-current-status.md` aligned after the amendment.
+
 ## Direct Framework Stage Commands
 
 - `initialize this` -> `1-initializer`
@@ -57,6 +77,33 @@ Route to `0-status-checker`.
 
 Direct commands still enforce prerequisites and mandatory-stage rules.
 Direct commands should not be blocked only because the user did not use formal advancement wording, as long as safety/prerequisite checks are satisfied.
+If the user explicitly says to modify an existing stage rather than start or switch to it, treat that as a stage amendment command instead of a stage switch.
+
+## Initialization Bootstrap Rule
+
+If the user explicitly asks to initialize or init the work and branch memory does not exist yet:
+
+1. Treat that as explicit permission to create the branch spec under `.spec-driven/<branch>/`.
+2. Create or initialize the branch runtime files needed for `1-initializer`.
+3. Capture the user-provided intent in `01-init.md`.
+4. Keep the workflow anchored in `1-initializer` unless the user explicitly advances.
+5. Still enforce detached HEAD safety and branch-folder collision safety.
+
+Examples:
+
+- `init the following`
+- `initialize this`
+- `initialize this branch for adding OAuth login`
+- `let's start this`
+- `help me with the following idea, i want...`
+- `i want to build...`
+- `i want to create...`
+- `let's work on...`
+
+Interpretation rule:
+
+- If branch memory does not exist yet, broad start-of-work phrases should route to `1-initializer` by default, not directly to planning, design, or implementation.
+- Phrases about an idea, starting work, or wanting to build something should be treated as initialization intent unless the user explicitly asks for a later stage.
 
 ## Standalone Role Commands
 
@@ -100,6 +147,7 @@ If a user says short commands such as `continue`, `fix it`, `implement this`, or
 - perform the nearest safe action for the active/target stage
 - update status fields so the workflow remains traceable
 - ask for explicit confirmation only when bypassing prerequisites or making risky/destructive changes
+- do not treat `fix this in planning`, `update init`, or similar stage amendment requests as permission to advance stages
 
 ## Branch-Init Collision Rule
 

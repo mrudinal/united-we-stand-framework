@@ -41,3 +41,5 @@ Profile-specific mandates (for example JS/TS style, audit commands, JSDoc practi
 - status categories are contradictory
 - prerequisites were bypassed without explicit traceability
 - documented behavior contradicts actual implementation state
+- a stage was auto-advanced without explicit user advancement
+- a higher-numbered stage was created or populated from an in-stage amendment request alone

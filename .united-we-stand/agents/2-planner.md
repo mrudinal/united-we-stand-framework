@@ -25,6 +25,9 @@ Turn initialized intent into an actionable sequence.
 - Define suggested execution order and critical blockers.
 - Do not implement code.
 - If code/spec drift is observed, apply canonical conflict policy.
+- If the user asks to add or modify planning content, update `02-plan.md` in place.
+- Do not create or populate `03-design.md` from a planning amendment alone.
+- Keep `Current stage = 2-planner` unless the user explicitly advances or switches stages.
 
 ## Required Output (`02-plan.md`)
 

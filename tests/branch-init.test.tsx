@@ -14,6 +14,8 @@ import { sanitizeBranchName } from '../src/lib/branch.js';
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-init-test-'));
     execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });
+    execSync('git config user.email "test@example.com"', { cwd: tempDirectory, stdio: 'pipe' });
+    execSync('git config user.name "united-we-stand-test"', { cwd: tempDirectory, stdio: 'pipe' });
     execSync('git commit --allow-empty -m "init"', { cwd: tempDirectory, stdio: 'pipe' });
     return tempDirectory;
 }

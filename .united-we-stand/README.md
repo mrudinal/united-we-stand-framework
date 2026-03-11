@@ -6,7 +6,38 @@ It is meant for people using the package inside their repositories.
 
 ## Install The Package
 
-Install the package globally:
+If you are installing from GitHub Packages, authenticate npm first.
+
+### 1. Create a GitHub personal access token (classic)
+
+Create a token with at least:
+
+- `read:packages`
+
+If the package is tied to a private repository and your account needs repository access through the token, also include the repository permissions required by your GitHub account setup.
+
+### 2. Authenticate npm to GitHub Packages
+
+Option A: add your token to `~/.npmrc`
+
+```ini
+@mrudinal:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT_CLASSIC
+```
+
+Option B: log in with npm
+
+```bash
+npm login --scope=@mrudinal --auth-type=legacy --registry=https://npm.pkg.github.com
+```
+
+When prompted, use:
+
+- Username: your GitHub username
+- Password: your GitHub personal access token (classic)
+- Email: your GitHub account email
+
+### 3. Install the package globally
 
 ```bash
 npm install -g @mrudinal/united-we-stand
@@ -16,6 +47,18 @@ Requirements:
 
 - Node.js 18+
 - git
+
+If your scope mapping is not already in `~/.npmrc`, you can also install with the registry flag explicitly:
+
+```bash
+npm install -g @mrudinal/united-we-stand --registry=https://npm.pkg.github.com
+```
+
+### 4. Verify the CLI is available
+
+```bash
+united-we-stand --version
+```
 
 ## Use It In A Repository
 
@@ -173,6 +216,8 @@ Optional framework stages:
 
 - a fresh branch starts in active `1-initializer` mode
 - the current stage stays anchored until the user explicitly advances or bypasses it
+- adding or modifying content inside a stage does not advance that stage by itself
+- if you ask to change planning, init, design, review, or finalization content, the AI should update that stage in place without creating the next stage
 - future stage files may exist as templates before those stages are started
 - `4-implementer` is the first framework stage allowed to change code
 - standalone specialist agents are separate from the numbered framework stages
@@ -197,6 +242,11 @@ You can talk to the AI very naturally. You do not need rigid command syntax as l
 Examples:
 
 - `initialize this branch for adding OAuth login`
+- `let's start this`
+- `help me with the following idea, i want a community tab`
+- `i want to build a community section`
+- `i want to create an admin login flow`
+- `let's work on the admin login flow`
 - `plan this feature`
 - `design the architecture for this change`
 - `implement this now`
@@ -207,12 +257,16 @@ Examples:
 - `next step`
 
 The framework is designed to route short natural requests such as `continue`, `fix it`, `implement this`, `review this`, and `check for gaps` to the nearest safe workflow action.
+If you ask to modify a specific stage, for example `add this in planning` or `update init`, that should be treated as an in-place stage amendment and not as permission to auto-advance to the next stage.
+If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
+If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
 
 ## Framework Stage Chat Routes
 
 Examples for each numbered stage:
 
 - `initialize this` -> `1-initializer`
+- `init the following` -> `1-initializer`
 - `plan this` -> `2-planner`
 - `design this` -> `3-designer`
 - `implement this` -> `4-implementer`
@@ -222,6 +276,11 @@ Examples for each numbered stage:
 More example prompts:
 
 - `initialize this branch for adding OAuth login`
+- `let's start this`
+- `help me with the following idea, i want a community tab`
+- `i want to build a community section`
+- `i want to create an admin login flow`
+- `let's work on the admin login flow`
 - `plan this feature`
 - `design the architecture for this change`
 - `implement this now`
@@ -245,6 +304,12 @@ Framework-stage routes:
 - `show my status` -> `0-status-checker`
 - `check for gaps` -> `0-status-checker`
 - `initialize this` -> `1-initializer`
+- `init the following` -> `1-initializer`
+- `let's start this` -> `1-initializer` when branch memory does not exist yet
+- `help me with the following idea, i want...` -> `1-initializer` when branch memory does not exist yet
+- `i want to build...` -> `1-initializer` when branch memory does not exist yet
+- `i want to create...` -> `1-initializer` when branch memory does not exist yet
+- `let's work on...` -> `1-initializer` when branch memory does not exist yet
 - `plan this` -> `2-planner`
 - `design this` -> `3-designer`
 - `implement this` -> `4-implementer`

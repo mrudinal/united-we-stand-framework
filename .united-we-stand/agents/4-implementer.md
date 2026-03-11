@@ -28,6 +28,9 @@ Implement branch changes while preserving traceability and quality.
 - Implement code changes and add/update tests proportionate to risk.
 - Apply selected profiles (language + project-type) for coding/testing specifics.
 - If code/spec drift exists, reconcile using canonical conflict policy.
+- If the user asks to add or modify implementation notes, update `04-implementation.md` in place.
+- Do not create or populate `05-code-review.md` from an implementation amendment alone.
+- Keep `Current stage = 4-implementer` unless the user explicitly advances or switches stages.
 
 ## Required Output (`04-implementation.md`)
 

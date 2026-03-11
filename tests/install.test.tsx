@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -6,12 +6,19 @@ import { execSync } from 'node:child_process';
 import { runInstallCommand } from '../src/commands/install.js';
 import { MARKER_START, MARKER_END } from '../src/lib/markers.js';
 
+// Prevent real network calls during tests.
+vi.mock('../src/lib/github.js', () => ({
+    tryStarRepository: vi.fn().mockResolvedValue(undefined),
+}));
+
 /**
  * Creates an isolated git repository for install-command tests.
  */
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-postinstall-'));
     execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });
+    execSync('git config user.email "test@example.com"', { cwd: tempDirectory, stdio: 'pipe' });
+    execSync('git config user.name "united-we-stand-test"', { cwd: tempDirectory, stdio: 'pipe' });
     execSync('git commit --allow-empty -m "init"', { cwd: tempDirectory, stdio: 'pipe' });
     return tempDirectory;
 }

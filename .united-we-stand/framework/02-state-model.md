@@ -23,6 +23,31 @@
 4. `Completed steps` records stages explicitly left behind after user advancement.
 5. If user moves forward without completion, move prior stage to `Incompleted stages`.
 
+## In-Stage Amendment Rule
+
+- If the user asks to add, modify, remove, clarify, or fix content in the current stage, update that stage in place.
+- Do not auto-advance because the edited stage now looks complete.
+- Keep `Current stage` anchored to the same stage unless the user explicitly says to advance, switch stages, skip, or bypass.
+- Set `Next recommended step` according to reality:
+  - if the stage is still unfinished, recommend the same stage
+  - if the stage is now complete but not advanced, keep the same `Current stage` and recommend the next logical stage
+
+## Cross-Stage Amendment Rule
+
+- If the user explicitly asks to modify a different stage file, treat that as an amendment request for the named stage file.
+- Update the targeted stage file in place without treating the request as workflow advancement by itself.
+- Do not create, populate, or advance into a higher-numbered stage just because an earlier stage was amended.
+- Preserve the existing `Current stage` unless the user explicitly says to switch or advance.
+
+## Advancement Bookkeeping Rule
+
+- Only explicit user advancement changes `Current stage`.
+- When the user explicitly advances from one stage to another:
+  - move the stage being left behind to `Completed steps` if it is complete
+  - move the stage being left behind to `Incompleted stages` if it is unfinished and the user still wants to move on
+  - keep any earlier explicitly used stages in `Completed steps` if they were already completed and are no longer current
+  - ensure every recorded completed or incompleted stage has its corresponding stage document present in `.spec-driven/<branch>/`
+
 ## Category Invariants
 
 - A stage can appear in exactly one category at a time:
@@ -54,6 +79,24 @@
 If any stage file changes and status is stale, update `00-current-status.md` to match reality.
 If status auto-correction is made, report that correction briefly in chat output.
 Keep `state.json` synchronized with the same status state.
+
+## `state.json` Schema Rule
+
+Use the exact machine-readable keys below in `state.json`:
+
+- `branchName`
+- `sanitizedBranchName`
+- `branchMemoryFolder`
+- `currentStage`
+- `completedSteps`
+- `incompletedStages`
+- `nextRecommendedStep`
+- `lastUpdatedBy`
+- `lastUpdatedAt`
+- `initialized`
+- `finalized`
+
+Do not invent alternate key names such as snake_case variants.
 
 ## Auto-Correction Scope
 

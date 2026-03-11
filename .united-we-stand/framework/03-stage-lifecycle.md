@@ -29,6 +29,13 @@ Advancement occurs only when one of the following is true:
 - `--force` semantics are applied per framework policy
 
 Completion alone is not an advancement trigger.
+Editing or enriching a stage file is not an advancement trigger.
+
+## Amendment Behavior
+
+- A request such as `add this in planning`, `change the initializer`, or `update design` is an amendment to that stage file.
+- Amendment requests must not be interpreted as permission to create or fill the next stage.
+- If the amended stage becomes complete, it remains `Active and completed` until the user explicitly advances.
 
 ## Resumption Inputs
 

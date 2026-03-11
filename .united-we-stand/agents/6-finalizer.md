@@ -24,6 +24,8 @@ Close branch workflow with final summary, gaps, and documentation updates.
 - Summarize delivered scope and unresolved gaps.
 - Update relevant docs (for example README/module docs) when needed.
 - Keep closure notes traceable and actionable.
+- If the user asks to modify finalization notes, update `06-finalization.md` in place.
+- Keep `Current stage = 6-finalizer` unless the user explicitly switches stages.
 
 ## Required Output (`06-finalization.md`)
 
