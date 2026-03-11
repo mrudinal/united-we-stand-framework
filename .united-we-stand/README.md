@@ -31,6 +31,14 @@ Install the framework files:
 united-we-stand install
 ```
 
+Reset the framework back to the defaults and overwrite everything under `.united-we-stand/`:
+
+```bash
+united-we-stand install --force
+```
+
+Use `install --force` when you want to discard local edits to the installed framework and restore the default framework files shipped by the package. Treat `.united-we-stand/` as resettable package content, not as the place for branch-specific working memory. Branch-specific and request-specific custom rules, decisions, notes, and execution state should live under `.spec-driven/<branch-folder>/` in the files created by `branch-init`.
+
 Initialize branch memory for the branch you are working on:
 
 ```bash
@@ -78,6 +86,12 @@ united-we-stand doctor
 - `.github/copilot-instructions.md`
 - `.united-we-stand/**`
 
+`united-we-stand install --force` resets the installed framework back to the package defaults and overwrites the shipped files under:
+
+- `.united-we-stand/**`
+
+Use that when `.united-we-stand/` was edited locally and you want the default framework back.
+
 `united-we-stand branch-init` writes:
 
 - `.spec-driven/<branch-folder>/**`
@@ -102,6 +116,8 @@ Runtime branch memory is intentionally stored outside this folder at:
 - update metadata
 
 Fresh `branch-init` creates the branch folder, captures the raw idea in `01-init.md`, and leaves the branch in active `1-initializer` mode until initializer content is completed.
+
+Keep branch-specific and request-specific working context in `.spec-driven/<branch-folder>/`. The installed `.united-we-stand/` directory should be treated as the default framework layer that can be refreshed or reset back to package defaults.
 
 ## What To Read First
 
@@ -160,6 +176,109 @@ Optional framework stages:
 - future stage files may exist as templates before those stages are started
 - `4-implementer` is the first framework stage allowed to change code
 - standalone specialist agents are separate from the numbered framework stages
+
+## CLI Commands vs Chat Commands
+
+There are only four CLI commands:
+
+- `united-we-stand install`
+- `united-we-stand branch-init "Describe the change"`
+- `united-we-stand refresh`
+- `united-we-stand doctor`
+
+There are no CLI subcommands for the numbered framework stages such as `united-we-stand planner` or `united-we-stand finalizer`.
+
+The numbered stages are meant to be called from the AI chat, not from the CLI.
+
+## Using Natural Language In Chat
+
+You can talk to the AI very naturally. You do not need rigid command syntax as long as the intent is clear.
+
+Examples:
+
+- `initialize this branch for adding OAuth login`
+- `plan this feature`
+- `design the architecture for this change`
+- `implement this now`
+- `do a code review`
+- `wrap this up`
+- `what's my status`
+- `continue`
+- `next step`
+
+The framework is designed to route short natural requests such as `continue`, `fix it`, `implement this`, `review this`, and `check for gaps` to the nearest safe workflow action.
+
+## Framework Stage Chat Routes
+
+Examples for each numbered stage:
+
+- `initialize this` -> `1-initializer`
+- `plan this` -> `2-planner`
+- `design this` -> `3-designer`
+- `implement this` -> `4-implementer`
+- `review this` or `do a code review` -> `5-code-reviewer`
+- `finalize this` or `wrap this up` -> `6-finalizer`
+
+More example prompts:
+
+- `initialize this branch for adding OAuth login`
+- `plan this feature`
+- `design the architecture for this change`
+- `implement this now`
+- `do a code review`
+- `wrap this up`
+
+Related status and progression prompts:
+
+- `what's my status`
+- `show my status`
+- `check for gaps`
+- `continue`
+- `next step`
+- `do the next step`
+
+## Direct Chat Routes
+
+Framework-stage routes:
+
+- `what's my status` -> `0-status-checker`
+- `show my status` -> `0-status-checker`
+- `check for gaps` -> `0-status-checker`
+- `initialize this` -> `1-initializer`
+- `plan this` -> `2-planner`
+- `design this` -> `3-designer`
+- `implement this` -> `4-implementer`
+- `review this` -> `5-code-reviewer`
+- `do a code review` -> `5-code-reviewer`
+- `review quality` -> `5-code-reviewer` with quality scope
+- `review security` -> `5-code-reviewer` with security scope
+- `security compliance check` -> `5-code-reviewer` with security scope
+- `finalize this` -> `6-finalizer`
+- `wrap this up` -> `6-finalizer`
+
+Standalone specialist routes:
+
+- `debug this` -> `debugger`
+- `document this` -> `documentation-writer`
+- `manage this project` -> `project-manager`
+- `refactor this` -> `refactorer`
+- `plan tests for this` -> `test-strategist`
+- `check performance` -> `performance-reviewer`
+- `check accessibility` -> `accessibility-reviewer`
+- `write api contracts` -> `api-contract-writer`
+- `model the data` -> `data-modeler`
+- `plan migration` -> `migration-planner`
+- `review observability` -> `observability-reviewer`
+- `prepare release` -> `release-coordinator`
+
+Standalone route examples:
+
+- `debug this failing branch-init flow`
+- `document this install process`
+- `refactor this CLI without changing behavior`
+- `plan tests for this doctor command`
+- `write api contracts for the new endpoint`
+- `prepare release for this package`
 
 ## Standalone Agents
 
