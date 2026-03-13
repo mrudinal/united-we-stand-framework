@@ -94,6 +94,14 @@ If you are in detached HEAD, provide the branch name explicitly:
 united-we-stand branch-init --branch feature/my-change "Describe the change you want to make"
 ```
 
+If branch memory already exists and you intentionally want to reset only that branch memory back to initializer bootstrap files, use:
+
+```bash
+united-we-stand branch-init --force "Describe the change you want to make"
+```
+
+`branch-init --force` resets `.spec-driven/<branch-folder>/` for that branch only. It does not revert or roll back code changes in your repository.
+
 Check the repository health:
 
 ```bash
@@ -127,6 +135,8 @@ united-we-stand doctor
 
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
+- `.agents/workflows/united-we-stand.md`
+- `.cursor/rules/united-we-stand.mdc`
 - `.united-we-stand/**`
 
 `united-we-stand install --force` resets the installed framework back to the package defaults and overwrites the shipped files under:
@@ -137,7 +147,9 @@ Use that when `.united-we-stand/` was edited locally and you want the default fr
 
 `united-we-stand branch-init` writes:
 
-- `.spec-driven/<branch-folder>/**`
+- `.spec-driven/<branch-folder>/00-current-status.md`
+- `.spec-driven/<branch-folder>/01-init.md`
+- `.spec-driven/<branch-folder>/state.json`
 - `.spec-driven/.branch-routing.json` when a branch uses a non-default folder mapping
 
 ## Runtime Branch Memory
@@ -158,9 +170,11 @@ Runtime branch memory is intentionally stored outside this folder at:
 - next recommended step
 - update metadata
 
-Fresh `branch-init` creates the branch folder, captures the raw idea in `01-init.md`, and leaves the branch in active `1-initializer` mode until initializer content is completed.
+Fresh `branch-init` creates the branch folder, captures the raw idea in `01-init.md`, writes `00-current-status.md` and `state.json`, and leaves the branch in active `1-initializer` mode until initializer content is completed.
+It should not pre-create later numbered stage files just from initialization alone.
 
 Keep branch-specific and request-specific working context in `.spec-driven/<branch-folder>/`. The installed `.united-we-stand/` directory should be treated as the default framework layer that can be refreshed or reset back to package defaults.
+For branch-scoped work, the AI should operate inside `.spec-driven/<branch-folder>/` by default and update the relevant spec files first unless you explicitly say not to, or the request is unrelated, informational only, or does not require repository/spec changes.
 
 ## What To Read First
 
@@ -216,9 +230,15 @@ Optional framework stages:
 
 - a fresh branch starts in active `1-initializer` mode
 - the current stage stays anchored until the user explicitly advances or bypasses it
+- never auto-advance to the next phase
 - adding or modifying content inside a stage does not advance that stage by itself
+- never move the workflow backward to an earlier numbered stage once a later stage has been reached
+- `Current stage` should always match the highest created numbered stage file in `.spec-driven/<branch-folder>/` among `01-init.md` through `06-finalization.md`
 - if you ask to change planning, init, design, review, or finalization content, the AI should update that stage in place without creating the next stage
-- future stage files may exist as templates before those stages are started
+- if you ask for earlier-stage work after the workflow has already moved forward, the AI should do that work without regressing `Current stage`, `Completed steps`, or `Incompleted stages`; it should record the stale downstream impact in status metadata instead
+- if a request could be interpreted as advancing through two or more phases at once, the AI should ask for confirmation first and explicitly list the phases it would run together
+- for branch-scoped work, the AI should stay inside `.spec-driven/<branch-folder>/` by default and update specs first unless you explicitly say otherwise
+- later stage files should be created when those stages are actually started or explicitly amended
 - `4-implementer` is the first framework stage allowed to change code
 - standalone specialist agents are separate from the numbered framework stages
 
@@ -258,6 +278,8 @@ Examples:
 
 The framework is designed to route short natural requests such as `continue`, `fix it`, `implement this`, `review this`, and `check for gaps` to the nearest safe workflow action.
 If you ask to modify a specific stage, for example `add this in planning` or `update init`, that should be treated as an in-place stage amendment and not as permission to auto-advance to the next stage.
+If you ask for earlier-stage work while the branch is already in a later stage, the AI should perform that work without moving the workflow backward; instead it should mark downstream state as needing refresh in the status metadata.
+The most reliable direct NLP bootstrap for initialization is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
 If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
 
@@ -272,6 +294,8 @@ Examples for each numbered stage:
 - `implement this` -> `4-implementer`
 - `review this` or `do a code review` -> `5-code-reviewer`
 - `finalize this` or `wrap this up` -> `6-finalizer`
+
+These route labels describe which framework behavior handles the request. They do not mean the workflow metadata should move backward if the branch is already in a later stage.
 
 More example prompts:
 
@@ -295,6 +319,11 @@ Related status and progression prompts:
 - `continue`
 - `next step`
 - `do the next step`
+
+Status answers should always state both:
+
+- the current stage
+- the recommended next stage
 
 ## Direct Chat Routes
 
@@ -321,6 +350,8 @@ Framework-stage routes:
 - `finalize this` -> `6-finalizer`
 - `wrap this up` -> `6-finalizer`
 
+These direct route labels select the acting stage behavior. If the workflow is already in a later stage, they must not regress `Current stage`, `Completed steps`, or `Incompleted stages`.
+
 Standalone specialist routes:
 
 - `debug this` -> `debugger`
@@ -332,9 +363,11 @@ Standalone specialist routes:
 - `check accessibility` -> `accessibility-reviewer`
 - `write api contracts` -> `api-contract-writer`
 - `model the data` -> `data-modeler`
+- `design sql schema` / `create database diagrams` / `modelo entidad relacion` -> `sql-database-designer`
 - `plan migration` -> `migration-planner`
 - `review observability` -> `observability-reviewer`
 - `prepare release` -> `release-coordinator`
+- `design the website layout` / `improve the palette` / `make the UI more formal` -> `web-designer`
 
 Standalone route examples:
 
@@ -343,6 +376,10 @@ Standalone route examples:
 - `refactor this CLI without changing behavior`
 - `plan tests for this doctor command`
 - `write api contracts for the new endpoint`
+- `design sql schema for the booking tables`
+- `create database diagrams for this workflow`
+- `make this website more formal`
+- `make the landing page more llamativa`
 - `prepare release for this package`
 
 ## Standalone Agents
@@ -358,9 +395,11 @@ Standalone agents can be used at any time when the task needs specialized help. 
 - `accessibility-reviewer`: review accessibility concerns for UI work, including semantics and navigation
 - `api-contract-writer`: define API request/response boundaries, contracts, and field exposure rules
 - `data-modeler`: design or review schemas, migrations, and data boundaries
+- `sql-database-designer`: design SQL schemas, migration layout, and required database flowcharts, sequence diagrams, entity-relationship models, and relational models
 - `migration-planner`: plan safe technical or data migrations, including rollback and compatibility concerns
 - `observability-reviewer`: review logging, metrics, tracing, and operational diagnosability
 - `release-coordinator`: prepare release-readiness summaries, rollout notes, and follow-up actions
+- `web-designer`: define or refine layout direction, palette, contrast, and audience-appropriate visual design for website changes
 
 ## Layers
 

@@ -8,6 +8,9 @@ Follow stages in order unless user explicitly requests skip/bypass.
 
 `--force` means explicit override of normal prerequisite/progression behavior.
 
+Force/bypass must never be inferred from broad delivery language alone.
+If a request could imply skipping or combining two or more stages, require explicit confirmation and name the affected stages before proceeding.
+
 When force/bypass is applied:
 
 - document bypass in stage file and status note

@@ -16,6 +16,7 @@ Implement branch changes while preserving traceability and quality.
 - Spec schema: `../framework/06-spec-writing-standard.md`
 - Done criteria: `../framework/07-definition-of-done.md`
 - Profile selection: `../framework/profiles/00-profile-selection.md`
+- Repo coding rules: `../steering/coding-steering.md`
 
 ## Prerequisites
 
@@ -27,10 +28,11 @@ Implement branch changes while preserving traceability and quality.
 - Update specs first when user intent changes.
 - Implement code changes and add/update tests proportionate to risk.
 - Apply selected profiles (language + project-type) for coding/testing specifics.
+- Treat `../steering/coding-steering.md` as mandatory for every code change.
 - If code/spec drift exists, reconcile using canonical conflict policy.
 - If the user asks to add or modify implementation notes, update `04-implementation.md` in place.
 - Do not create or populate `05-code-review.md` from an implementation amendment alone.
-- Keep `Current stage = 4-implementer` unless the user explicitly advances or switches stages.
+- Keep `Current stage = 4-implementer` unless the user explicitly advances, skips, or bypasses.
 
 ## Required Output (`04-implementation.md`)
 

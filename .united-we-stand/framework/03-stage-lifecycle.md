@@ -24,18 +24,32 @@ Stage was active but unfinished and explicitly skipped or forced past.
 Advancement occurs only when one of the following is true:
 
 - user explicitly requests next step
-- user explicitly names another stage
 - user explicitly requests skip/bypass
 - `--force` semantics are applied per framework policy
 
 Completion alone is not an advancement trigger.
 Editing or enriching a stage file is not an advancement trigger.
+Broad "get it ready", "take it all the way", or outcome-oriented phrasing is not by itself an advancement trigger across multiple stages.
 
 ## Amendment Behavior
 
 - A request such as `add this in planning`, `change the initializer`, or `update design` is an amendment to that stage file.
 - Amendment requests must not be interpreted as permission to create or fill the next stage.
 - If the amended stage becomes complete, it remains `Active and completed` until the user explicitly advances.
+
+## Backward-Stage Requests
+
+- A request that targets earlier-stage work after the workflow has already moved forward is a backward-stage request.
+- Backward-stage requests do not change lifecycle category placement for the current stage.
+- Execute the requested earlier-stage work, update the relevant stage files, and mark downstream state as needing refresh in status metadata when applicable.
+- The workflow continues from its existing later-stage anchor unless the user explicitly advances forward again, skips, or bypasses.
+
+## Multi-Stage Requests
+
+- Never auto-advance, even if the next stage seems obvious.
+- If a request could be read as advancing through two or more stages at once, ask for confirmation before proceeding.
+- The confirmation must list the exact stages to be executed together.
+- Until the user confirms, keep the workflow anchored in the current stage.
 
 ## Resumption Inputs
 

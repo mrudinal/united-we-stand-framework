@@ -100,6 +100,16 @@ npm run test:e2e
 - package metadata: `package.json`
 - publish preparation for GitHub Packages: `scripts/prepare-github-publish.mjs`
 
+## Installed Editor Integration Files
+
+When users run `united-we-stand install`, the framework also installs lightweight editor/agent integration pointers that redirect tools back to the root `AGENTS.md` file instead of duplicating rules.
+
+Installed pointer files:
+
+- `.github/copilot-instructions.md`
+- `.agents/workflows/united-we-stand.md`
+- `.cursor/rules/united-we-stand.mdc`
+
 ## Publish Targets
 
 This repository is prepared for two private user-scoped publish targets:
@@ -349,8 +359,7 @@ npm test
 npm run test:e2e
 npm login --scope=@mrudinal --auth-type=legacy --registry=https://npm.pkg.github.com
 npm run prepare:publish:github
-cd .publish/github
-npm publish
+npm publish .publish/github
 ```
 
 ### Verify The GitHub Package Exists

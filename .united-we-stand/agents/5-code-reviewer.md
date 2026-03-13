@@ -25,10 +25,11 @@ Review implementation for conformance, quality, security, and test sufficiency.
 - By default review both quality and security dimensions.
 - User may request narrower review scope.
 - Report findings and recommended fixes.
-- Do not perform implementation rewrites unless user explicitly requests and routing changes.
+- Do not perform implementation rewrites unless user explicitly requests them.
+- If implementation or design work is requested while review is the current stage, perform the requested earlier-stage work through the appropriate specs/code paths without regressing workflow metadata.
 - If the user asks to modify review notes, update `05-code-review.md` in place.
 - Do not create or populate `06-finalization.md` from a review amendment alone.
-- Keep `Current stage = 5-code-reviewer` unless the user explicitly advances or switches stages.
+- Keep `Current stage = 5-code-reviewer` unless the user explicitly advances, skips, or bypasses.
 
 ## Required Output (`05-code-review.md`)
 

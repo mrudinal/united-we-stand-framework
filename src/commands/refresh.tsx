@@ -13,6 +13,8 @@ import { createLogger } from '../lib/logger.js';
 import {
     loadAgentsMdBlockTemplate,
     loadCopilotInstructionsTemplate,
+    loadAntigravityWorkflowTemplate,
+    loadCursorRuleTemplate,
     loadFrameworkReadmeTemplate,
     loadFrameworkFiles,
     loadSteeringFiles,
@@ -52,6 +54,24 @@ export function runRefreshCommand(options: RefreshCommandOptions): void {
     ensureDirectoryExists(githubDirectory, isDryRun, logger);
     const copilotInstructionsPath = join(githubDirectory, 'copilot-instructions.md');
     upsertFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
+
+    const antigravityWorkflowsDirectory = join(workingDirectory, '.agents', 'workflows');
+    ensureDirectoryExists(antigravityWorkflowsDirectory, isDryRun, logger);
+    writeFileIfMissing(
+        join(antigravityWorkflowsDirectory, 'united-we-stand.md'),
+        loadAntigravityWorkflowTemplate(),
+        isDryRun,
+        logger,
+    );
+
+    const cursorRulesDirectory = join(workingDirectory, '.cursor', 'rules');
+    ensureDirectoryExists(cursorRulesDirectory, isDryRun, logger);
+    writeFileIfMissing(
+        join(cursorRulesDirectory, 'united-we-stand.mdc'),
+        loadCursorRuleTemplate(),
+        isDryRun,
+        logger,
+    );
 
     const frameworkRootDirectory = join(workingDirectory, '.united-we-stand');
     ensureDirectoryExists(frameworkRootDirectory, isDryRun, logger);

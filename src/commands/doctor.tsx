@@ -23,7 +23,6 @@ import {
     loadPlaybookFiles,
     loadFrameworkAgentFiles,
     loadStandaloneAgentFiles,
-    listBranchSpecRelativePaths,
 } from '../lib/templates.js';
 
 /** Options accepted by the doctor command. */
@@ -43,6 +42,12 @@ interface StatusSnapshot {
     blockersOrWarnings: string;
     lastUpdatedBy: string;
     lastUpdatedAt: string;
+}
+
+interface StageMetadataSnapshot {
+    currentStage: string;
+    completedSteps: string[];
+    incompletedStages: string[];
 }
 
 const STATUS_FIELD_LABELS = {
@@ -111,6 +116,65 @@ const STAGE_FILE_TO_STAGE_NAME: Record<string, string> = {
     '05-code-review.md': '5-code-reviewer',
     '06-finalization.md': '6-finalizer',
 };
+
+const REQUIRED_BOOTSTRAP_BRANCH_FILES = [
+    '00-current-status.md',
+    '01-init.md',
+] as const;
+
+/**
+ * Returns the highest existing stage file and stage name within a branch folder.
+ */
+function getHighestExistingStage(
+    specDrivenDirectory: string,
+): { stageFileName: string; stageName: string } | null {
+    let highestStage: { stageFileName: string; stageName: string } | null = null;
+
+    for (const [stageFileName, stageName] of Object.entries(STAGE_FILE_TO_STAGE_NAME)) {
+        if (doesFileExist(join(specDrivenDirectory, stageFileName))) {
+            highestStage = { stageFileName, stageName };
+        }
+    }
+
+    return highestStage;
+}
+
+/**
+ * Validates that recorded stage metadata matches the stage files present on disk.
+ */
+function validateStageMetadataAgainstFiles(
+    specDrivenDirectory: string,
+    metadataLabel: string,
+    metadata: StageMetadataSnapshot,
+): string[] {
+    const alignmentErrors: string[] = [];
+    const highestExistingStage = getHighestExistingStage(specDrivenDirectory);
+
+    if (highestExistingStage && metadata.currentStage !== highestExistingStage.stageName) {
+        alignmentErrors.push(
+            `${metadataLabel} current stage is "${metadata.currentStage}" but the highest existing stage file is `
+            + `"${highestExistingStage.stageFileName}" (${highestExistingStage.stageName}).`,
+        );
+    }
+
+    for (const recordedStage of [
+        metadata.currentStage,
+        ...metadata.completedSteps,
+        ...metadata.incompletedStages,
+    ]) {
+        const expectedStageFile = Object.entries(STAGE_FILE_TO_STAGE_NAME).find(
+            ([, stageName]) => stageName === recordedStage,
+        )?.[0];
+
+        if (expectedStageFile && !doesFileExist(join(specDrivenDirectory, expectedStageFile))) {
+            alignmentErrors.push(
+                `${metadataLabel} references stage "${recordedStage}" but "${expectedStageFile}" is missing.`,
+            );
+        }
+    }
+
+    return alignmentErrors;
+}
 
 /**
  * Escapes text for safe interpolation into a RegExp.
@@ -373,6 +437,12 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
         reportCheck('.github/copilot-instructions.md has managed block', hasManagedBlock(copilotContent), 'framework');
     }
 
+    const antigravityWorkflowPath = join(workingDirectory, '.agents', 'workflows', 'united-we-stand.md');
+    reportCheck('.agents/workflows/united-we-stand.md exists', doesFileExist(antigravityWorkflowPath), 'framework');
+
+    const cursorRulePath = join(workingDirectory, '.cursor', 'rules', 'united-we-stand.mdc');
+    reportCheck('.cursor/rules/united-we-stand.mdc exists', doesFileExist(cursorRulePath), 'framework');
+
     const frameworkRootDirectory = join(workingDirectory, '.united-we-stand');
     reportCheck('.united-we-stand/ directory exists', doesFileExist(frameworkRootDirectory), 'framework');
 
@@ -468,8 +538,12 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                 reportCheck(`.spec-driven/${branchMemoryFolderName}/ directory exists`, specDirectoryExists, 'branch');
 
                 if (specDirectoryExists) {
-                    for (const specRelativePath of listBranchSpecRelativePaths()) {
-                        reportCheck(`  ${specRelativePath}`, doesFileExist(join(specDrivenDirectory, specRelativePath)), 'branch');
+                    for (const requiredBootstrapFile of REQUIRED_BOOTSTRAP_BRANCH_FILES) {
+                        reportCheck(
+                            `  ${requiredBootstrapFile}`,
+                            doesFileExist(join(specDrivenDirectory, requiredBootstrapFile)),
+                            'branch',
+                        );
                     }
 
                     const runtimeStatePath = join(specDrivenDirectory, 'state.json');
@@ -493,6 +567,18 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                             statusSemanticErrors.length === 0,
                             'branch',
                             statusSemanticErrors.length > 0 ? statusSemanticErrors.join(' | ') : undefined,
+                        );
+
+                        const statusFileAlignmentErrors = validateStageMetadataAgainstFiles(
+                            specDrivenDirectory,
+                            'Status metadata',
+                            parsedStatus.snapshot,
+                        );
+                        reportCheck(
+                            '  status metadata matches created stage files',
+                            statusFileAlignmentErrors.length === 0,
+                            'branch',
+                            statusFileAlignmentErrors.length > 0 ? statusFileAlignmentErrors.join(' | ') : undefined,
                         );
                     }
 
@@ -527,6 +613,18 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                                 identityErrors.length === 0,
                                 'branch',
                                 identityErrors.length > 0 ? identityErrors.join(' | ') : undefined,
+                            );
+
+                            const runtimeFileAlignmentErrors = validateStageMetadataAgainstFiles(
+                                specDrivenDirectory,
+                                'state.json metadata',
+                                parsedRuntimeState,
+                            );
+                            reportCheck(
+                                '  state.json metadata matches created stage files',
+                                runtimeFileAlignmentErrors.length === 0,
+                                'branch',
+                                runtimeFileAlignmentErrors.length > 0 ? runtimeFileAlignmentErrors.join(' | ') : undefined,
                             );
 
                             if (parsedStatus.snapshot) {

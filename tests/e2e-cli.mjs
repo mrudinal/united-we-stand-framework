@@ -217,10 +217,99 @@ function scenarioCollisionFailsNonInteractiveReuse() {
     });
 }
 
+/**
+ * Verifies that re-running branch-init requires explicit --force and does not mutate state otherwise.
+ */
+function scenarioReinitRequiresForce() {
+    withTempRepository((tempRepositoryPath) => {
+        expectSuccessfulCommand(
+            runCli(['install', '--cwd', tempRepositoryPath]),
+            'install',
+        );
+        expectSuccessfulCommand(
+            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'first init']),
+            'branch-init initial',
+        );
+
+        const branchDirectory = join(tempRepositoryPath, '.spec-driven', 'main');
+        writeFileSync(
+            join(branchDirectory, '02-plan.md'),
+            `## Objectives
+
+Plan objectives.
+
+## High-level task breakdown
+
+Plan tasks.
+
+## Dependencies
+
+None.
+
+## Risks / unknowns
+
+None.
+
+## Suggested execution order
+
+Do planning before design.
+`,
+            'utf-8',
+        );
+        writeFileSync(
+            join(branchDirectory, '00-current-status.md'),
+            [
+                '# Branch Overview',
+                '',
+                '| Field | Value |',
+                '|-------|-------|',
+                '| Current branch | `main` |',
+                '| Sanitized ID | `main` |',
+                '| Current stage | 2-planner |',
+                '| Completed steps | 1-initializer |',
+                '| Incompleted stages | none |',
+                '| Next recommended step | 3-designer |',
+                '| Status note | Planning is complete. |',
+                '| Blockers / warnings | none |',
+                '| Last updated by | 2-planner |',
+                '| Last updated at | 2026-03-13 |',
+                '',
+            ].join('\n'),
+            'utf-8',
+        );
+        writeFileSync(
+            join(branchDirectory, 'state.json'),
+            `${JSON.stringify({
+                branchName: 'main',
+                sanitizedBranchName: 'main',
+                branchMemoryFolder: 'main',
+                currentStage: '2-planner',
+                completedSteps: ['1-initializer'],
+                incompletedStages: [],
+                nextRecommendedStep: '3-designer',
+                lastUpdatedBy: '2-planner',
+                lastUpdatedAt: '2026-03-13T00:00:00.000Z',
+                initialized: true,
+                finalized: false,
+            }, null, 2)}\n`,
+            'utf-8',
+        );
+
+        const blockedReinitResult = runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'second init']);
+        assert.equal(blockedReinitResult.exitCode, 1, `branch-init re-run without force should fail.\nOutput:\n${blockedReinitResult.output}`);
+        assert.match(blockedReinitResult.output, /Current stage: 2-planner/);
+        assert.match(blockedReinitResult.output, /Reset is only allowed when you explicitly rerun with `--force`\./);
+
+        const stateContent = readFileSync(join(branchDirectory, 'state.json'), 'utf-8');
+        assert.match(stateContent, /"currentStage": "2-planner"/);
+    });
+}
+
 const scenarios = [
     ['happy path passes doctor', scenarioHappyPathPassesDoctor],
     ['doctor fails completed placeholder stage', scenarioDoctorFailsCompletedPlaceholderStage],
     ['collision fails non-interactive reuse', scenarioCollisionFailsNonInteractiveReuse],
+    ['reinit requires force', scenarioReinitRequiresForce],
 ];
 
 let failureCount = 0;

@@ -33,9 +33,11 @@ const STANDALONE_AGENT_FILENAMES = [
     'accessibility-reviewer.md',
     'api-contract-writer.md',
     'data-modeler.md',
+    'sql-database-designer.md',
     'migration-planner.md',
     'observability-reviewer.md',
     'release-coordinator.md',
+    'web-designer.md',
 ];
 
 /** Represents a single markdown file with path (relative to `.united-we-stand/`) and content. */
@@ -137,6 +139,20 @@ export function loadCopilotInstructionsTemplate(): string {
 }
 
 /**
+ * Returns the Antigravity workflow pointer template.
+ */
+export function loadAntigravityWorkflowTemplate(): string {
+    return readTemplateFile('antigravity-workflow.md');
+}
+
+/**
+ * Returns the Cursor project rule pointer template.
+ */
+export function loadCursorRuleTemplate(): string {
+    return readTemplateFile('cursor-rule.mdc');
+}
+
+/**
  * Returns the `.united-we-stand/README.md` template.
  */
 export function loadFrameworkReadmeTemplate(): string {
@@ -223,10 +239,10 @@ export function loadCurrentStatusSpecTemplate(branchName: string, sanitizedName:
 }
 
 /**
- * Builds the managed block content for a captured idea in `01-init.md`.
+ * Builds the replaceable marker content for a captured idea in `01-init.md`.
  */
 export function buildCapturedIdeaBlock(ideaText: string): string {
-    return `## Raw idea / problem statement\n\n${ideaText}\n`;
+    return `${ideaText}\n`;
 }
 
 /**

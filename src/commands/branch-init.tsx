@@ -1,12 +1,13 @@
 /**
  * Init command: initializes the current branch with an idea description.
  *
- * Detects the current git branch, creates the branch memory folder with all
- * spec files, saves the user's idea into 01-init.md, and updates
+ * Detects the current git branch, creates the branch memory folder with
+ * initializer bootstrap files, saves the user's idea into 01-init.md, and updates
  * 00-current-status.md to reflect that initializer work is active.
  */
 
 import { join } from 'node:path';
+import { rmSync } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { isGitRepository, getCurrentBranchName } from '../lib/git.js';
@@ -15,7 +16,6 @@ import {
     ensureDirectoryExists,
     readFileOrNull,
     writeFileWithDirectories,
-    writeFileIfMissing,
     doesFileExist,
 } from '../lib/fs.js';
 import { upsertManagedBlock } from '../lib/markers.js';
@@ -30,7 +30,6 @@ import {
     loadCurrentStatusSpecTemplate,
     buildCapturedIdeaBlock,
     buildOverviewStageBlock,
-    loadBranchSpecFiles,
 } from '../lib/templates.js';
 import {
     buildInitializedBranchRuntimeState,
@@ -43,6 +42,7 @@ export interface InitCommandOptions {
     isDryRun: boolean;
     ideaText?: string;
     branchNameOverride?: string;
+    force?: boolean;
 }
 
 const IDEA_MARKER_START = '<!-- united-we-stand:captured-idea:start -->';
@@ -50,6 +50,7 @@ const IDEA_MARKER_END = '<!-- united-we-stand:captured-idea:end -->';
 
 /**
  * Inserts or replaces the captured-idea block inside `01-init.md`.
+ * Prefers explicit markers and falls back to replacing the exact raw-idea section.
  */
 function upsertCapturedIdeaBlock(existingContent: string, ideaText: string): string {
     const ideaBlock = `${IDEA_MARKER_START}\n${buildCapturedIdeaBlock(ideaText).trimEnd()}\n${IDEA_MARKER_END}`;
@@ -62,15 +63,19 @@ function upsertCapturedIdeaBlock(existingContent: string, ideaText: string): str
         return existingContent.replace(markerPattern, ideaBlock);
     }
 
-    if (/## Raw idea/i.test(existingContent)) {
+    if (/## Raw idea \/ problem statement/i.test(existingContent)) {
         return existingContent.replace(
-            /## Raw idea[\s\S]*?(?=\n## |\n$|$)/m,
-            ideaBlock + '\n',
+            /(## Raw idea \/ problem statement\s*\r?\n)([\s\S]*?)(?=\r?\n##\s|$)/i,
+            `$1${ideaBlock}\n`,
         );
     }
 
     const separator = existingContent.endsWith('\n') ? '\n' : '\n\n';
-    return existingContent + separator + ideaBlock + '\n';
+    return existingContent
+        + separator
+        + '## Raw idea / problem statement\n'
+        + ideaBlock
+        + '\n';
 }
 
 /**
@@ -96,6 +101,19 @@ function parseCurrentBranchFromStatus(statusContent: string): string | null {
     }
 
     return null;
+}
+
+/**
+ * Reads a single status-table field from `00-current-status.md`.
+ */
+function parseStatusField(statusContent: string, fieldLabel: string): string | null {
+    const fieldPattern = new RegExp(`\\|\\s*${escapeRegExpChars(fieldLabel)}\\s*\\|\\s*([^|]+)\\|`, 'i');
+    const fieldMatch = statusContent.match(fieldPattern);
+    if (!fieldMatch || !fieldMatch[1]) {
+        return null;
+    }
+
+    return fieldMatch[1].replace(/`/g, '').trim();
 }
 
 /**
@@ -135,6 +153,38 @@ function isSpecFolderAlreadyLinkedToBranch(specFolderPath: string, branchName: s
     return linkedBranchIdentity.branchName === branchName;
 }
 
+/**
+ * Reads the current stage and next recommended step from existing branch memory.
+ */
+function readExistingBranchStatusSummary(specFolderPath: string): {
+    currentStage: string | null;
+    nextRecommendedStep: string | null;
+} {
+    const runtimeStatePath = join(specFolderPath, 'state.json');
+    const runtimeStateContent = readFileOrNull(runtimeStatePath);
+    const parsedRuntimeState = runtimeStateContent ? parseBranchRuntimeState(runtimeStateContent) : null;
+    if (parsedRuntimeState) {
+        return {
+            currentStage: parsedRuntimeState.currentStage,
+            nextRecommendedStep: parsedRuntimeState.nextRecommendedStep,
+        };
+    }
+
+    const statusPath = join(specFolderPath, '00-current-status.md');
+    const statusContent = readFileOrNull(statusPath);
+    if (!statusContent) {
+        return {
+            currentStage: null,
+            nextRecommendedStep: null,
+        };
+    }
+
+    return {
+        currentStage: parseStatusField(statusContent, 'Current stage'),
+        nextRecommendedStep: parseStatusField(statusContent, 'Next recommended step'),
+    };
+}
+
 const REUSE_EXISTING_FOLDER_TOKEN = '__REUSE_EXISTING_FOLDER__';
 
 /**
@@ -172,6 +222,7 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
         isDryRun,
         ideaText,
         branchNameOverride,
+        force = false,
     } = options;
 
     if (!isGitRepository(workingDirectory)) {
@@ -269,18 +320,41 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
         }
     }
 
+    const specDrivenDirectory = join(specDrivenRootDirectory, branchMemoryFolderName);
+    const branchAlreadyInitialized = doesFileExist(specDrivenDirectory)
+        && (
+            branchRoutingMap[currentBranch] === branchMemoryFolderName
+            || isSpecFolderAlreadyLinkedToBranch(specDrivenDirectory, currentBranch)
+        );
+
+    if (branchAlreadyInitialized && !force) {
+        const branchStatusSummary = readExistingBranchStatusSummary(specDrivenDirectory);
+        logger.warn(`Branch memory already exists for "${currentBranch}" at ".spec-driven/${branchMemoryFolderName}".`);
+        if (branchStatusSummary.currentStage) {
+            logger.info(`Current stage: ${branchStatusSummary.currentStage}`);
+        }
+        if (branchStatusSummary.nextRecommendedStep) {
+            logger.info(`Next recommended step: ${branchStatusSummary.nextRecommendedStep}`);
+        }
+        logger.info('Re-running `branch-init` does not reset existing branch memory.');
+        logger.info('Reset is only allowed when you explicitly rerun with `--force`.');
+        logger.info('That reset only affects `.spec-driven/...` branch memory and does not revert code changes.');
+        process.exitCode = 1;
+        return;
+    }
+
     logger.info(`Branch: ${currentBranch} -> ${branchMemoryFolderName}`);
 
     ensureDirectoryExists(specDrivenRootDirectory, isDryRun, logger);
-    const specDrivenDirectory = join(specDrivenRootDirectory, branchMemoryFolderName);
-    ensureDirectoryExists(specDrivenDirectory, isDryRun, logger);
 
-    for (const specFile of loadBranchSpecFiles(currentBranch, branchMemoryFolderName)) {
-        if (specFile.relativePath === '00-current-status.md' || specFile.relativePath === '01-init.md') {
-            continue;
+    if (branchAlreadyInitialized && force) {
+        logger.warn(`Resetting existing branch memory for "${currentBranch}" because --force was provided.`);
+        if (!isDryRun) {
+            rmSync(specDrivenDirectory, { recursive: true, force: true });
         }
-        writeFileIfMissing(join(specDrivenDirectory, specFile.relativePath), specFile.content, isDryRun, logger);
     }
+
+    ensureDirectoryExists(specDrivenDirectory, isDryRun, logger);
 
     const initFilePath = join(specDrivenDirectory, '01-init.md');
     let initFileContent = readFileOrNull(initFilePath) ?? loadInitSpecTemplate();

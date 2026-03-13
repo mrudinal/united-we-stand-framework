@@ -22,12 +22,14 @@
 3. Completing work does not automatically move a stage to `Completed steps`.
 4. `Completed steps` records stages explicitly left behind after user advancement.
 5. If user moves forward without completion, move prior stage to `Incompleted stages`.
+6. `Current stage` must never move backward to an earlier numbered stage.
+7. `Current stage` must match the highest existing numbered stage file in the branch folder among `01-init.md` through `06-finalization.md`.
 
 ## In-Stage Amendment Rule
 
 - If the user asks to add, modify, remove, clarify, or fix content in the current stage, update that stage in place.
 - Do not auto-advance because the edited stage now looks complete.
-- Keep `Current stage` anchored to the same stage unless the user explicitly says to advance, switch stages, skip, or bypass.
+- Keep `Current stage` anchored to the same stage unless the user explicitly says to advance, skip, or bypass.
 - Set `Next recommended step` according to reality:
   - if the stage is still unfinished, recommend the same stage
   - if the stage is now complete but not advanced, keep the same `Current stage` and recommend the next logical stage
@@ -37,7 +39,15 @@
 - If the user explicitly asks to modify a different stage file, treat that as an amendment request for the named stage file.
 - Update the targeted stage file in place without treating the request as workflow advancement by itself.
 - Do not create, populate, or advance into a higher-numbered stage just because an earlier stage was amended.
-- Preserve the existing `Current stage` unless the user explicitly says to switch or advance.
+- Preserve the existing `Current stage` unless the user explicitly says to advance, skip, or bypass.
+
+## Backward Work Rule
+
+- If the workflow is already in a later stage and the user requests work that belongs to an earlier stage, perform the work without regressing state categories.
+- Update the relevant earlier-stage files in place.
+- Keep `Current stage`, `Completed steps`, and `Incompleted stages` unchanged unless the user is moving forward or invoking skip/force semantics.
+- Update `Status note` and `Blockers / warnings` to record that earlier-stage work changed after later-stage progress, so downstream work can be refreshed consciously.
+- Set `Next recommended step` to the nearest forward-looking corrective action, usually re-running or refreshing the current stage.
 
 ## Advancement Bookkeeping Rule
 
@@ -48,6 +58,13 @@
   - keep any earlier explicitly used stages in `Completed steps` if they were already completed and are no longer current
   - ensure every recorded completed or incompleted stage has its corresponding stage document present in `.spec-driven/<branch>/`
 
+## Multi-Stage Advancement Confirmation Rule
+
+- Never infer permission to cross two or more stages from broad outcome wording alone.
+- If a request could mean "do planning, design, and implementation" or any other multi-stage jump, pause and ask for confirmation before changing stage state or creating later-stage files.
+- The confirmation must name the exact stages that would be advanced or executed in the same pass.
+- Without that confirmation, keep `Current stage` anchored and perform only the nearest safe in-stage work.
+
 ## Category Invariants
 
 - A stage can appear in exactly one category at a time:
@@ -56,6 +73,7 @@
   - `Incompleted stages`
 - No duplicates within a category.
 - `Current stage` must never be empty while workflow is active.
+- `Current stage` must match the highest existing stage file present in the branch folder.
 
 ## Next Recommended Step Rules
 
@@ -73,6 +91,7 @@
 - what stage is active
 - whether it is complete
 - what should happen next
+- whether earlier-stage work changed after later-stage progress when that affects downstream confidence
 
 ## Completion Reflection Rule
 

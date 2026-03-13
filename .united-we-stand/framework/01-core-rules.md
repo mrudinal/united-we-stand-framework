@@ -50,10 +50,28 @@ This file is the canonical source for global framework invariants.
     If a branch uses a non-default memory folder, persist that exception in `.spec-driven/.branch-routing.json` and use it for subsequent branch-folder resolution.
 
 16. **No implicit advancement from edit requests**  
-    Requests to add, modify, remove, clarify, or fix content inside a stage are amendment requests for that stage unless the user explicitly asks to advance, switch stages, skip, or bypass.
+    Requests to add, modify, remove, clarify, or fix content inside a stage are amendment requests for that stage unless the user explicitly asks to advance, skip, or bypass.
 
 17. **No downstream stage creation from in-stage amendments**  
     Editing one stage must not create, complete, or populate a higher-numbered stage unless the user explicitly requests that higher stage or explicitly advances the workflow.
+
+18. **Branch-scoped work stays in spec by default**  
+    If a request is branch-scoped and requires persistent work, operate through `.spec-driven/<branch>/` by default. Read and update the relevant spec files first unless the user explicitly says not to, or the request is unrelated, informational only, or does not require repository/spec changes.
+
+19. **Never auto-advance stages**  
+    Never advance from one stage to the next automatically. A stage may become complete, but it must remain anchored until the user explicitly advances or explicitly confirms a bypass.
+
+20. **Multi-stage advancement requires confirmation**  
+    If a request could reasonably be interpreted as advancing through two or more stages in one go, do not proceed on inference alone. Ask for confirmation first and explicitly name the stages that would be run in the same pass.
+
+21. **No backward stage regression**  
+    `Current stage` is a monotonic workflow progress tracker. Earlier-stage work may be amended later, but `Current stage`, `Completed steps`, and `Incompleted stages` must not move backward to an earlier numbered stage.
+
+22. **Backward work must be recorded, not re-anchored**  
+    If the user requests planning, design, or implementation work after the workflow has already advanced past that stage, perform the requested work, update the relevant earlier stage files in place, and preserve the later `Current stage`. Record the impact in status metadata so downstream stale work is visible.
+
+23. **Stage metadata must match created stage files**  
+    Workflow metadata is not independent from the branch folder contents. `Current stage` must always match the highest existing numbered stage file among `01-init.md` through `06-finalization.md`, and status checks must validate that alignment.
 
 ## Stage Mandatory Set
 
@@ -91,6 +109,7 @@ Example: `feature/New Checkout UI` -> `feature-new-checkout-ui`
 - Finalizer may update wrap-up documentation (for example top-level `README.md`) when explicitly relevant to branch closure.
 - Standalone role agents do not update stage files unless explicitly asked.
 - A request such as `add this in planning`, `modify init`, or `update design` updates the targeted stage file in place and does not by itself change `Current stage`.
+- A direct earlier-stage request issued from a later workflow stage, such as `implement this` during review, performs the requested work without regressing workflow metadata.
 
 ## Stage File Update Method
 

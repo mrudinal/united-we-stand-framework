@@ -1,12 +1,69 @@
 # Coding Steering
 
-Use this file to define repo-specific coding conventions.
+This file defines repo-specific coding conventions that `4-implementer` must
+follow for every code change and `5-code-reviewer` must enforce during review.
+When this file is more specific than a profile doc, this file wins.
 
-## Suggested Sections
+## Formatting and consistency
 
-- Naming conventions
-- File/module structure
-- Error-handling preferences
-- Shared utilities rules
-- Dependency policy
-- Commenting/documentation preferences
+- Follow Airbnb JS/TS style guidance unless a stricter repo rule in this file overrides it.
+- Keep code consistently formatted with configured formatter/linter rules when present.
+- Order imports consistently.
+- Prefer clarity over cleverness.
+- Prefer small, composable functions.
+- Keep modules cohesive so each file has one main responsibility.
+- Use `const` by default; use `let` only when reassignment is required; avoid `var`.
+- Avoid deep nesting by using early returns, guard clauses, and small helpers.
+
+## Naming conventions
+
+- Use explicit, intent-revealing names instead of abbreviations.
+- Function and method names must describe what they do using `verb + object` naming where practical, such as `createAppointmentSlots`, `validateBookingRequest`, or `loadAvailableDays`.
+- Avoid vague names such as `doThing`, `handle`, `process`, `run`, `q`, or `fn1` for core logic.
+- Do not use single-letter identifiers, including in loops, callbacks, and temporary variables.
+- Prefer descriptive iteration and callback names such as `index`, `dayIndex`, `slotIndex`, `hourIndex`, `day`, `hour`, `appointment`, `user`, `request`, `error`, `event`, `response`, or `document`.
+- Use `camelCase` for variables and functions.
+- Use `PascalCase` for classes and components.
+- Use `UPPER_SNAKE_CASE` only for values that are truly constant and shared.
+
+## Commenting and documentation preferences
+
+- Every function and method must have a short JSDoc-style doc comment immediately above it.
+- Keep function and method doc comments to one brief sentence describing behavior.
+- Add `//` inline comments before each non-trivial block to explain intent, boundary handling, or reasoning.
+- Do not comment obvious code paths; comment intent and why the block exists.
+
+## Error-handling preferences
+
+- Handle errors intentionally and do not swallow exceptions.
+- Prefer predictable control flow and avoid hidden side effects.
+
+## Shared utilities rules
+
+- If logic is needed in more than one place, extract it into a shared function or module.
+- Prefer `utils/` for general-purpose helpers.
+- Prefer `lib/` for domain-specific shared logic.
+- Add at least minimal tests for shared utilities.
+
+## Dependency policy
+
+- Keep dependencies minimal and justify every new package.
+- Prefer built-in platform APIs before adding third-party dependencies when they are sufficient.
+- Prefer popular, maintained libraries with active releases and a solid security posture when a dependency is necessary.
+- Do not add deprecated or unmaintained packages when a maintained alternative exists.
+- Do not add packages with known active vulnerabilities.
+- Maintain the appropriate lockfile for the package manager in use.
+- Before merging a dependency change in npm-based repositories, run `npm audit` and address reported vulnerabilities by updating, replacing, or removing the dependency.
+
+## SonarQube-aligned quality rules
+
+- Follow common SonarQube-style clean code guidance, except there is no hard maximum function length.
+- Use strict equality (`===`, `!==`) instead of loose equality except for intentional safe nullish checks.
+- Do not import a module into itself.
+- Avoid absolute import paths unless repo conventions explicitly require alias-based imports.
+- Use `Number.isNaN()` for `NaN` checks.
+- Prefer spread syntax over redundant `.apply()` usage.
+- Prefer object spread syntax over `Object.assign()` when it is appropriate and equivalent.
+- Keep function and method names compliant with the naming rules in this file.
+- Remove unused variables, unused assignments, and dead code.
+- Avoid duplicated logic.

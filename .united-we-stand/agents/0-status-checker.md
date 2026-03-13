@@ -21,10 +21,13 @@ Establish reliable branch state and route the next action.
 - Read current branch status and available stage files.
 - Detect contradictions in stage categories or next-step logic.
 - Validate that required status fields exist.
-- For status requests, provide current stage, completed/incompleted, next recommendation, blockers, and stale areas.
+- Validate that `Current stage` matches the highest created numbered stage file present in the branch folder.
+- For status requests, always state the current stage and the recommended next stage explicitly, then provide completed/incompleted, blockers, and stale areas.
 - For explicit progression commands, route to the next valid stage.
-- For stage amendment requests, preserve the anchored `Current stage` unless the user explicitly asks to advance or switch stages.
+- For stage amendment requests, preserve the anchored `Current stage` unless the user explicitly asks to advance, skip, or bypass.
 - If a lower stage was amended, do not treat that amendment as permission to create or populate a later stage.
+- If earlier-stage work was changed after the workflow had already moved forward, report the stale downstream areas in status output without regressing workflow metadata.
+- If a request could be interpreted as advancing through multiple stages at once, stop and ask for confirmation while naming the exact stages that would be run together.
 - Perform deterministic auto-correction for status contradictions when safe.
 - If auto-correction is made in `00-current-status.md`, include a brief note to user explaining what was corrected.
 
@@ -51,6 +54,7 @@ Used for explicit progression commands (`continue`, `next step`).
 
 - Current branch
 - Current stage
+- Recommended next stage
 - Completed steps
 - Incompleted stages
 - Next recommended step

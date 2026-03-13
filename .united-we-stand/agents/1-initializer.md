@@ -28,6 +28,8 @@ None.
 - Do not implement code.
 - If the user asks to modify initializer content, update `01-init.md` in place and keep `Current stage = 1-initializer` unless the user explicitly advances.
 - Do not create or populate planning content just because initializer content now looks complete.
+- Do not create `02-plan.md`, `03-design.md`, or any later-stage file from an initialization request alone.
+- If a user request could be interpreted as asking for initialization plus later stages in the same pass, ask for confirmation first and name the exact stages that would be executed.
 
 ## Required Output (`01-init.md`)
 

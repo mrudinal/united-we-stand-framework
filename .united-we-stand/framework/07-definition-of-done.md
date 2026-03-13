@@ -42,4 +42,5 @@ Profile-specific mandates (for example JS/TS style, audit commands, JSDoc practi
 - prerequisites were bypassed without explicit traceability
 - documented behavior contradicts actual implementation state
 - a stage was auto-advanced without explicit user advancement
+- workflow metadata regressed backward to an earlier stage because of later amendment work
 - a higher-numbered stage was created or populated from an in-stage amendment request alone

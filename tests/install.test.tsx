@@ -61,6 +61,12 @@ describe('install command', () => {
         expect(existsSync(join(tempRepoDirectory, '.github', 'copilot-instructions.md'))).toBe(true);
     });
 
+    it('creates Antigravity and Cursor pointer files', async () => {
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+        expect(existsSync(join(tempRepoDirectory, '.agents', 'workflows', 'united-we-stand.md'))).toBe(true);
+        expect(existsSync(join(tempRepoDirectory, '.cursor', 'rules', 'united-we-stand.mdc'))).toBe(true);
+    });
+
     it('creates framework agent files', async () => {
         await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
         const agentsDirectory = join(tempRepoDirectory, '.united-we-stand', 'agents');
@@ -80,6 +86,8 @@ describe('install command', () => {
         expect(existsSync(join(agentsDirectory, 'documentation-writer.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'refactorer.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'release-coordinator.md'))).toBe(true);
+        expect(existsSync(join(agentsDirectory, 'sql-database-designer.md'))).toBe(true);
+        expect(existsSync(join(agentsDirectory, 'web-designer.md'))).toBe(true);
     });
 
     it('creates framework, steering, playbook, and framework readme files', async () => {

@@ -64,6 +64,7 @@ program
     .option('--cwd <path>', 'run as if started in <path>')
     .option('--dry-run', 'show what would be done without writing files')
     .option('--branch <name>', 'explicit branch name override (useful in detached HEAD)')
+    .option('--force', 'reset existing branch memory for this branch back to initializer bootstrap files')
     .action(async function (this: Command, ideaText: string) {
         const globalOptions = this.optsWithGlobals();
         await runBranchInitCommand({
@@ -71,6 +72,7 @@ program
             isDryRun: isDryRunEnabled(this),
             ideaText,
             branchNameOverride: globalOptions.branch,
+            force: globalOptions.force === true,
         });
     });
 

@@ -1,4 +1,4 @@
-﻿## united-we-stand integration
+## united-we-stand workflow
 
 Use `AGENTS.md` at the repository root as the canonical instruction entrypoint.
 

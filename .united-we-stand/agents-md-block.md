@@ -22,14 +22,22 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - Keep specs and decisions updated when acting as framework stages.
 - Update `00-current-status.md` whenever workflow state changes.
 - Keep `Current stage` anchored until user explicitly advances or bypasses.
+- Never auto-advance to the next phase. A stage may become complete, but it still stays anchored until the user explicitly advances or explicitly confirms a bypass.
 - Treat requests to add, modify, remove, clarify, or fix content inside a stage as in-place amendments, not as automatic advancement.
+- Never move `Current stage` backward to an earlier numbered stage. If earlier-stage work is requested later, do the work, update the earlier stage files, and record the stale downstream impact in status metadata instead of regressing stage state.
+- `Current stage` must always match the highest created numbered stage file present in `.spec-driven/<branch>/` among `01-init.md` through `06-finalization.md`.
 - Avoid deadlocks: when user intent is clear (`continue`, `implement`, `fix`, `review`), take the nearest safe action and keep status traceability updated.
 - Do not create, populate, or complete a higher-numbered stage just because the user amended the current stage.
+- If a request could reasonably mean advancing through two or more phases at once, do not infer permission. Ask for confirmation first and name the exact phases you would execute together, for example `1-initializer -> 2-planner -> 3-designer`.
 - Do not assume missing stage files are completed.
 - Do not create branch state folders preemptively; `branch-init` or an explicit user initialization request should create them.
 - If branch memory does not exist yet, natural start-of-work requests such as `let's start this`, `help me with this idea`, or `i want to build...` should default to `1-initializer`.
+- If branch memory does not exist yet, explicit init requests such as `init the following`, `initialize this`, `let's init this`, `help me with the following idea, i want...`, `let's start building this`, `i want to build...`, `i want to create...`, or `let's work on...` should be treated as permission to create the branch spec and start `1-initializer`.
+- The most reliable direct NLP bootstrap is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 - Runtime branch memory is writable under `.spec-driven/` only.
 - Treat `.united-we-stand/` as installed framework content (do not use it for runtime branch memory updates).
+- When the request is branch-scoped and requires planning, design, implementation, review, or other persistent work, operate inside `.spec-driven/<branch>/` by default.
+- For branch-scoped work, read and update the relevant spec files first unless the user explicitly says not to, or the request is unrelated, informational only, or does not require repository/spec changes.
 - If branch folder naming uses an exception, persist and read `.spec-driven/.branch-routing.json`.
 - Keep `.spec-driven/<branch>/state.json` aligned with `00-current-status.md`.
 - Use the exact `state.json` keys defined by the framework (`branchName`, `sanitizedBranchName`, `branchMemoryFolder`, `currentStage`, `completedSteps`, `incompletedStages`, `nextRecommendedStep`, `lastUpdatedBy`, `lastUpdatedAt`, `initialized`, `finalized`).
@@ -40,6 +48,7 @@ Canonical source of these rules:
 - `framework/01-core-rules.md`
 - `framework/02-state-model.md`
 - `framework/03-stage-lifecycle.md`
+- `framework/04-command-routing.md`
 
 ### Required Status Fields (`00-current-status.md`)
 
@@ -74,9 +83,11 @@ Canonical source of these rules:
 - `accessibility-reviewer`
 - `api-contract-writer`
 - `data-modeler`
+- `sql-database-designer`
 - `migration-planner`
 - `observability-reviewer`
 - `release-coordinator`
+- `web-designer`
 
 Standalone roles may run anytime but do not automatically become framework stages. They should not update stage files unless explicitly asked.
 

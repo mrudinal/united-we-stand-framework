@@ -1,4 +1,7 @@
-﻿## united-we-stand integration
+---
+description: Use AGENTS.md as the canonical united-we-stand instruction entrypoint.
+alwaysApply: true
+---
 
 Use `AGENTS.md` at the repository root as the canonical instruction entrypoint.
 

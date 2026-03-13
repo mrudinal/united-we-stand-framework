@@ -41,7 +41,7 @@ describe('init command (branch spec setup)', () => {
         rmSync(tempRepoDirectory, { recursive: true, force: true });
     });
 
-    it('creates branch spec directory with core, appendices, and subfolders', async () => {
+    it('creates only initializer bootstrap files for a new branch', async () => {
         await runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
@@ -55,29 +55,12 @@ describe('init command (branch spec setup)', () => {
         expect(existsSync(specDirectory)).toBe(true);
         expect(existsSync(join(specDirectory, '00-current-status.md'))).toBe(true);
         expect(existsSync(join(specDirectory, '01-init.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '02-plan.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '03-design.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '04-implementation.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '05-code-review.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '06-finalization.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '07-decisions.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '08-traceability.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '09-risks-issues.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '10-test-strategy.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '11-change-log.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '12-handoff.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, '13-retrospective.md'))).toBe(true);
         expect(existsSync(join(specDirectory, 'state.json'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'modules', 'example-module.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'api', 'contracts.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'api', 'endpoints.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'api', 'auth-boundaries.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'data', 'schema-notes.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'data', 'migrations.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'data', 'data-boundaries.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'ux', 'user-flows.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'ux', 'screen-states.md'))).toBe(true);
-        expect(existsSync(join(specDirectory, 'ux', 'copy-notes.md'))).toBe(true);
+        expect(existsSync(join(specDirectory, '02-plan.md'))).toBe(false);
+        expect(existsSync(join(specDirectory, '03-design.md'))).toBe(false);
+        expect(existsSync(join(specDirectory, '04-implementation.md'))).toBe(false);
+        expect(existsSync(join(specDirectory, '05-code-review.md'))).toBe(false);
+        expect(existsSync(join(specDirectory, '06-finalization.md'))).toBe(false);
     });
 
     it('captures the idea in 01-init.md', async () => {
@@ -181,6 +164,158 @@ describe('init command (branch spec setup)', () => {
         const initFileContent = readFileSync(join(specDirectory, '01-init.md'), 'utf-8');
 
         expect(initFileContent).toContain('Work on the current branch');
+    });
+
+    it('does not reset an already-initialized branch unless --force is provided', async () => {
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+            ideaText: 'initial idea',
+        });
+
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
+        writeFileSync(
+            join(specDirectory, '02-plan.md'),
+            `## Objectives
+
+Plan objectives.
+
+## High-level task breakdown
+
+Plan tasks.
+
+## Dependencies
+
+None.
+
+## Risks / unknowns
+
+None.
+
+## Suggested execution order
+
+Do planning before design.
+`,
+            'utf-8',
+        );
+        writeFileSync(
+            join(specDirectory, '00-current-status.md'),
+            `# Branch Overview
+
+| Field | Value |
+|-------|-------|
+| Current branch | \`main\` |
+| Sanitized ID | \`main\` |
+| Current stage | 2-planner |
+| Completed steps | 1-initializer |
+| Incompleted stages | none |
+| Next recommended step | 3-designer |
+| Status note | Planning is complete. |
+| Blockers / warnings | none |
+| Last updated by | 2-planner |
+| Last updated at | 2026-03-13 |
+`,
+            'utf-8',
+        );
+        writeFileSync(
+            join(specDirectory, 'state.json'),
+            `{
+  "branchName": "main",
+  "sanitizedBranchName": "main",
+  "branchMemoryFolder": "main",
+  "currentStage": "2-planner",
+  "completedSteps": ["1-initializer"],
+  "incompletedStages": [],
+  "nextRecommendedStep": "3-designer",
+  "lastUpdatedBy": "2-planner",
+  "lastUpdatedAt": "2026-03-13T00:00:00.000Z",
+  "initialized": true,
+  "finalized": false
+}
+`,
+            'utf-8',
+        );
+
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+            ideaText: 'new idea that should not overwrite state',
+        });
+
+        expect(process.exitCode).toBe(1);
+        expect(readFileSync(join(specDirectory, 'state.json'), 'utf-8')).toContain('"currentStage": "2-planner"');
+        expect(readFileSync(join(specDirectory, '00-current-status.md'), 'utf-8')).toContain('| Current stage | 2-planner |');
+        expect(readFileSync(join(specDirectory, '01-init.md'), 'utf-8')).toContain('initial idea');
+        expect(readFileSync(join(specDirectory, '01-init.md'), 'utf-8')).not.toContain('new idea that should not overwrite state');
+    });
+
+    it('resets branch memory when --force is provided', async () => {
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+            ideaText: 'initial idea',
+        });
+
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
+        writeFileSync(
+            join(specDirectory, '02-plan.md'),
+            `## Objectives
+
+Plan objectives.
+
+## High-level task breakdown
+
+Plan tasks.
+
+## Dependencies
+
+None.
+
+## Risks / unknowns
+
+None.
+
+## Suggested execution order
+
+Do planning before design.
+`,
+            'utf-8',
+        );
+        writeFileSync(
+            join(specDirectory, 'state.json'),
+            `{
+  "branchName": "main",
+  "sanitizedBranchName": "main",
+  "branchMemoryFolder": "main",
+  "currentStage": "2-planner",
+  "completedSteps": ["1-initializer"],
+  "incompletedStages": [],
+  "nextRecommendedStep": "3-designer",
+  "lastUpdatedBy": "2-planner",
+  "lastUpdatedAt": "2026-03-13T00:00:00.000Z",
+  "initialized": true,
+  "finalized": false
+}
+`,
+            'utf-8',
+        );
+
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+            ideaText: 'forced reset idea',
+            force: true,
+        });
+
+        expect(process.exitCode).toBe(0);
+        expect(existsSync(join(specDirectory, '02-plan.md'))).toBe(false);
+        expect(readFileSync(join(specDirectory, '01-init.md'), 'utf-8')).toContain('forced reset idea');
+        expect(readFileSync(join(specDirectory, '00-current-status.md'), 'utf-8')).toContain('| Current stage | 1-initializer |');
+        expect(readFileSync(join(specDirectory, 'state.json'), 'utf-8')).toContain('"currentStage": "1-initializer"');
     });
 
     it('does not write files in dry-run mode', async () => {

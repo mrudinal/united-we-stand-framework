@@ -92,6 +92,8 @@ describe('doctor command', () => {
 
         const output = logLines.join('\n');
         expect(output).toContain('All checks passed. Repository is fully set up.');
+        expect(output).toContain('.agents/workflows/united-we-stand.md exists');
+        expect(output).toContain('.cursor/rules/united-we-stand.mdc exists');
         expect(output).not.toContain('02-plan.md required sections have substantive content');
         expect(output).not.toContain('03-design.md required sections have substantive content');
         expect(output).not.toContain('04-implementation.md required sections have substantive content');
@@ -179,5 +181,104 @@ describe('doctor command', () => {
         expect(output).toContain('state.json branch identity matches resolved branch context');
         expect(output).toContain('branchName is "wrong-branch" instead of "main".');
         expect(output).toContain('branchMemoryFolder is "wrong-folder" instead of "main".');
+    });
+
+    it('fails when current stage does not match the highest created stage file', () => {
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
+        const statusPath = join(specDirectory, '00-current-status.md');
+        const runtimeStatePath = join(specDirectory, 'state.json');
+
+        writeFileSync(
+            join(specDirectory, '02-plan.md'),
+            `## Objectives
+
+Plan objectives.
+
+## High-level task breakdown
+
+Plan tasks.
+
+## Dependencies
+
+None.
+
+## Risks / unknowns
+
+None.
+
+## Suggested execution order
+
+Do planning before design.
+`,
+            'utf-8',
+        );
+
+        writeFileSync(
+            join(specDirectory, '03-design.md'),
+            `## Architecture / approach
+
+Design approach.
+
+## Key components
+
+Key components list.
+
+## Interfaces / data flow
+
+Interface notes.
+
+## Constraints
+
+Constraint notes.
+
+## Design decisions
+
+Decision notes.
+`,
+            'utf-8',
+        );
+
+        writeFileSync(
+            statusPath,
+            buildStatusMarkdown(
+                '2-planner',
+                '1-initializer',
+                'none',
+                '3-designer',
+                'Planning is complete. Design file exists but metadata is stale.',
+                '2-planner',
+            ),
+            'utf-8',
+        );
+
+        writeFileSync(
+            runtimeStatePath,
+            serializeBranchRuntimeState({
+                branchName: 'main',
+                sanitizedBranchName: 'main',
+                branchMemoryFolder: 'main',
+                currentStage: '2-planner',
+                completedSteps: ['1-initializer'],
+                incompletedStages: [],
+                nextRecommendedStep: '3-designer',
+                lastUpdatedBy: '2-planner',
+                lastUpdatedAt: '2026-03-10T00:00:00.000Z',
+                initialized: true,
+                finalized: false,
+            }),
+            'utf-8',
+        );
+
+        runDoctorCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+        });
+
+        const output = logLines.join('\n');
+        expect(output).toContain('status metadata matches created stage files');
+        expect(output).toContain('state.json metadata matches created stage files');
+        expect(output).toContain('Status metadata current stage is "2-planner" but the highest existing stage file is "03-design.md" (3-designer).');
+        expect(output).toContain('state.json metadata current stage is "2-planner" but the highest existing stage file is "03-design.md" (3-designer).');
     });
 });

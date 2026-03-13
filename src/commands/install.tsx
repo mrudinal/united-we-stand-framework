@@ -13,6 +13,8 @@ import { createLogger } from '../lib/logger.js';
 import {
     loadAgentsMdBlockTemplate,
     loadCopilotInstructionsTemplate,
+    loadAntigravityWorkflowTemplate,
+    loadCursorRuleTemplate,
     loadFrameworkReadmeTemplate,
     loadFrameworkFiles,
     loadSteeringFiles,
@@ -51,6 +53,8 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
 
     const agentsMdPath = join(workingDirectory, 'AGENTS.md');
     const githubDirectory = join(workingDirectory, '.github');
+    const antigravityWorkflowsDirectory = join(workingDirectory, '.agents', 'workflows');
+    const cursorRulesDirectory = join(workingDirectory, '.cursor', 'rules');
     const frameworkRootDirectory = join(workingDirectory, '.united-we-stand');
     const frameworkDirectory = join(frameworkRootDirectory, 'framework');
     const steeringDirectory = join(frameworkRootDirectory, 'steering');
@@ -58,6 +62,8 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
     const agentsDirectory = join(frameworkRootDirectory, 'agents');
 
     ensureDirectoryExists(githubDirectory, isDryRun, logger);
+    ensureDirectoryExists(antigravityWorkflowsDirectory, isDryRun, logger);
+    ensureDirectoryExists(cursorRulesDirectory, isDryRun, logger);
     ensureDirectoryExists(frameworkRootDirectory, isDryRun, logger);
     ensureDirectoryExists(frameworkDirectory, isDryRun, logger);
     ensureDirectoryExists(steeringDirectory, isDryRun, logger);
@@ -65,16 +71,24 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
     ensureDirectoryExists(agentsDirectory, isDryRun, logger);
 
     const copilotInstructionsPath = join(githubDirectory, 'copilot-instructions.md');
+    const antigravityWorkflowPath = join(antigravityWorkflowsDirectory, 'united-we-stand.md');
+    const cursorRulePath = join(cursorRulesDirectory, 'united-we-stand.mdc');
     const frameworkReadmePath = join(frameworkRootDirectory, 'README.md');
 
     if (force) {
         overwriteFileWithManagedBlock(agentsMdPath, loadAgentsMdBlockTemplate(), isDryRun, logger);
         overwriteFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
+        writeFileWithDirectories(antigravityWorkflowPath, loadAntigravityWorkflowTemplate(), isDryRun, logger);
+        logger.updated(antigravityWorkflowPath + ' (FORCED OVERWRITE)');
+        writeFileWithDirectories(cursorRulePath, loadCursorRuleTemplate(), isDryRun, logger);
+        logger.updated(cursorRulePath + ' (FORCED OVERWRITE)');
         writeFileWithDirectories(frameworkReadmePath, loadFrameworkReadmeTemplate(), isDryRun, logger);
         logger.updated(frameworkReadmePath + ' (FORCED OVERWRITE)');
     } else {
         upsertFileWithManagedBlock(agentsMdPath, loadAgentsMdBlockTemplate(), isDryRun, logger);
         upsertFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
+        writeFileIfMissing(antigravityWorkflowPath, loadAntigravityWorkflowTemplate(), isDryRun, logger);
+        writeFileIfMissing(cursorRulePath, loadCursorRuleTemplate(), isDryRun, logger);
         writeFileIfMissing(frameworkReadmePath, loadFrameworkReadmeTemplate(), isDryRun, logger);
     }
 
