@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 import { readFileOrNull, writeFileWithDirectories } from './fs.js';
 import type { Logger } from './logger.js';
+import { sanitizeBranchName } from './branch.js';
 
 const BRANCH_ROUTING_FILENAME = '.branch-routing.json';
 const BRANCH_ROUTING_VERSION = 1;
@@ -36,9 +37,16 @@ export function readBranchRoutingMap(workingDirectory: string): Record<string, s
 
         const safeMappings: Record<string, string> = {};
         for (const [branchName, folderName] of Object.entries(parsed.mappings)) {
-            if (typeof branchName === 'string' && typeof folderName === 'string' && branchName && folderName) {
-                safeMappings[branchName] = folderName;
+            if (typeof branchName !== 'string' || typeof folderName !== 'string' || !branchName || !folderName) {
+                continue;
             }
+
+            const sanitizedFolderName = sanitizeBranchName(folderName);
+            if (!sanitizedFolderName) {
+                continue;
+            }
+
+            safeMappings[branchName] = sanitizedFolderName;
         }
         return safeMappings;
     } catch {
