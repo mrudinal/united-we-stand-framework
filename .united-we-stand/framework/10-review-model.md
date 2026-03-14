@@ -32,6 +32,10 @@ User may explicitly narrow scope.
    - implementation matches branch specs or drift is explicitly documented
 2. **Quality**
    - readability, complexity, modularity, error handling, duplication
+   - required comment coverage from coding steering
+   - oversized or multi-responsibility functions
+   - routine SonarQube-style maintainability findings that should have been prevented during implementation
+   - lint, parser-based analysis, and static-analysis findings relevant to the changed scope
 3. **Security**
    - input validation/injection boundaries
    - authn/authz ownership checks (BOLA/IDOR)
@@ -51,10 +55,13 @@ Review output should state:
 - findings
 - severity/priority
 - recommended fixes
+- lint/parser/static-analysis observations and whether those checks were run
 - residual risks
 
 ## Reviewer Behavior Constraints
 
 - report discrepancies by default
+- treat mandatory coding-steering violations as review findings that block a clean review
+- use available lint/parser/static-analysis results as first-class review evidence instead of optional background context
 - do not rewrite lower stages unless user explicitly requests it
 - if drift is found, apply conflict policy (`05-conflict-resolution.md`)

@@ -18,6 +18,10 @@ export interface BuildInitializedBranchRuntimeStateOptions {
     branchMemoryFolder: string;
 }
 
+function isClosedWorkflowState(state: BranchRuntimeState): boolean {
+    return /^none$/i.test(state.currentStage) && state.finalized;
+}
+
 /**
  * Builds the initial runtime state for a newly created branch memory folder.
  */
@@ -95,6 +99,7 @@ export function serializeBranchRuntimeState(state: BranchRuntimeState): string {
  */
 export function validateBranchRuntimeState(state: BranchRuntimeState): string[] {
     const validationErrors: string[] = [];
+    const isClosedWorkflow = isClosedWorkflowState(state);
 
     if (!state.branchName.trim()) {
         validationErrors.push('branchName is empty.');
@@ -120,6 +125,21 @@ export function validateBranchRuntimeState(state: BranchRuntimeState): string[] 
     if (state.sanitizedBranchName !== state.sanitizedBranchName.toLowerCase()) {
         validationErrors.push('sanitizedBranchName must be lowercase.');
     }
+    if (!isClosedWorkflow && /^none$/i.test(state.currentStage)) {
+        validationErrors.push('currentStage cannot be "none" unless the workflow is explicitly finalized.');
+    }
+    if (state.finalized && !/^none$/i.test(state.currentStage)) {
+        validationErrors.push('finalized workflow must use currentStage = "none".');
+    }
+    if (isClosedWorkflow && !/^none$/i.test(state.nextRecommendedStep)) {
+        validationErrors.push('finalized workflow must use nextRecommendedStep = "none".');
+    }
+    if (!isClosedWorkflow && /^none$/i.test(state.nextRecommendedStep)) {
+        validationErrors.push('nextRecommendedStep cannot be "none" unless the workflow is explicitly finalized.');
+    }
+    if (state.finalized && !state.completedSteps.includes('6-finalizer')) {
+        validationErrors.push('finalized workflow must record "6-finalizer" in completedSteps.');
+    }
 
     const completedSet = new Set(state.completedSteps);
     const incompletedSet = new Set(state.incompletedStages);
@@ -129,7 +149,7 @@ export function validateBranchRuntimeState(state: BranchRuntimeState): string[] 
     if (incompletedSet.size !== state.incompletedStages.length) {
         validationErrors.push('incompletedStages has duplicated values.');
     }
-    if (completedSet.has(state.currentStage) || incompletedSet.has(state.currentStage)) {
+    if (!/^none$/i.test(state.currentStage) && (completedSet.has(state.currentStage) || incompletedSet.has(state.currentStage))) {
         validationErrors.push('currentStage is duplicated in completedSteps or incompletedStages.');
     }
     for (const stageName of completedSet) {

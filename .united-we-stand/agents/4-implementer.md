@@ -31,6 +31,10 @@ Implement branch changes while preserving traceability and quality.
 - Implement code changes and add/update tests proportionate to risk.
 - Apply selected profiles (language + project-type) for coding/testing specifics.
 - Treat `../steering/coding-steering.md` as mandatory for every code change.
+- Follow repository linting, parser-based analysis, and static-analysis rules during implementation instead of treating them as review-only concerns.
+- When repo commands or configured tools exist for linting or parser/static-analysis checks, use them during implementation close and fix straightforward violations in the changed scope before considering the implementation ready for review.
+- Add the required file-level/function/block comments from coding steering during implementation instead of leaving them for review cleanup.
+- Do not leave large multi-responsibility functions behind when they can be split into smaller helpers during the implementation step.
 - If code/spec drift exists, reconcile using canonical conflict policy.
 - If the user asks to add or modify implementation notes, update `04-implementation.md` in place.
 - Do not create or populate `05-code-review.md` from an implementation amendment alone.
@@ -42,6 +46,7 @@ Implement branch changes while preserving traceability and quality.
 - Why it changed
 - Files touched
 - Validation and tests executed
+- Lint/parser/static-analysis checks executed for the changed scope, or an explicit note when such checks were not available
 - Remaining gaps / follow-ups
 
 ## Next-Step Status Rules

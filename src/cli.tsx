@@ -11,15 +11,17 @@ import { runBranchInitCommand } from './commands/branch-init.js';
 import { runInstallCommand } from './commands/install.js';
 import { runRefreshCommand } from './commands/refresh.js';
 import { runDoctorCommand } from './commands/doctor.js';
+import { readPackageVersion } from './lib/package-version.js';
 
 const program = new Command();
+const packageVersion = readPackageVersion();
 
 program
     .name('united-we-stand')
     .description(
         'Repo-scoped AI workflow framework — persists branch-aware specs and agent roles as markdown files.',
     )
-    .version('0.1.0');
+    .version(packageVersion);
 
 // ---- Shared option helpers -----------------------------------------
 

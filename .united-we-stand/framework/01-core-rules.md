@@ -79,6 +79,15 @@ This file is the canonical source for global framework invariants.
 25. **Outside-framework confirmation is sticky for the current chat**  
     If the user confirms that the work should continue outside the framework, continue helping outside the framework for the rest of the current chat without asking for the same confirmation again unless the user later asks to initialize or return to normal framework flow.
 
+26. **Finalizer requires explicit closure confirmation**  
+    `6-finalizer` never treats itself as definitively done on its own. It must surface final observations, ask the user to confirm that the final state is acceptable, and only then close the workflow.
+
+27. **Closed workflow uses `Current stage = none`**  
+    After explicit user closure confirmation, the branch workflow becomes closed rather than anchored to an active numbered stage. In that closed state, `Current stage = none`, `Next recommended step = none`, and `6-finalizer` is recorded as completed.
+
+28. **Post-closure work reopens finalizer**  
+    If the workflow was explicitly closed and the user later requests more branch changes, reopen `6-finalizer` as the current stage, clear closed/finalized state, and require finalization approval again after the new work is incorporated.
+
 ## Stage Mandatory Set
 
 Mandatory framework stages:

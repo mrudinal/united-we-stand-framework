@@ -23,6 +23,7 @@
 
 - Avoid introducing vulnerable, deprecated, or unmaintained packages.
 - Keep dependencies minimal and justify new ones.
+- Treat ESLint, parser-based AST analysis, and similar static-analysis tooling as mandatory quality inputs when the repository provides them.
 - Run package audit commands when dependency graph changes:
   - `npm audit`
   - `pnpm audit`
@@ -33,7 +34,7 @@
 
 ## Testing and Validation
 
-- Run lint, tests, and build using repo commands.
+- Run lint, parser/static-analysis checks, tests, and build using repo commands when available.
 - Add/adjust tests for changed behavior and high-risk paths.
 - Prefer Arrange-Act-Assert layout in tests.
 - Verify changed runtime paths behave as expected in local/dev environment.
@@ -47,3 +48,4 @@ Reviewers should additionally check:
 - stale or dead code
 - unsafe data exposure in API responses
 - dependency risk introduced by new packages
+- lint/parser/static-analysis findings for the changed scope and whether they were addressed or intentionally deferred

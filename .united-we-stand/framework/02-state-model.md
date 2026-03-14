@@ -25,6 +25,16 @@
 6. `Current stage` must never move backward to an earlier numbered stage.
 7. `Current stage` must match the highest existing numbered stage file in the branch folder among `01-init.md` through `06-finalization.md`.
 
+## Closed Workflow State
+
+- A branch may enter an explicitly closed workflow state only after `6-finalizer` presents final observations and the user explicitly confirms closure.
+- In that closed state:
+  - `Current stage = none`
+  - `Next recommended step = none`
+  - `6-finalizer` appears in `Completed steps`
+  - workflow is considered closed/finalized rather than actively anchored to a numbered stage
+- If the user later requests more work on that branch, reopen `6-finalizer` as the current stage and clear the closed/finalized state before continuing.
+
 ## In-Stage Amendment Rule
 
 - If the user asks to add, modify, remove, clarify, or fix content in the current stage, update that stage in place.
@@ -73,7 +83,9 @@
   - `Incompleted stages`
 - No duplicates within a category.
 - `Current stage` must never be empty while workflow is active.
-- `Current stage` must match the highest existing stage file present in the branch folder.
+- `Current stage` may be `none` only when the workflow is explicitly closed after user-confirmed finalization.
+- While workflow is active, `Current stage` must match the highest existing stage file present in the branch folder.
+- In closed workflow state, `06-finalization.md` must exist and `6-finalizer` must be recorded as completed.
 
 ## Next Recommended Step Rules
 
@@ -83,6 +95,12 @@
   - keep current stage anchored and point `Next recommended step` to next logical numbered stage.
 - If stage was skipped/forced past:
   - set `Next recommended step` to explicit user-selected target or next valid path after bypass.
+- If current stage is `6-finalizer` and final observations have been prepared but the user has not yet confirmed closure:
+  - keep `Current stage = 6-finalizer`
+  - set `Next recommended step` to explicit user confirmation or requested follow-up changes
+- If workflow is explicitly closed after finalizer confirmation:
+  - set `Current stage = none`
+  - set `Next recommended step = none`
 
 ## Status Note Rules
 
@@ -92,6 +110,8 @@
 - whether it is complete
 - what should happen next
 - whether earlier-stage work changed after later-stage progress when that affects downstream confidence
+- for finalization, whether user closure confirmation is still pending
+- when workflow is closed, that the branch is finalized and waiting for a new user request to reopen work
 
 ## Completion Reflection Rule
 

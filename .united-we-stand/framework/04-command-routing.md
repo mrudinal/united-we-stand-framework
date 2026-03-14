@@ -99,6 +99,20 @@ Examples:
 - if `Current stage = 5-code-reviewer` and the user says `implement this`, do the implementation work and update `04-implementation.md`, but keep `Current stage = 5-code-reviewer`
 - if `Current stage = 6-finalizer` and the user says `update design`, amend `03-design.md`, keep `Current stage = 6-finalizer`, and record that finalization is now stale until refreshed
 
+## Closed Workflow Reopen Rule
+
+If the workflow is explicitly closed (`Current stage = none` after confirmed finalization) and the user later requests more branch work:
+
+1. reopen `6-finalizer` as the current stage
+2. clear closed/finalized state
+3. perform the requested work through the appropriate earlier stage files and code paths without treating the branch as permanently closed
+4. return to finalization confirmation once the new work is reflected
+
+Examples:
+
+- if the branch was closed and the user says `change this copy`, reopen `6-finalizer`, apply the change through the relevant stage/file updates, and require finalization approval again
+- if the branch was closed and the user says `fix this bug`, reopen `6-finalizer`, perform the needed work, and ask for final closure confirmation again afterward
+
 ## Initialization Bootstrap Rule
 
 If the user explicitly asks to initialize or init the work and branch memory does not exist yet:

@@ -196,7 +196,7 @@ The numbered framework stages are:
 3. `3-designer`: define architecture, interfaces, boundaries, and implementation approach before coding
 4. `4-implementer`: make the code changes and record what changed plus how it was validated
 5. `5-code-reviewer`: review implementation quality, security, test sufficiency, and remaining issues
-6. `6-finalizer`: summarize delivered scope, known gaps, follow-up actions, and documentation updates
+6. `6-finalizer`: summarize delivered scope, identify spec/code mismatches or uncaptured changes, ask for explicit user approval, and only then close the workflow with `Current stage = none`
 
 ### Proper Order
 
@@ -233,13 +233,15 @@ Optional framework stages:
 - never auto-advance to the next phase
 - adding or modifying content inside a stage does not advance that stage by itself
 - never move the workflow backward to an earlier numbered stage once a later stage has been reached
-- `Current stage` should always match the highest created numbered stage file in `.spec-driven/<branch-folder>/` among `01-init.md` through `06-finalization.md`
+- while workflow is active, `Current stage` should match the highest created numbered stage file in `.spec-driven/<branch-folder>/` among `01-init.md` through `06-finalization.md`; after explicit finalizer approval, closed workflow may use `Current stage = none`
 - if you ask to change planning, init, design, review, or finalization content, the AI should update that stage in place without creating the next stage
 - if you ask for earlier-stage work after the workflow has already moved forward, the AI should do that work without regressing `Current stage`, `Completed steps`, or `Incompleted stages`; it should record the stale downstream impact in status metadata instead
 - if a request could be interpreted as advancing through two or more phases at once, the AI should ask for confirmation first and explicitly list the phases it would run together
 - for branch-scoped work, the AI should stay inside `.spec-driven/<branch-folder>/` by default and update specs first unless you explicitly say otherwise
 - later stage files should be created when those stages are actually started or explicitly amended
 - `4-implementer` is the first framework stage allowed to change code
+- `6-finalizer` should check for meaningful code/doc changes that were not captured in the specs, ask the user to confirm the final state, and only then close the workflow with `Current stage = none`
+- if a closed branch receives new work later, the workflow should reopen `6-finalizer` and require final approval again
 - standalone specialist agents are separate from the numbered framework stages
 
 ## CLI Commands vs Chat Commands

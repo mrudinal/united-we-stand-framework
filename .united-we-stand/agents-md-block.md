@@ -23,9 +23,10 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - Update `00-current-status.md` whenever workflow state changes.
 - Keep `Current stage` anchored until user explicitly advances or bypasses.
 - Never auto-advance to the next phase. A stage may become complete, but it still stays anchored until the user explicitly advances or explicitly confirms a bypass.
+- `6-finalizer` never closes the workflow on its own; it must ask for explicit user confirmation before the branch is considered done.
 - Treat requests to add, modify, remove, clarify, or fix content inside a stage as in-place amendments, not as automatic advancement.
 - Never move `Current stage` backward to an earlier numbered stage. If earlier-stage work is requested later, do the work, update the earlier stage files, and record the stale downstream impact in status metadata instead of regressing stage state.
-- `Current stage` must always match the highest created numbered stage file present in `.spec-driven/<branch>/` among `01-init.md` through `06-finalization.md`.
+- While workflow is active, `Current stage` must match the highest created numbered stage file present in `.spec-driven/<branch>/` among `01-init.md` through `06-finalization.md`; after explicit finalizer approval, closed workflow state may use `Current stage = none`.
 - Avoid deadlocks: when user intent is clear (`continue`, `implement`, `fix`, `review`), take the nearest safe action and keep status traceability updated.
 - Do not create, populate, or complete a higher-numbered stage just because the user amended the current stage.
 - If a request could reasonably mean advancing through two or more phases at once, do not infer permission. Ask for confirmation first and name the exact phases you would execute together, for example `1-initializer -> 2-planner -> 3-designer`.
@@ -42,6 +43,8 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - For branch-scoped work, read and update the relevant spec files first unless the user explicitly says not to, or the request is unrelated, informational only, or does not require repository/spec changes.
 - If branch folder naming uses an exception, persist and read `.spec-driven/.branch-routing.json`.
 - Keep `.spec-driven/<branch>/state.json` aligned with `00-current-status.md`.
+- After explicit finalizer approval, closed workflow state should use `Current stage = none` and `Next recommended step = none`.
+- If a closed branch later receives more work, reopen `6-finalizer` as the current stage and require final approval again after the new work.
 - Use the exact `state.json` keys defined by the framework (`branchName`, `sanitizedBranchName`, `branchMemoryFolder`, `currentStage`, `completedSteps`, `incompletedStages`, `nextRecommendedStep`, `lastUpdatedBy`, `lastUpdatedAt`, `initialized`, `finalized`).
 - Use persistent files over chat memory when they conflict.
 

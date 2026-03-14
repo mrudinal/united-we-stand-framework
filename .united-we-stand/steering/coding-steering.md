@@ -10,10 +10,12 @@ When this file is more specific than a profile doc, this file wins.
 - Keep code consistently formatted with configured formatter/linter rules when present.
 - Order imports consistently.
 - Prefer clarity over cleverness.
-- Prefer small, composable functions.
+- Small, composable functions are mandatory.
 - Keep modules cohesive so each file has one main responsibility.
 - Use `const` by default; use `let` only when reassignment is required; avoid `var`.
 - Avoid deep nesting by using early returns, guard clauses, and small helpers.
+- Do not leave oversized functions in place when they can be split into smaller helpers with clearer responsibilities.
+- If a function starts mixing responsibilities, repeated condition branches, or long sequential logic, split it before considering the implementation complete.
 
 ## Naming conventions
 
@@ -28,10 +30,14 @@ When this file is more specific than a profile doc, this file wins.
 
 ## Commenting and documentation preferences
 
+- Commenting requirements in this section are mandatory for `4-implementer` and must be enforced by `5-code-reviewer`.
 - Every function and method must have a short JSDoc-style doc comment immediately above it.
 - Keep function and method doc comments to one brief sentence describing behavior.
+- Every changed code file must contain at least one intent-focused code comment.
+- If a file contains only one small function, that file still must include at least one short comment explaining what the function does.
 - Add `//` inline comments before each non-trivial block to explain intent, boundary handling, or reasoning.
-- Do not comment obvious code paths; comment intent and why the block exists.
+- When a block is small but important, still add a short comment if it clarifies why the code exists.
+- Do not comment obvious code paths line by line; comment intent, boundaries, and why the block exists.
 
 ## Error-handling preferences
 
@@ -57,7 +63,8 @@ When this file is more specific than a profile doc, this file wins.
 
 ## SonarQube-aligned quality rules
 
-- Follow common SonarQube-style clean code guidance, except there is no hard maximum function length.
+- Follow common SonarQube-style clean code guidance as mandatory review criteria.
+- Avoid large functions. If a function grows beyond a small, easy-to-scan unit or starts carrying multiple responsibilities, split it into helpers before calling the work done.
 - Use strict equality (`===`, `!==`) instead of loose equality except for intentional safe nullish checks.
 - Do not import a module into itself.
 - Avoid absolute import paths unless repo conventions explicitly require alias-based imports.
@@ -67,3 +74,4 @@ When this file is more specific than a profile doc, this file wins.
 - Keep function and method names compliant with the naming rules in this file.
 - Remove unused variables, unused assignments, and dead code.
 - Avoid duplicated logic.
+- Avoid code shapes that would predictably trigger routine SonarQube-style maintainability findings when a straightforward cleanup is available.

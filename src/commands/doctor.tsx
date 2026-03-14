@@ -102,9 +102,11 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
     '06-finalization.md': [
         '## Final summary',
         '## Delivered scope',
+        '## Spec/code mismatches or uncaptured implementation changes',
         '## Known gaps',
         '## Recommended next actions',
         '## Documentation updates performed',
+        '## User closure confirmation status',
     ],
 };
 
@@ -149,6 +151,37 @@ function validateStageMetadataAgainstFiles(
 ): string[] {
     const alignmentErrors: string[] = [];
     const highestExistingStage = getHighestExistingStage(specDrivenDirectory);
+    const isClosedWorkflow = /^none$/i.test(metadata.currentStage) && metadata.completedSteps.includes('6-finalizer');
+
+    if (isClosedWorkflow) {
+        if (!doesFileExist(join(specDrivenDirectory, '06-finalization.md'))) {
+            alignmentErrors.push(`${metadataLabel} marks the workflow closed but "06-finalization.md" is missing.`);
+        }
+
+        if (!highestExistingStage || highestExistingStage.stageName !== '6-finalizer') {
+            alignmentErrors.push(
+                `${metadataLabel} marks the workflow closed but the highest existing stage file is not `
+                + '"06-finalization.md" (6-finalizer).',
+            );
+        }
+
+        for (const recordedStage of [
+            ...metadata.completedSteps,
+            ...metadata.incompletedStages,
+        ]) {
+            const expectedStageFile = Object.entries(STAGE_FILE_TO_STAGE_NAME).find(
+                ([, stageName]) => stageName === recordedStage,
+            )?.[0];
+
+            if (expectedStageFile && !doesFileExist(join(specDrivenDirectory, expectedStageFile))) {
+                alignmentErrors.push(
+                    `${metadataLabel} references stage "${recordedStage}" but "${expectedStageFile}" is missing.`,
+                );
+            }
+        }
+
+        return alignmentErrors;
+    }
 
     if (highestExistingStage && metadata.currentStage !== highestExistingStage.stageName) {
         alignmentErrors.push(
@@ -264,11 +297,22 @@ function parseStatusSnapshot(statusMarkdown: string): { snapshot: StatusSnapshot
  */
 function validateStatusSnapshot(snapshot: StatusSnapshot): string[] {
     const errors: string[] = [];
-    if (!snapshot.currentStage || /^none$/i.test(snapshot.currentStage)) {
-        errors.push('Current stage is empty or none.');
+    const isClosedWorkflow = /^none$/i.test(snapshot.currentStage);
+    if (!snapshot.currentStage) {
+        errors.push('Current stage is empty.');
     }
-    if (!snapshot.nextRecommendedStep || /^none$/i.test(snapshot.nextRecommendedStep)) {
-        errors.push('Next recommended step is empty or none.');
+    if (!snapshot.nextRecommendedStep) {
+        errors.push('Next recommended step is empty.');
+    }
+    if (isClosedWorkflow) {
+        if (!/^none$/i.test(snapshot.nextRecommendedStep)) {
+            errors.push('Closed workflow must use "none" as next recommended step.');
+        }
+        if (!snapshot.completedSteps.includes('6-finalizer')) {
+            errors.push('Closed workflow must record "6-finalizer" in completed steps.');
+        }
+    } else if (/^none$/i.test(snapshot.nextRecommendedStep)) {
+        errors.push('Next recommended step cannot be none while workflow is active.');
     }
     if (!snapshot.statusNote) {
         errors.push('Status note is empty.');
@@ -288,7 +332,7 @@ function validateStatusSnapshot(snapshot: StatusSnapshot): string[] {
     if (incompletedSet.size !== snapshot.incompletedStages.length) {
         errors.push('Incompleted stages contains duplicates.');
     }
-    if (completedSet.has(snapshot.currentStage) || incompletedSet.has(snapshot.currentStage)) {
+    if (!isClosedWorkflow && (completedSet.has(snapshot.currentStage) || incompletedSet.has(snapshot.currentStage))) {
         errors.push('Current stage also appears in completed or incompleted categories.');
     }
     for (const completedStage of completedSet) {
@@ -320,7 +364,7 @@ function getStagesRequiringSubstantiveContent(snapshot: StatusSnapshot): Set<str
 
     // An anchored current stage only requires substantive content once it is
     // complete enough to recommend a different next step.
-    if (snapshot.nextRecommendedStep !== snapshot.currentStage) {
+    if (!/^none$/i.test(snapshot.currentStage) && snapshot.nextRecommendedStep !== snapshot.currentStage) {
         requiredStages.add(snapshot.currentStage);
     }
 

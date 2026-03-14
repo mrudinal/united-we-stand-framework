@@ -6,6 +6,9 @@ TBD
 ## Delivered scope
 TBD
 
+## Spec/code mismatches or uncaptured implementation changes
+TBD
+
 ## Known gaps
 TBD
 
@@ -13,4 +16,7 @@ TBD
 TBD
 
 ## Documentation updates performed
+TBD
+
+## User closure confirmation status
 TBD

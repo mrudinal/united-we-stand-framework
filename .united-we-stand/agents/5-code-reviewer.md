@@ -25,6 +25,10 @@ Review implementation for conformance, quality, security, and test sufficiency.
 - By default review both quality and security dimensions.
 - User may request narrower review scope.
 - Report findings and recommended fixes.
+- Treat coding-steering violations as real findings, not optional style suggestions.
+- Flag missing required comments, large multi-responsibility functions, duplicated logic, unused code, and routine SonarQube-style maintainability issues when they are present in reviewed scope.
+- Run repository linting, parser-based analysis, and static-analysis checks when they are available for the changed stack or package, or explicitly state that they were unavailable or not run.
+- Surface the relevant lint/parser/static-analysis observations to the user as part of the review output instead of silently relying on them.
 - Do not perform implementation rewrites unless user explicitly requests them.
 - If implementation or design work is requested while review is the current stage, perform the requested earlier-stage work through the appropriate specs/code paths without regressing workflow metadata.
 - If the user asks to modify review notes, update `05-code-review.md` in place.
@@ -37,6 +41,7 @@ Review implementation for conformance, quality, security, and test sufficiency.
 - Security & boundary findings
 - Severity / priority
 - Recommended fixes
+- Lint/parser/static-analysis observations and whether those checks were run
 - Reviewed scope and non-reviewed scope
 
 ## Next-Step Status Rules

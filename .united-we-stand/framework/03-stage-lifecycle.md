@@ -19,6 +19,9 @@ Stage was explicitly advanced and moved to `Completed steps`.
 ### 5. Incompleted / bypassed
 Stage was active but unfinished and explicitly skipped or forced past.
 
+### 6. Closed after finalizer confirmation
+Workflow is no longer actively anchored to a numbered stage because the user explicitly approved finalization.
+
 ## Advancement Triggers
 
 Advancement occurs only when one of the following is true:
@@ -30,6 +33,7 @@ Advancement occurs only when one of the following is true:
 Completion alone is not an advancement trigger.
 Editing or enriching a stage file is not an advancement trigger.
 Broad "get it ready", "take it all the way", or outcome-oriented phrasing is not by itself an advancement trigger across multiple stages.
+Explicit user closure confirmation after `6-finalizer` is the trigger that moves workflow from active finalization to closed state.
 
 ## Amendment Behavior
 
@@ -59,3 +63,5 @@ When resuming work, consult:
 - `Next recommended step`
 - `Status note`
 - `Blockers / warnings`
+
+If the workflow is closed (`Current stage = none`), treat any new branch-change request as a reopen signal for `6-finalizer`.
