@@ -107,6 +107,31 @@ describe('doctor command', () => {
         const runtimeStatePath = join(specDirectory, 'state.json');
 
         writeFileSync(
+            join(specDirectory, '02-plan.md'),
+            `## Objectives
+
+TBD
+
+## High-level task breakdown
+
+TBD
+
+## Dependencies
+
+TBD
+
+## Risks / unknowns
+
+TBD
+
+## Suggested execution order
+
+TBD
+`,
+            'utf-8',
+        );
+
+        writeFileSync(
             statusPath,
             buildStatusMarkdown(
                 '2-planner',
