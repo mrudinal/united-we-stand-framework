@@ -162,6 +162,31 @@ function scenarioDoctorFailsCompletedPlaceholderStage() {
             'utf-8',
         );
 
+        writeFileSync(
+            join(branchDirectory, '02-plan.md'),
+            `## Objectives
+
+TBD
+
+## High-level task breakdown
+
+TBD
+
+## Dependencies
+
+TBD
+
+## Risks / unknowns
+
+TBD
+
+## Suggested execution order
+
+TBD
+`,
+            'utf-8',
+        );
+
         const doctorResult = runCli(['doctor', '--cwd', tempRepositoryPath, '--branch', 'main']);
         assert.match(doctorResult.output, /02-plan\.md required sections have substantive content/);
         assert.match(doctorResult.output, /Branch runtime\/spec issues detected\./);

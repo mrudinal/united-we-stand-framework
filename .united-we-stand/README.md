@@ -282,6 +282,8 @@ If you ask for earlier-stage work while the branch is already in a later stage, 
 The most reliable direct NLP bootstrap for initialization is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
 If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
+If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should first warn that united-we-stand is not initialized for that branch and ask whether you want to proceed outside the framework for the current chat.
+If you confirm that outside-framework work is fine, the AI should continue outside the framework for the rest of the current chat without asking for the same confirmation again unless you later ask to initialize or return to framework flow.
 
 ## Framework Stage Chat Routes
 
@@ -351,6 +353,8 @@ Framework-stage routes:
 - `wrap this up` -> `6-finalizer`
 
 These direct route labels select the acting stage behavior. If the workflow is already in a later stage, they must not regress `Current stage`, `Completed steps`, or `Incompleted stages`.
+
+If branch memory does not exist yet and a direct request such as `implement this`, `fix these vulnerabilities`, `upgrade this dependency`, or `refactor this module` would otherwise cause repo changes, the AI should not silently enter that framework stage. It should first warn that united-we-stand is not initialized for the branch and ask whether you want to proceed outside the framework for the current chat.
 
 Standalone specialist routes:
 

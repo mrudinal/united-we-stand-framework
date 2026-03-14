@@ -128,6 +128,25 @@ Interpretation rule:
 - Phrases about an idea, starting work, or wanting to build something should be treated as initialization intent unless the user explicitly asks for a later stage.
 - The most reliable NLP bootstrap is to reference any installed framework file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 
+## Uninitialized Branch Work Rule
+
+If branch memory does not exist yet and the user requests concrete code changes or other persistent work without explicitly asking to initialize the framework:
+
+1. do not infer entry into `2-planner`, `3-designer`, `4-implementer`, `5-code-reviewer`, or `6-finalizer`
+2. warn clearly that united-we-stand is not initialized for the current branch
+3. ask whether to proceed outside the framework for the current chat
+4. if the user confirms outside-framework work, continue normally outside the framework and do not repeat the same confirmation again in that chat unless the user later asks to initialize or return to framework mode
+5. if the user explicitly asks to initialize instead, create branch memory and start `1-initializer`
+6. if the user explicitly asks to start the framework from a later stage or uses force/bypass semantics, require confirmation of the exact stage path before proceeding
+
+Examples that should trigger this warning-and-confirm flow when branch memory is missing:
+
+- `first, fix these vulnerabilities`
+- `upgrade this dependency`
+- `implement the API changes`
+- `refactor this module`
+- `review this code and apply the fixes`
+
 ## Standalone Role Commands
 
 - `debug this` -> `debugger`
@@ -149,7 +168,14 @@ Standalone routes should not mutate stage files unless user asks explicitly.
 
 ## Implementation Guardrail
 
-When user requests implementation and stages `2-planner` and/or `3-designer` are missing:
+When branch memory does not exist yet and user requests implementation or other persistent repo changes without explicit framework initialization:
+
+- warn that united-we-stand is not initialized for the branch
+- ask whether to proceed outside the framework for the current chat
+- if user confirms, continue outside the framework and do not re-ask unless the user later asks to initialize or return to framework mode
+- if user explicitly wants to start the framework from implementation or another later stage, require explicit confirmation of that bypass path first
+
+When branch memory exists and user requests implementation and stages `2-planner` and/or `3-designer` are missing:
 
 - warn user that planning/design context is missing
 - ask confirmation before direct implementation

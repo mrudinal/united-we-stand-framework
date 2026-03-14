@@ -73,6 +73,12 @@ This file is the canonical source for global framework invariants.
 23. **Stage metadata must match created stage files**  
     Workflow metadata is not independent from the branch folder contents. `Current stage` must always match the highest existing numbered stage file among `01-init.md` through `06-finalization.md`, and status checks must validate that alignment.
 
+24. **No implicit framework entry when branch memory is missing**  
+    If branch memory does not exist yet and the user requests concrete code changes or other persistent work without explicitly asking to initialize the framework, do not silently enter a numbered framework stage. Warn that united-we-stand is not initialized for the branch and ask whether to proceed outside the framework.
+
+25. **Outside-framework confirmation is sticky for the current chat**  
+    If the user confirms that the work should continue outside the framework, continue helping outside the framework for the rest of the current chat without asking for the same confirmation again unless the user later asks to initialize or return to normal framework flow.
+
 ## Stage Mandatory Set
 
 Mandatory framework stages:

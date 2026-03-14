@@ -33,6 +33,8 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - Do not create branch state folders preemptively; `branch-init` or an explicit user initialization request should create them.
 - If branch memory does not exist yet, natural start-of-work requests such as `let's start this`, `help me with this idea`, or `i want to build...` should default to `1-initializer`.
 - If branch memory does not exist yet, explicit init requests such as `init the following`, `initialize this`, `let's init this`, `help me with the following idea, i want...`, `let's start building this`, `i want to build...`, `i want to create...`, or `let's work on...` should be treated as permission to create the branch spec and start `1-initializer`.
+- If branch memory does not exist yet and the user asks for concrete code changes or other persistent repo work without explicitly asking to initialize, warn that united-we-stand is not initialized for the branch and ask whether to proceed outside the framework instead of inferring a numbered stage.
+- If the user confirms outside-framework work, continue outside the framework for the rest of the current chat and do not ask for the same confirmation again unless the user later asks to initialize or return to normal framework flow.
 - The most reliable direct NLP bootstrap is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 - Runtime branch memory is writable under `.spec-driven/` only.
 - Treat `.united-we-stand/` as installed framework content (do not use it for runtime branch memory updates).
