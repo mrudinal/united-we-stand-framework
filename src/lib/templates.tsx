@@ -1,5 +1,6 @@
 /**
  * Centralized template loader for united-we-stand.
+ * Currently unused.
  *
  * Markdown template assets live under the package-root `.united-we-stand/`
  * directory. This module reads those assets and returns grouped file manifests

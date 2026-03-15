@@ -8,7 +8,7 @@
 
 import { join } from 'node:path';
 import { isGitRepository } from '../lib/git.js';
-import { ensureDirectoryExists, writeFileIfMissing, upsertFileWithManagedBlock, overwriteFileWithManagedBlock, writeFileWithDirectories } from '../lib/fs.js';
+import { ensureDirectoryExists, writeFileIfMissing, upsertFileWithManagedBlock, writeFileWithDirectories } from '../lib/fs.js';
 import { createLogger } from '../lib/logger.js';
 import {
     loadAgentsMdBlockTemplate,
@@ -76,8 +76,9 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
     const frameworkReadmePath = join(frameworkRootDirectory, 'README.md');
 
     if (force) {
-        overwriteFileWithManagedBlock(agentsMdPath, loadAgentsMdBlockTemplate(), isDryRun, logger);
-        overwriteFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
+        // For user-owned files with managed blocks: update only the block, preserve everything outside it.
+        upsertFileWithManagedBlock(agentsMdPath, loadAgentsMdBlockTemplate(), isDryRun, logger);
+        upsertFileWithManagedBlock(copilotInstructionsPath, loadCopilotInstructionsTemplate(), isDryRun, logger);
         writeFileWithDirectories(antigravityWorkflowPath, loadAntigravityWorkflowTemplate(), isDryRun, logger);
         logger.updated(antigravityWorkflowPath + ' (FORCED OVERWRITE)');
         writeFileWithDirectories(cursorRulePath, loadCursorRuleTemplate(), isDryRun, logger);

@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { upsertManagedBlock, wrapInManagedBlock } from './markers.js';
+import { upsertManagedBlock, wrapInManagedBlock, MARKER_START, MARKER_END } from './markers.js';
 import type { Logger } from './logger.js';
 
 /**
@@ -97,6 +97,14 @@ export function upsertFileWithManagedBlock(
     logger: Logger,
 ): void {
     const existingContent = readFileOrNull(filePath) ?? '';
+
+    // Warn when only one marker of a pair is present so the user knows the file was in a bad state.
+    const hasStart = existingContent.includes(MARKER_START);
+    const hasEnd = existingContent.includes(MARKER_END);
+    if (hasStart !== hasEnd) {
+        logger.warn(`Orphaned managed block marker detected in ${filePath} — stripping stray marker and re-inserting block.`);
+    }
+
     const updatedContent = upsertManagedBlock(existingContent, innerContent);
 
     // Skip write when the content is already up to date.
@@ -132,6 +140,7 @@ export function upsertFileWithManagedBlock(
  * Completely overwrites a file with the given managed block content.
  * WARNING: Destructively ignores existing user content and only writes the managed block.
  * Used for --force commands.
+ * Currently unused
  */
 export function overwriteFileWithManagedBlock(
     filePath: string,

@@ -77,6 +77,74 @@ This is a non-blocking operation that does not affect the install outcome. The u
 
 The star attempt runs after all framework files have been written. It never blocks, never fails the install, and never modifies any files.
 
+## End-User Documentation
+
+If you need detailed user-facing documentation, read:
+
+- [`.united-we-stand/README.md`](./.united-we-stand/README.md)
+
+That file explains:
+
+- how users install the package
+- how they run `install`, `branch-init`, `doctor`, and `refresh`
+- framework stages and standalone agents
+- runtime branch-memory layout inside their repositories
+
+## Package Summary
+
+Install the public npm package with:
+
+```bash
+npm install -g @rudinmax87/united-we-stand
+```
+
+Then, inside a target repository:
+
+```bash
+united-we-stand install
+```
+
+For resetting the framework back to the defaults and overwrite everything under `.united-we-stand/`:
+
+```bash
+united-we-stand install --force
+```
+
+That installs:
+
+- the framework docs under `.united-we-stand/`
+- editor/agent pointer files such as `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/workflows/united-we-stand.md`, and `.cursor/rules/united-we-stand.mdc`
+- numbered framework agents: `0-status-checker`, `1-initializer`, `2-planner`, `3-designer`, `4-implementer`, `5-code-reviewer`, `6-finalizer`
+- standalone specialist agents: `debugger`, `documentation-writer`, `project-manager`, `refactorer`, `test-strategist`, `performance-reviewer`, `accessibility-reviewer`, `api-contract-writer`, `data-modeler`, `sql-database-designer`, `migration-planner`, `observability-reviewer`, `release-coordinator`, and `web-designer`
+
+The workflow is mainly used in chat after installation:
+
+1. `1-initializer`: `AGENTS.md initialize this branch for adding OAuth login`
+2. `2-planner`: `plan this feature`
+3. `3-designer`: `design the architecture for this change`
+4. `4-implementer`: `implement this now`
+5. `5-code-reviewer`: `do a code review`
+6. `6-finalizer`: `wrap this up`
+
+`0-status-checker` is a routing and validation stage, not a delivery stage. Example: `what's my status`
+
+For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`. Also, indicate at the end to only do the initialization step.
+In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
+
+After the workflow is initialized, each stage writes or updates its branch file as follows:
+
+| Stage | File name | General description |
+|-------|-----------|---------------------|
+| `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
+| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
+| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
+| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
+| `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
+| `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
+
+# Instructions to generate a new package
+
 ## Local Development
 
 Install dependencies:
@@ -452,66 +520,76 @@ You can also check the repository sidebar for the linked package if GitHub assoc
 - replace those example scopes with your own if you publish from a different owner account or fork
 - if authentication fails during GitHub Packages publish, re-check that your token is a `personal access token (classic)` with `write:packages`
 
-## End-User Documentation
-
-If you need detailed user-facing documentation, read:
-
-- [`.united-we-stand/README.md`](./.united-we-stand/README.md)
-
-That file explains:
-
-- how users install the package
-- how they run `install`, `branch-init`, `doctor`, and `refresh`
-- framework stages and standalone agents
-- runtime branch-memory layout inside their repositories
-
-## Package Summary
-
-Install the public npm package with:
-
-```bash
-npm install -g @rudinmax87/united-we-stand
-```
-
-Then, inside a target repository:
-
-```bash
-united-we-stand install
-```
-
-That installs:
-
-- the framework docs under `.united-we-stand/`
-- editor/agent pointer files such as `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/workflows/united-we-stand.md`, and `.cursor/rules/united-we-stand.mdc`
-- numbered framework agents: `0-status-checker`, `1-initializer`, `2-planner`, `3-designer`, `4-implementer`, `5-code-reviewer`, `6-finalizer`
-- standalone specialist agents: `debugger`, `documentation-writer`, `project-manager`, `refactorer`, `test-strategist`, `performance-reviewer`, `accessibility-reviewer`, `api-contract-writer`, `data-modeler`, `sql-database-designer`, `migration-planner`, `observability-reviewer`, `release-coordinator`, and `web-designer`
-
-The workflow is mainly used in chat after installation:
-
-1. `1-initializer`: `AGENTS.md initialize this branch for adding OAuth login`
-2. `2-planner`: `plan this feature`
-3. `3-designer`: `design the architecture for this change`
-4. `4-implementer`: `implement this now`
-5. `5-code-reviewer`: `do a code review`
-6. `6-finalizer`: `wrap this up`
-
-`0-status-checker` is a routing and validation stage, not a delivery stage. Example: `what's my status`
-
-For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`. Also, indicate at the end to only do the initialization step.
-In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
-
-After the workflow is initialized, each stage writes or updates its branch file as follows:
-
-| Stage | File name | General description |
-|-------|-----------|---------------------|
-| `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
-| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
-| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
-| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
-| `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
-| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
-| `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
-
 ## License
 
-MIT
+This project is **open source** under the **MIT License**. You can use it, modify it, fork it, and build on it freely — for personal, commercial, or any other purpose — with no restrictions and no fees.
+
+**The only requirement when publishing a derived framework, package, or tool** is to credit the original: include the author username, the package name and version your work is based on, and the repository URL in your credits, and star the source repository. That's it.
+
+See the [LICENSE](./LICENSE) file for the full legal text.
+
+### Permissions
+
+| Permission | Allowed |
+|---|---|
+| Personal use | ✔ |
+| Commercial use | ✔ |
+| Modification | ✔ |
+| Distribution | ✔ |
+| Private use | ✔ |
+| Sublicensing | ✔ |
+| Warranty or liability from the maintainer | ✖ |
+
+**Commercial use is explicitly permitted.** You may use this package and its installed framework files in commercial products, client projects, internal enterprise tools, or any paid service without restriction and without requiring a separate commercial license.
+
+### Community Terms
+
+Project norms and the one hard requirement for derived works are described below.
+
+#### Public Use and Participation
+
+This framework is public and free for anyone to use, evaluate, and deploy. You are actively invited to try it, give feedback, and adapt it to your own workflows.
+
+- **Forks are welcome.** Fork this repository freely for personal use, team use, or to build something new.
+- **Pull requests are welcome.** If you find a bug or want to improve the framework, open a PR. PRs that fix broken behavior are reviewed with priority.
+- **Bug fixes take priority over new features.** The stability and correctness of the framework model comes before expanding its scope. A broken workflow rule or incorrect CLI behavior will be addressed before a new agent or command is added.
+- **Feature requests are accepted as issues.** If you have a feature idea, open an issue. There is no guarantee of implementation, but well-reasoned requests are considered.
+
+#### Derived Works and Attribution (required)
+
+This is the one condition that applies when publishing a derived work. If you create a new framework, package, tool, or product that is substantially based on or derived from `united-we-stand`, two things are required:
+
+1. **Credit is required.** Your project's README, documentation, or credits section must include all of the following:
+
+   | Field | Required value |
+   |---|---|
+   | Author / maintainer username | `mrudinal` |
+   | Package name and version | `@rudinmax87/united-we-stand@<version you based your work on>` |
+   | Source repository URL | `https://github.com/mrudinal/united-we-stand-framework` |
+
+   Minimum acceptable credit format:
+
+   ```
+   Based on @rudinmax87/united-we-stand@<version> by mrudinal
+   https://github.com/mrudinal/united-we-stand-framework
+   ```
+
+   The version must be the specific version (e.g. `0.1.0`) your derived work was built from, not a range or `latest`.
+
+2. **The source repository must be starred.** Star [github.com/mrudinal/united-we-stand-framework](https://github.com/mrudinal/united-we-stand-framework) before or at the time of publishing your derived work. This is a visibility courtesy that costs nothing and is the minimum acknowledgment expected.
+
+These attribution requirements apply to derived frameworks and distributed packages. They do not apply to installing and using the package inside your own project, which is unrestricted.
+
+#### Versioning
+
+This project follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`):
+
+- `PATCH` — backwards-compatible bug fixes
+- `MINOR` — backwards-compatible new features or agents
+- `MAJOR` — breaking changes to the CLI interface, framework file layout, or workflow model
+
+You can safely pin a minor version (e.g., `^0.1.0`) and expect patch updates to be non-breaking within that range.
+
+#### No Warranty
+
+This software is provided as-is. The MIT License explicitly disclaims all warranties. Use it in production at your own discretion. Bugs will be addressed but there is no SLA or guaranteed response time.

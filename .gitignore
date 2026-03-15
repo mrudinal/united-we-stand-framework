@@ -1,10 +1,31 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
 *.tsbuildinfo
-.DS_Store
-Thumbs.db
+coverage/
+
+# Publish artifacts
+.publish/
+*.tgz
+.npm-cache/
+
+# Generated framework/runtime files when exercising the CLI in this repo
+AGENTS.md
+.github/copilot-instructions.md
+.agents/workflows/united-we-stand.md
+.cursor/rules/united-we-stand.mdc
+.spec-driven/
+
+# Environment and logs
 *.log
 .env
 .env.*
-coverage/
-.publish/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Package creation:
+rudinmax87-united-we-stand-*.tgz
