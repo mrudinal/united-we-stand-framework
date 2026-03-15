@@ -172,6 +172,7 @@ After the workflow is initialized, each stage writes or updates its branch file 
 | `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
 | `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
 
+Each stage document can be updated later, either manually or by asking the agent in the chat, if the work changes or the plan evolves. When moving to the next stage, the AI should use the latest version of those written documents as the main source of truth, instead of depending only on the chat.
 
 ### What safety/destructive behavior exists
 
