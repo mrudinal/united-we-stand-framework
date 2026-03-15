@@ -6,11 +6,6 @@ import { execSync } from 'node:child_process';
 import { runInstallCommand } from '../src/commands/install.js';
 import { MARKER_START, MARKER_END } from '../src/lib/markers.js';
 
-// Prevent real network calls during tests.
-vi.mock('../src/lib/github.js', () => ({
-    tryStarRepository: vi.fn().mockResolvedValue(undefined),
-}));
-
 /**
  * Creates an isolated git repository for install-command tests.
  */
@@ -139,5 +134,19 @@ describe('install command', () => {
 
         expect(resetContent).not.toContain('custom content');
         expect(resetContent).toContain('# Core Rules');
+    });
+
+    it('logs a star suggestion after installation completes', async () => {
+        const logSpy = vi.fn();
+        console.log = logSpy;
+
+        await runInstallCommand({ workingDirectory: tempRepoDirectory, isDryRun: false, force: false });
+
+        expect(logSpy).toHaveBeenCalledWith(
+            expect.stringContaining('united-we-stand installation complete.'),
+        );
+        expect(logSpy).toHaveBeenCalledWith(
+            expect.stringContaining('please star the source repository: https://github.com/mrudinal/united-we-stand-framework'),
+        );
     });
 });

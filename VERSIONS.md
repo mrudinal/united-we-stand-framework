@@ -1,5 +1,23 @@
 # Versions
 
+## 0.1.1
+
+`0.1.1` is a patch release focused on trust and documentation improvements.
+
+### What changed in this version
+
+- removed the automatic GitHub repository star attempt from `united-we-stand install`
+- replaced that behavior with a post-install log message that politely suggests starring the source repository
+- updated maintainer documentation to clarify GitHub Packages visibility behavior for first-time personal-scope publishes
+
+### Behavior update in 0.1.1
+
+After `united-we-stand install` completes inside a target repository, the CLI now prints a suggestion pointing to:
+
+- `https://github.com/mrudinal/united-we-stand-framework`
+
+The install command no longer reads GitHub auth tokens, no longer calls the GitHub API, and no longer uses the `gh` CLI to star the repository automatically.
+
 ## 0.1.0
 
 `0.1.0` is the initial published version of `united-we-stand`.

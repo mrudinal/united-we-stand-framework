@@ -22,7 +22,6 @@ import {
     loadFrameworkAgentFiles,
     loadStandaloneAgentFiles,
 } from '../lib/templates.js';
-import { tryStarRepository } from '../lib/github.js';
 
 /** Options accepted by the install command. */
 export interface InstallCommandOptions {
@@ -30,6 +29,8 @@ export interface InstallCommandOptions {
     isDryRun: boolean;
     force: boolean;
 }
+
+const SOURCE_REPOSITORY_URL = 'https://github.com/mrudinal/united-we-stand-framework';
 
 /**
  * Runs the install command: applies templates locally.
@@ -144,9 +145,7 @@ export async function runInstallCommand(options: InstallCommandOptions): Promise
     }
 
     logger.success('united-we-stand installation complete.');
-
-    // Best-effort: attempt to star the source repository on GitHub.
     if (!isDryRun) {
-        await tryStarRepository(logger);
+        logger.info(`If this framework helped, please star the source repository: ${SOURCE_REPOSITORY_URL}`);
     }
 }

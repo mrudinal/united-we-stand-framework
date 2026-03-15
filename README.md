@@ -1,8 +1,6 @@
-# united-we-stand source repository
+# united-we-stand Framework
 
-This repository is the source, build, test, and publish workspace for the `united-we-stand` package.
-
-This documentation is mostly the maintainer for this repository, not the installed end-user framework guide.
+This repository is the documentation, source, build, test, and publish workspace for the `united-we-stand` package.
 
 The runtime framework README that gets installed into target repositories is:
 
@@ -10,7 +8,245 @@ The runtime framework README that gets installed into target repositories is:
 
 ![united-we-stand logo](./public/united-we-stand-logo.png)
 
-## What This Repository Contains
+`united-we-stand` is a spec-driven development framework for agentic AI collaboration. It gives AI assistants a structured way to handle feature work, bug fixes, refactors, reviews, migrations, release preparation, and documentation updates with persistent branch-aware context instead of relying only on chat history.
+
+The framework combines detailed staged instructions, reusable playbooks, and specialist agents that are invoked based on the task at hand. It is designed to work well with VS Code, Antigravity, Cursor, and similar repository-aware coding environments.
+
+## What it does
+
+The `united-we-stand` npm package installs a repository-scoped AI workflow framework that helps coding assistants work in a structured, branch-aware way instead of relying only on chat memory.
+
+It provides:
+
+- a global CLI: `united-we-stand`
+- an installed framework directory: `.united-we-stand/`
+- branch-aware workflow memory under `.spec-driven/`
+- numbered framework stages for end-to-end delivery
+- standalone specialist agents for focused tasks
+- editor/AI pointer files that redirect supported tools back to the installed framework and current workflow state
+
+Once installed and initialized, the framework helps an AI assistant understand:
+
+- the current branch context
+- the current workflow stage
+- what has already been decided
+- what file should be updated next
+- how to continue work consistently across supported tools and chats
+
+## Why it exists
+
+Most AI coding workflows lose context between chats, tools, branches, and sessions. `united-we-stand` exists to give AI assistants a predictable, durable workflow model inside the repository itself.
+
+Instead of depending only on temporary chat history, the framework stores branch progress and stage outputs in markdown files that travel with the repository. This makes it easier to:
+
+- resume work later
+- switch between supported AI coding tools
+- keep feature planning and implementation grounded in written state
+- reduce repeated prompting
+- keep multi-step development work organized
+
+## The package
+
+The package installs a global CLI named:
+
+- `united-we-stand`
+
+The built package ships:
+
+- compiled CLI output
+- `.united-we-stand/**`
+- `README.md`
+- `LICENSE`
+
+The repository also contains `public/` assets for source-repo documentation, and those assets are currently included in the published package.
+
+Once the framework is installed and initialized, branch memory is saved for future chats and can be resumed across supported tools. You can move between VS Code, Antigravity, Cursor, and similar environments without manually re-pointing the AI, because the installed instructions direct it back to the current spec and workflow state automatically.
+
+In a new chat, a simple prompt such as `what is the current status of united-we-stand` can be used to confirm the active workflow state.
+
+## GitHub Repository Star Suggestion
+
+After `united-we-stand install` completes inside a target repository, the CLI prints a short suggestion to star the source repository if the framework was helpful:
+
+- <https://github.com/mrudinal/united-we-stand-framework>
+
+This is only a log message. The install command does not call the GitHub API, does not use the `gh` CLI, does not read GitHub auth tokens for starring, and does not modify the user's GitHub account in any way.
+
+## End-User Documentation
+
+If you need detailed user-facing documentation, read:
+
+- [`.united-we-stand/README.md`](./.united-we-stand/README.md)
+
+That file explains:
+
+- how users install the package
+- how they run `install`, `branch-init`, `doctor`, and `refresh`
+- framework stages and standalone agents
+- runtime branch-memory layout inside their repositories
+
+## How to install it
+
+Install the public npm package with:
+
+```bash
+npm install -g @rudinmax87/united-we-stand
+```
+
+Then, inside a target repository:
+
+```bash
+united-we-stand install
+```
+
+For resetting the framework back to the defaults and overwriting everything under `.united-we-stand/`:
+
+```bash
+united-we-stand install --force
+```
+
+The install command creates the following framework files and directories:
+
+### What files it creates
+
+Running `united-we-stand install` installs:
+
+- the framework docs under `.united-we-stand/`
+- editor/agent pointer files such as:
+  - `AGENTS.md`
+  - `.github/copilot-instructions.md`
+  - `.agents/workflows/united-we-stand.md`
+  - `.cursor/rules/united-we-stand.mdc`
+
+It also installs the framework agents, including:
+
+- numbered framework agents:
+  - `0-status-checker`
+  - `1-initializer`
+  - `2-planner`
+  - `3-designer`
+  - `4-implementer`
+  - `5-code-reviewer`
+  - `6-finalizer`
+- standalone specialist agents:
+  - `debugger`
+  - `documentation-writer`
+  - `project-manager`
+  - `refactorer`
+  - `test-strategist`
+  - `performance-reviewer`
+  - `accessibility-reviewer`
+  - `api-contract-writer`
+  - `data-modeler`
+  - `sql-database-designer`
+  - `migration-planner`
+  - `observability-reviewer`
+  - `release-coordinator`
+  - `web-designer`
+
+The workflow is used in chat after installation. The framework steps are as follows:
+
+1. `1-initializer`: `AGENTS.md initialize this branch for adding OAuth login`
+2. `2-planner`: `plan this feature`
+3. `3-designer`: `design the architecture for this change`
+4. `4-implementer`: `implement this now`
+5. `5-code-reviewer`: `do a code review`
+6. `6-finalizer`: `wrap this up`
+
+`0-status-checker` is a routing and validation stage, not a delivery stage. Examples: `what's my status`, `what is the current status of united-we-stand`
+
+All of those steps are called in the chat, and do not need to be referenced explicitly after initialization. Simple prompts such as `lets move to the next step`, `next step`, or `do the next step` should move the AI framework to the next numbered stage.
+
+For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`. Also, indicate at the end to only do the initialization step.
+In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
+
+After the workflow is initialized, each stage writes or updates its branch file as follows:
+
+| Stage | File name | General description |
+|-------|-----------|---------------------|
+| `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
+| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
+| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
+| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
+| `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
+| `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
+
+
+### What safety/destructive behavior exists
+
+The framework is designed to install into the target repository and update its own managed framework files.
+
+Important behavior to know:
+
+- `united-we-stand install` writes or updates framework-related files in the repository
+
+- `united-we-stand install --force` resets the installed framework files under `.united-we-stand/` back to the package defaults
+
+- `branch-init --force` is intended to reset the current branch workflow memory for the resolved branch folder under `.spec-driven/`
+
+- the install command may update pointer files such as `AGENTS.md` and `.github/copilot-instructions.md` so supported tools are redirected to the installed framework
+
+- the CLI prints a suggestion to star the source repository after install if the framework was helpful
+
+The install command:
+
+- does not call the GitHub API for starring
+
+- does not use the `gh` CLI for starring
+
+- does not read GitHub auth tokens for starring
+
+- does not modify the user's GitHub account in any way
+As with any repository-writing tool, review changes before committing them, especially when using `--force`.
+
+### One simple example flow
+
+A typical workflow looks like this:
+
+1. Install the package globally:
+
+```bash
+npm install -g @rudinmax87/united-we-stand
+```
+
+2. Install the framework inside your repository:
+
+```bash
+united-we-stand install
+```
+
+3. In a new chat in your supported AI tool, initialize the branch:
+
+```text
+AGENTS.md initialize this branch for adding OAuth login. Only do the initialization step.
+```
+
+4. Continue through the numbered workflow stages in chat:
+
+```text
+plan this feature
+design the architecture for this change
+implement this now
+do a code review
+wrap this up
+```
+
+5. At any point, ask for status:
+
+```text
+what is the current status of united-we-stand
+```
+
+`0-status-checker` is a routing and validation stage, not a delivery stage. After initialization, simple prompts such as `lets move to the next step`, `next step`, or `do the next step` should move the AI framework to the next numbered stage.
+
+## Creating Your Own Package
+
+If you want to generate and publish your own package variant of this framework, follow [the maintainer guide](https://github.com/mrudinal/united-we-stand-framework/blob/main/docs/generate-your-own-package.md).
+
+## Contents in this repository
+
+### What This Repository Contains
 
 - `src/`
   - CLI entrypoint, commands, and library code
@@ -47,484 +283,18 @@ repo-root/
 `-- vitest.config.ts
 ```
 
-## What The Package Exports
+# License
 
-The package installs a global CLI named:
+This project is licensed under the **MIT License**.
 
-- `united-we-stand`
+That means you may use it, copy it, modify it, merge it, publish it, distribute it, sublicense it, and/or sell copies of it, subject only to the conditions of the MIT License itself.
 
-The built package ships:
+Those MIT conditions are:
 
-- compiled CLI output
-- `.united-we-stand/**`
-- `README.md`
-- `LICENSE`
+1. The copyright notice must be included in copies or substantial portions of the software.
+2. The software is provided **as is**, without warranty of any kind.
 
-The repository also contains `public/` assets for source-repo documentation, but those are not currently part of the published npm package.
-
-## GitHub Repository Star
-
-During `united-we-stand install`, the CLI makes a best-effort attempt to star the source repository on GitHub:
-
-- <https://github.com/mrudinal/united-we-stand-framework>
-
-This is a non-blocking operation that does not affect the install outcome. The user is informed of the result:
-
-- If a `GITHUB_TOKEN` or `GH_TOKEN` environment variable is set, the CLI uses the GitHub REST API.
-- If the `gh` CLI is installed and authenticated, it falls back to `gh api`.
-- If neither authentication method is available, the CLI logs that GitHub auth was not detected and continues.
-- On any error or timeout, the CLI logs a warning and continues normally.
-
-The star attempt runs after all framework files have been written. It never blocks, never fails the install, and never modifies any files.
-
-## End-User Documentation
-
-If you need detailed user-facing documentation, read:
-
-- [`.united-we-stand/README.md`](./.united-we-stand/README.md)
-
-That file explains:
-
-- how users install the package
-- how they run `install`, `branch-init`, `doctor`, and `refresh`
-- framework stages and standalone agents
-- runtime branch-memory layout inside their repositories
-
-## Package Summary
-
-Install the public npm package with:
-
-```bash
-npm install -g @rudinmax87/united-we-stand
-```
-
-Then, inside a target repository:
-
-```bash
-united-we-stand install
-```
-
-For resetting the framework back to the defaults and overwrite everything under `.united-we-stand/`:
-
-```bash
-united-we-stand install --force
-```
-
-That installs:
-
-- the framework docs under `.united-we-stand/`
-- editor/agent pointer files such as `AGENTS.md`, `.github/copilot-instructions.md`, `.agents/workflows/united-we-stand.md`, and `.cursor/rules/united-we-stand.mdc`
-- numbered framework agents: `0-status-checker`, `1-initializer`, `2-planner`, `3-designer`, `4-implementer`, `5-code-reviewer`, `6-finalizer`
-- standalone specialist agents: `debugger`, `documentation-writer`, `project-manager`, `refactorer`, `test-strategist`, `performance-reviewer`, `accessibility-reviewer`, `api-contract-writer`, `data-modeler`, `sql-database-designer`, `migration-planner`, `observability-reviewer`, `release-coordinator`, and `web-designer`
-
-The workflow is mainly used in chat after installation:
-
-1. `1-initializer`: `AGENTS.md initialize this branch for adding OAuth login`
-2. `2-planner`: `plan this feature`
-3. `3-designer`: `design the architecture for this change`
-4. `4-implementer`: `implement this now`
-5. `5-code-reviewer`: `do a code review`
-6. `6-finalizer`: `wrap this up`
-
-`0-status-checker` is a routing and validation stage, not a delivery stage. Example: `what's my status`
-
-For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`. Also, indicate at the end to only do the initialization step.
-In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
-
-After the workflow is initialized, each stage writes or updates its branch file as follows:
-
-| Stage | File name | General description |
-|-------|-----------|---------------------|
-| `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
-| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
-| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
-| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
-| `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
-| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
-| `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
-
-# Instructions to generate a new package
-
-## Local Development
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Build the package:
-
-```bash
-npm run build
-```
-
-Run unit/integration tests:
-
-```bash
-npm test
-```
-
-Run built-CLI smoke tests:
-
-```bash
-npm run test:e2e
-```
-
-## Source Of Truth Areas
-
-- framework runtime assets: `.united-we-stand/**`
-- CLI behavior: `src/commands/**` and `src/lib/**`
-- package metadata: `package.json`
-- publish preparation for GitHub Packages: `scripts/prepare-github-publish.mjs`
-
-## Installed Editor Integration Files
-
-When users run `united-we-stand install`, the framework also installs lightweight editor/agent integration pointers that redirect tools back to the root `AGENTS.md` file instead of duplicating rules.
-
-Installed pointer files:
-
-- `.github/copilot-instructions.md`
-- `.agents/workflows/united-we-stand.md`
-- `.cursor/rules/united-we-stand.mdc`
-
-## Publish Targets
-
-This repository is prepared for two scoped publish targets.
-
-Current examples in this repository:
-
-- public npm package: `@rudinmax87/united-we-stand`
-- GitHub Packages package: `@mrudinal/united-we-stand`
-
-If you adapt this publish flow for your own fork or package, replace those scopes with your own npm scope and GitHub owner scope.
-
-Because the required scopes are different, the repository uses:
-
-- the root `package.json` for npm publishing
-- a generated temporary artifact for GitHub Packages publishing
-
-## Build The Publish Artifact
-
-When you publish to npm, you are publishing the package artifact generated from this repository, not a Docker image.
-
-The npm package artifact for this repository consists of:
-
-- compiled CLI output
-- `.united-we-stand/**`
-- `README.md`
-- `LICENSE`
-
-Those shipped files are defined in `package.json` under `files`.
-
-If you want to inspect the package tarball locally before publishing, run:
-
-```bash
-npm pack
-```
-
-That creates a local `.tgz` archive containing the exact npm package contents that would be published from the root package.
-
-## Publish To Scoped npm
-
-This repository is currently configured to publish the root package as:
-
-- `@rudinmax87/united-we-stand`
-
-If you are publishing your own scoped variant, replace that name with your own npm scope and package name.
-
-### Requirements
-
-Before publishing to npm, make sure all of the following are true:
-
-- you have Node.js 18+ installed
-- you have npm installed
-- you have an npm account
-- your npm account has access to the package scope you plan to publish under
-- you are logged in with the npm CLI
-- the package `version` in `package.json` is the version you want to publish
-- the package builds and tests pass locally
-
-Optional but recommended checks:
-
-- confirm the current npm user with `npm whoami`
-- confirm the target registry with `npm config get registry`
-- inspect the tarball with `npm pack`
-
-### Step-by-step
-
-#### 1. Install dependencies
-
-```bash
-npm install
-```
-
-#### 2. Build the package
-
-```bash
-npm run build
-```
-
-#### 3. Run the test suite
-
-```bash
-npm test
-npm run test:e2e
-```
-
-#### 4. Confirm the package version and scoped name
-
-Check `package.json` and confirm:
-
-- `name` is the package name you intend to publish
-- `version` is the release version you want to publish
-
-For this repository today, the configured name is `@rudinmax87/united-we-stand`.
-
-#### 5. Log in to npm
-
-```bash
-npm login
-```
-
-If you want to verify the authenticated user:
-
-```bash
-npm whoami
-```
-
-#### 6. Optionally build the publish tarball locally
-
-```bash
-npm pack
-```
-
-This lets you inspect the exact package contents before publishing.
-
-#### 7. Publish the scoped package
-
-```bash
-npm publish --access public
-```
-
-The root `package.json` already includes:
-
-- scoped package name for this repository
-- `publishConfig.access = public`
-
-So `npm publish` is usually enough, but `npm publish --access public` makes the intended access mode explicit for a scoped public package.
-
-### Quick publish command sequence
-
-```bash
-npm install
-npm run build
-npm test
-npm run test:e2e
-npm login
-npm whoami
-npm pack
-npm publish --access public
-```
-
-## Publish To GitHub Packages
-
-This repository can also be published to GitHub Packages as:
-
-- `@mrudinal/united-we-stand`
-
-GitHub Packages for npm uses:
-
-- registry: `https://npm.pkg.github.com`
-- scoped package name: `@mrudinal/united-we-stand`
-
-Treat `@mrudinal` as the current example owner scope for this repository. If you publish from your own fork or organization, replace it with your own GitHub Packages scope.
-
-### Requirements
-
-Before publishing to GitHub Packages, make sure all of the following are true:
-
-- you have Node.js 18+ and npm installed
-- you have a GitHub account with access to the repository that owns the package
-- you have a GitHub `personal access token (classic)`
-- that token has at least:
-  - `write:packages`
-  - `read:packages`
-- you are authenticated to `https://npm.pkg.github.com`
-- the package builds and tests pass locally
-
-Important:
-
-- GitHub Packages for npm currently uses `personal access token (classic)` authentication
-- for npm CLI v9+, GitHub recommends `--auth-type=legacy` when logging in from the command line
-
-### Step-by-step
-
-#### 1. Build and validate the package
-
-```bash
-npm install
-npm run build
-npm test
-npm run test:e2e
-```
-
-#### 2. Create a GitHub personal access token (classic)
-
-Create a token in GitHub with:
-
-- `write:packages`
-- `read:packages`
-
-If you also want to delete packages later, add:
-
-- `delete:packages`
-
-#### 3. Authenticate npm to GitHub Packages
-
-You can authenticate in either of these ways.
-
-Option A: add your token to `~/.npmrc`
-
-```ini
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT_CLASSIC
-```
-
-Option B: log in with npm
-
-```bash
-npm login --scope=@YOUR_GITHUB_SCOPE --auth-type=legacy --registry=https://npm.pkg.github.com
-```
-
-Example for this repository:
-
-```bash
-npm login --scope=@mrudinal --auth-type=legacy --registry=https://npm.pkg.github.com
-```
-
-When prompted, use:
-
-- Username: your GitHub username
-- Password: your GitHub personal access token (classic)
-- Email: your GitHub account email
-
-#### 4. Prepare the GitHub-scoped publish artifact
-
-```bash
-npm run prepare:publish:github
-```
-
-That creates:
-
-- a temporary GitHub-scoped publish artifact
-- a GitHub-scoped package manifest
-- the compiled CLI output and installed framework assets needed for publication
-
-#### 5. Inspect the generated publish artifact
-
-Confirm that these files exist:
-
-- the generated GitHub-scoped package manifest
-- the generated compiled CLI output
-- the generated `.united-we-stand/` asset copy
-
-The generated `package.json` in that folder is already configured for:
-
-- package name: `@mrudinal/united-we-stand`
-- registry: `https://npm.pkg.github.com`
-
-#### 6. Publish from the generated folder
-
-Publish from the generated GitHub artifact directory created by `npm run prepare:publish:github`.
-
-The publish command is typically:
-
-```bash
-npm publish .publish/github
-```
-
-Run it from the repository root after inspecting the prepared package manifest.
-
-The generated GitHub Packages artifact uses:
-
-- package name: `@mrudinal/united-we-stand`
-- registry: `https://npm.pkg.github.com`
-
-### Quick GitHub Packages publish sequence
-
-```bash
-npm install
-npm run build
-npm test
-npm run test:e2e
-npm login --scope=@YOUR_GITHUB_SCOPE --auth-type=legacy --registry=https://npm.pkg.github.com
-npm run prepare:publish:github
-npm publish .publish/github
-```
-
-Example scope for this repository: `@mrudinal`
-
-### Verify The GitHub Package Exists
-
-After publishing, verify the package in both the CLI and the GitHub UI.
-
-#### Verify from the CLI
-
-If you already authenticated npm to GitHub Packages, run:
-
-```bash
-npm view @YOUR_GITHUB_SCOPE/united-we-stand version --registry=https://npm.pkg.github.com
-```
-
-Example for this repository:
-
-```bash
-npm view @mrudinal/united-we-stand version --registry=https://npm.pkg.github.com
-```
-
-You can also inspect more package metadata:
-
-```bash
-npm view @YOUR_GITHUB_SCOPE/united-we-stand --registry=https://npm.pkg.github.com
-```
-
-Example for this repository:
-
-```bash
-npm view @mrudinal/united-we-stand --registry=https://npm.pkg.github.com
-```
-
-If the package is visible and the publish succeeded, npm will return the published version and metadata instead of a not found or auth error.
-
-#### Verify in the GitHub UI
-
-Open GitHub and check the package in the UI:
-
-1. Go to your GitHub profile or the owning account.
-2. Open the `Packages` tab.
-3. Look for `united-we-stand`.
-4. Open the package page and confirm:
-   - package name matches your published scope and package name
-   - the newly published version is listed
-   - installation instructions and package metadata are visible
-
-For this repository today, the example package name is `@mrudinal/united-we-stand`.
-
-You can also check the repository sidebar for the linked package if GitHub associates the package with your repository.
-
-### Notes
-
-- publish to npmjs.com and publish to GitHub Packages are separate flows
-- the root package publishes to npm as `@rudinmax87/united-we-stand`
-- the generated temporary GitHub artifact publishes to GitHub Packages as `@mrudinal/united-we-stand`
-- replace those example scopes with your own if you publish from a different owner account or fork
-- if authentication fails during GitHub Packages publish, re-check that your token is a `personal access token (classic)` with `write:packages`
-
-## License
-
-This project is **open source** under the **MIT License**. You can use it, modify it, fork it, and build on it freely — for personal, commercial, or any other purpose — with no restrictions and no fees.
-
-**The only requirement when publishing a derived framework, package, or tool** is to credit the original: include the author username, the package name and version your work is based on, and the repository URL in your credits, and star the source repository. That's it.
+There are **no additional legal restrictions beyond MIT**.
 
 See the [LICENSE](./LICENSE) file for the full legal text.
 
@@ -544,7 +314,7 @@ See the [LICENSE](./LICENSE) file for the full legal text.
 
 ### Community Terms
 
-Project norms and the one hard requirement for derived works are described below.
+The following are **community requests and project norms**, not additional legal license conditions.
 
 #### Public Use and Participation
 
@@ -555,32 +325,26 @@ This framework is public and free for anyone to use, evaluate, and deploy. You a
 - **Bug fixes take priority over new features.** The stability and correctness of the framework model comes before expanding its scope. A broken workflow rule or incorrect CLI behavior will be addressed before a new agent or command is added.
 - **Feature requests are accepted as issues.** If you have a feature idea, open an issue. There is no guarantee of implementation, but well-reasoned requests are considered.
 
-#### Derived Works and Attribution (required)
+#### Derived Works and Attribution (requested, not required)
 
-This is the one condition that applies when publishing a derived work. If you create a new framework, package, tool, or product that is substantially based on or derived from `united-we-stand`, two things are required:
+If you publish a framework, package, tool, or product that is substantially based on or inspired by `united-we-stand`, attribution is appreciated.
 
-1. **Credit is required.** Your project's README, documentation, or credits section must include all of the following:
+Suggested credit information:
 
-   | Field | Required value |
-   |---|---|
-   | Author / maintainer username | `mrudinal` |
-   | Package name and version | `@rudinmax87/united-we-stand@<version you based your work on>` |
-   | Source repository URL | `https://github.com/mrudinal/united-we-stand-framework` |
+| Field | Suggested value |
+|---|---|
+| Author / maintainer username | `mrudinal` |
+| Package name and version | `@rudinmax87/united-we-stand@<version you based your work on>` |
+| Source repository URL | `https://github.com/mrudinal/united-we-stand-framework` |
 
-   Minimum acceptable credit format:
+Suggested credit format:
 
-   ```
-   Based on @rudinmax87/united-we-stand@<version> by mrudinal
-   https://github.com/mrudinal/united-we-stand-framework
-   ```
+```text
+Based on @rudinmax87/united-we-stand@<version> by mrudinal
+https://github.com/mrudinal/united-we-stand-framework
+```
 
-   The version must be the specific version (e.g. `0.1.0`) your derived work was built from, not a range or `latest`.
-
-2. **The source repository must be starred.** Star [github.com/mrudinal/united-we-stand-framework](https://github.com/mrudinal/united-we-stand-framework) before or at the time of publishing your derived work. This is a visibility courtesy that costs nothing and is the minimum acknowledgment expected.
-
-These attribution requirements apply to derived frameworks and distributed packages. They do not apply to installing and using the package inside your own project, which is unrestricted.
-
-#### Versioning
+# Versioning
 
 This project follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`):
 
@@ -590,6 +354,6 @@ This project follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`):
 
 You can safely pin a minor version (e.g., `^0.1.0`) and expect patch updates to be non-breaking within that range.
 
-#### No Warranty
+# No Warranty
 
 This software is provided as-is. The MIT License explicitly disclaims all warranties. Use it in production at your own discretion. Bugs will be addressed but there is no SLA or guaranteed response time.
