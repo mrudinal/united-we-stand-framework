@@ -2,7 +2,7 @@
 
 This repository is the source, build, test, and publish workspace for the `united-we-stand` package.
 
-It is the maintainer documentation for this repository, not the installed end-user framework guide.
+This documentation is mostly the maintainer for this repository, not the installed end-user framework guide.
 
 The runtime framework README that gets installed into target repositories is:
 
