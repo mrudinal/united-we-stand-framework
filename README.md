@@ -372,10 +372,10 @@ Publish from the generated GitHub artifact directory created by `npm run prepare
 The publish command is typically:
 
 ```bash
-npm publish
+npm publish .publish/github
 ```
 
-Run it from inside the generated artifact directory after inspecting the prepared package manifest.
+Run it from the repository root after inspecting the prepared package manifest.
 
 The generated GitHub Packages artifact uses:
 
@@ -391,6 +391,7 @@ npm test
 npm run test:e2e
 npm login --scope=@YOUR_GITHUB_SCOPE --auth-type=legacy --registry=https://npm.pkg.github.com
 npm run prepare:publish:github
+npm publish .publish/github
 ```
 
 Example scope for this repository: `@mrudinal`
@@ -496,7 +497,7 @@ The workflow is mainly used in chat after installation:
 
 `0-status-checker` is a routing and validation stage, not a delivery stage. Example: `what's my status`
 
-For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`.
+For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`. Also, indicate at the end to only do the initialization step.
 In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
 
 After the workflow is initialized, each stage writes or updates its branch file as follows:

@@ -131,13 +131,15 @@ Use `install --force` when you want to discard local edits to the installed fram
 - `.github/copilot-instructions.md`
 - `.agents/workflows/united-we-stand.md`
 - `.cursor/rules/united-we-stand.mdc`
-- `.united-we-stand/**`
+- the installed framework docs and agent files under `.united-we-stand/`
 
 `united-we-stand install --force` resets the installed framework back to the package defaults and overwrites the shipped files under:
 
-- `.united-we-stand/**`
+- the installed framework docs and agent files under `.united-we-stand/`
 
 Use that when `.united-we-stand/` was edited locally and you want the default framework back.
+
+Branch templates remain package-internal assets used during initialization and normal chat-driven framework usage. They are not meant to be treated as user-edited installed docs.
 
 `united-we-stand branch-init` writes:
 

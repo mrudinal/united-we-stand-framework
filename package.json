@@ -10,6 +10,7 @@
   "files": [
     "dist",
     ".united-we-stand",
+    "public",
     "README.md",
     "LICENSE"
   ],
