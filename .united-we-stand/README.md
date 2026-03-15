@@ -326,14 +326,15 @@ Examples:
 - `next step`
 
 The framework is designed to route short natural requests such as `continue`, `fix it`, `implement this`, `review this`, and `check for gaps` to the nearest safe workflow action.
-If you ask to modify a specific stage, for example `add this in planning` or `update init`, that should be treated as an in-place stage amendment and not as permission to auto-advance to the next stage.
-If you ask for earlier-stage work while the branch is already in a later stage, the AI should perform that work without moving the workflow backward; instead it should mark downstream state as needing refresh in the status metadata.
-The most reliable direct NLP bootstrap for initialization is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
-If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
-If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests should still warn and ask for confirmation before creating `.spec-driven/...` unless you explicitly use `--force`.
-If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
-If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should first warn that united-we-stand is not initialized for that branch and ask whether you want to proceed outside the framework for the current chat.
-If you confirm that outside-framework work is fine, the AI should continue outside the framework for the rest of the current chat without asking for the same confirmation again unless you later ask to initialize or return to framework flow.
+
+- If you ask to modify a specific stage, for example `add this in planning` or `update init`, that should be treated as an in-place stage amendment and not as permission to auto-advance to the next stage.
+- If you ask for earlier-stage work while the branch is already in a later stage, the AI should perform that work without moving the workflow backward; instead it should mark downstream state as needing refresh in the status metadata.
+- The most reliable direct NLP bootstrap for initialization is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
+- If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
+- If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests should still warn and ask for confirmation before creating `.spec-driven/...` unless you explicitly use `--force`.
+- If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
+- If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should first warn that united-we-stand is not initialized for that branch and ask whether you want to proceed outside the framework for the current chat.
+- If you confirm that outside-framework work is fine, the AI should continue outside the framework for the rest of the current chat without asking for the same confirmation again unless you later ask to initialize or return to framework flow.
 
 ## Framework Stage Chat Routes
 
