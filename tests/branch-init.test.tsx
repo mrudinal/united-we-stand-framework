@@ -2,21 +2,42 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, readFileSync, existsSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import { runBranchInitCommand } from '../src/commands/branch-init.js';
 import { runInstallCommand } from '../src/commands/install.js';
 import { getCurrentBranchName } from '../src/lib/git.js';
 import { sanitizeBranchName } from '../src/lib/branch.js';
 
 /**
- * Creates an isolated git repository for branch-init tests.
+ * Runs a git command inside the target repository.
+ */
+function runGitCommand(targetDirectory: string, args: string[]): string {
+    return execFileSync('git', args, {
+        cwd: targetDirectory,
+        stdio: 'pipe',
+        encoding: 'utf-8',
+    });
+}
+
+/**
+ * Creates an isolated git repository for branch-init tests with a tracked default branch.
  */
 function createTempGitRepository(): string {
     const tempDirectory = mkdtempSync(join(tmpdir(), 'united-we-stand-init-test-'));
-    execSync('git init', { cwd: tempDirectory, stdio: 'pipe' });
-    execSync('git config user.email "test@example.com"', { cwd: tempDirectory, stdio: 'pipe' });
-    execSync('git config user.name "united-we-stand-test"', { cwd: tempDirectory, stdio: 'pipe' });
-    execSync('git commit --allow-empty -m "init"', { cwd: tempDirectory, stdio: 'pipe' });
+    const remoteDirectory = join(tempDirectory, '.tmp-origin.git');
+
+    runGitCommand(tempDirectory, ['init']);
+    runGitCommand(tempDirectory, ['config', 'user.email', 'test@example.com']);
+    runGitCommand(tempDirectory, ['config', 'user.name', 'united-we-stand-test']);
+    runGitCommand(tempDirectory, ['commit', '--allow-empty', '-m', 'init']);
+    runGitCommand(tempDirectory, ['branch', '-M', 'main']);
+    runGitCommand(tempDirectory, ['init', '--bare', remoteDirectory]);
+    runGitCommand(tempDirectory, ['remote', 'add', 'origin', remoteDirectory]);
+    runGitCommand(tempDirectory, ['push', '-u', 'origin', 'main']);
+    runGitCommand(remoteDirectory, ['symbolic-ref', 'HEAD', 'refs/heads/main']);
+    runGitCommand(tempDirectory, ['remote', 'set-head', 'origin', '-a']);
+    runGitCommand(tempDirectory, ['checkout', '-b', 'feature/current-work']);
+
     return tempDirectory;
 }
 
@@ -172,6 +193,7 @@ describe('init command (branch spec setup)', () => {
             isDryRun: false,
             branchNameOverride: 'main',
             ideaText: 'initial idea',
+            force: true,
         });
 
         const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
@@ -257,6 +279,7 @@ Do planning before design.
             isDryRun: false,
             branchNameOverride: 'main',
             ideaText: 'initial idea',
+            force: true,
         });
 
         const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
@@ -375,6 +398,28 @@ Do planning before design.
             rmSync(rawRepoWithoutInstall, { recursive: true, force: true });
             process.exitCode = 0;
         }
+    });
+
+    it('requires explicit confirmation before initializing the detected default branch without --force', async () => {
+        const capturedMessages: string[] = [];
+        console.log = (message?: unknown) => {
+            capturedMessages.push(String(message ?? ''));
+        };
+        console.error = (message?: unknown) => {
+            capturedMessages.push(String(message ?? ''));
+        };
+
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+            ideaText: 'default branch guard',
+        });
+
+        expect(process.exitCode).toBe(1);
+        expect(existsSync(join(tempRepoDirectory, '.spec-driven', 'main'))).toBe(false);
+        expect(capturedMessages.join('\n')).toContain('repository default branch');
+        expect(capturedMessages.join('\n')).toContain('Default-branch initialization requires explicit confirmation.');
     });
 
     it('fails when default sanitized folder collides with another branch folder in non-interactive mode', async () => {

@@ -88,6 +88,9 @@ This file is the canonical source for global framework invariants.
 28. **Post-closure work reopens finalizer**  
     If the workflow was explicitly closed and the user later requests more branch changes, reopen `6-finalizer` as the current stage, clear closed/finalized state, and require finalization approval again after the new work is incorporated.
 
+29. **Default-branch initialization requires confirmation**  
+    If the current branch is detected as the repository default branch and branch memory does not yet exist, explicit initialization requests must warn about default-branch risks and ask for confirmation before creating `.spec-driven/...` files. Explicit `--force` semantics are the only bypass for that confirmation.
+
 ## Stage Mandatory Set
 
 Mandatory framework stages:

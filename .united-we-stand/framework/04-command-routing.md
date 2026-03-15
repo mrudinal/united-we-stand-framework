@@ -125,6 +125,22 @@ If the user explicitly asks to initialize or init the work and branch memory doe
 
 Initialization bootstrap does not grant permission to pre-create or populate planning, design, implementation, review, or finalization files.
 
+## Default Branch Initialization Rule
+
+If branch memory does not exist yet and the current branch is detected as the repository default branch and the user asks to initialize:
+
+1. warn clearly that initialization is being requested on the default branch
+2. explain that default-branch framework memory can make later feature-branch flow, branch-specific specs, and long-lived workflow state harder to manage
+3. ask for explicit confirmation before creating `.spec-driven/<branch>/`
+4. if the user confirms, continue with normal `1-initializer` bootstrap
+5. if the user explicitly uses `--force` or equally explicit force/bypass semantics, proceed without asking again
+
+Examples:
+
+- `initialize this on main`
+- `branch-init this work on master`
+- `init this branch` while currently on the detected default branch
+
 Examples:
 
 - `init the following`
@@ -152,6 +168,8 @@ If branch memory does not exist yet and the user requests concrete code changes 
 4. if the user confirms outside-framework work, continue normally outside the framework and do not repeat the same confirmation again in that chat unless the user later asks to initialize or return to framework mode
 5. if the user explicitly asks to initialize instead, create branch memory and start `1-initializer`
 6. if the user explicitly asks to start the framework from a later stage or uses force/bypass semantics, require confirmation of the exact stage path before proceeding
+
+This one-time outside-framework confirmation stays sticky on the default branch too. Do not keep re-asking in the same chat once the user already chose to continue outside the framework.
 
 Examples that should trigger this warning-and-confirm flow when branch memory is missing:
 

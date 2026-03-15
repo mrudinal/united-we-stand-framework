@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { rmSync } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { isGitRepository, getCurrentBranchName } from '../lib/git.js';
+import { isGitRepository, getCurrentBranchName, tryGetDefaultBranchName } from '../lib/git.js';
 import { sanitizeBranchName } from '../lib/branch.js';
 import {
     ensureDirectoryExists,
@@ -215,6 +215,26 @@ async function promptForCollisionResolution(defaultFolderName: string): Promise<
     }
 }
 
+/**
+ * Prompts the user before initializing framework memory on the repository default branch.
+ */
+async function promptForDefaultBranchInitialization(branchName: string): Promise<boolean | null> {
+    if (!input.isTTY || !output.isTTY) {
+        return null;
+    }
+
+    const prompt = createInterface({ input, output });
+    try {
+        const answer = (await prompt.question(
+            `Branch "${branchName}" is the repository default branch. Continue framework initialization on it? [y/N]: `,
+        )).trim().toLowerCase();
+
+        return answer === 'y' || answer === 'yes';
+    } finally {
+        prompt.close();
+    }
+}
+
 export async function runBranchInitCommand(options: InitCommandOptions): Promise<void> {
     const logger = createLogger(options.isDryRun);
     const {
@@ -262,6 +282,7 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
         return;
     }
 
+    const defaultBranchName = tryGetDefaultBranchName(workingDirectory);
     const sanitizedBranchName = sanitizeBranchName(currentBranch);
     if (!sanitizedBranchName) {
         logger.error(`Unable to sanitize branch name: "${currentBranch}"`);
@@ -326,6 +347,23 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
             branchRoutingMap[currentBranch] === branchMemoryFolderName
             || isSpecFolderAlreadyLinkedToBranch(specDrivenDirectory, currentBranch)
         );
+
+    const isDefaultBranchTarget = defaultBranchName !== null && currentBranch === defaultBranchName;
+
+    if (isDefaultBranchTarget && !branchAlreadyInitialized && !force) {
+        logger.warn(`"${currentBranch}" is detected as the repository default branch.`);
+        logger.warn('Initializing framework memory on the default branch can make later feature work, branch-specific specs, and long-lived workflow state harder to manage.');
+
+        const didConfirmDefaultBranchInitialization = await promptForDefaultBranchInitialization(currentBranch);
+        if (didConfirmDefaultBranchInitialization !== true) {
+            logger.error('Default-branch initialization requires explicit confirmation.');
+            logger.info('Create or checkout a feature branch first, rerun `branch-init` interactively and confirm, or use `--force` if you intentionally want to initialize the default branch.');
+            process.exitCode = 1;
+            return;
+        }
+
+        logger.info(`Proceeding with initialization on default branch "${currentBranch}" by user confirmation.`);
+    }
 
     if (branchAlreadyInitialized && !force) {
         const branchStatusSummary = readExistingBranchStatusSummary(specDrivenDirectory);

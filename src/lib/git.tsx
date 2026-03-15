@@ -54,3 +54,39 @@ export function getCurrentBranchName(targetDirectory: string): string {
 
     return branchName;
 }
+
+/**
+ * Returns the repository default branch name when `origin/HEAD` is available.
+ * Falls back to parsing `git remote show origin` when needed.
+ */
+export function tryGetDefaultBranchName(targetDirectory: string): string | null {
+    try {
+        const symbolicRef = execSync('git symbolic-ref --quiet --short refs/remotes/origin/HEAD', {
+            cwd: targetDirectory,
+            stdio: 'pipe',
+            encoding: 'utf-8',
+        }).trim();
+
+        if (symbolicRef.startsWith('origin/')) {
+            return symbolicRef.slice('origin/'.length) || null;
+        }
+    } catch {
+        // Fall through to the slower remote-show parsing path.
+    }
+
+    try {
+        const remoteShowOutput = execSync('git remote show origin', {
+            cwd: targetDirectory,
+            stdio: 'pipe',
+            encoding: 'utf-8',
+        });
+        const headBranchMatch = remoteShowOutput.match(/HEAD branch:\s*(.+)/i);
+        if (headBranchMatch && headBranchMatch[1]) {
+            return headBranchMatch[1].trim() || null;
+        }
+    } catch {
+        return null;
+    }
+
+    return null;
+}

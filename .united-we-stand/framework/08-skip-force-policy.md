@@ -27,6 +27,14 @@ If branch memory does not exist yet, working outside the framework is a separate
 - do not create `.spec-driven/...` files unless the user explicitly asks to initialize
 - once the user confirms outside-framework work for the current chat, continue without repeating that confirmation unless they later ask to initialize or return to framework flow
 
+## Default Branch Initialization Warning
+
+If the current branch is detected as the repository default branch and the user asks to initialize framework memory:
+
+- warn about the risks of anchoring branch-specific workflow state on the default branch
+- ask for explicit confirmation before creating `.spec-driven/...` files
+- only skip that confirmation when the user explicitly uses `--force` or equivalent force/bypass wording
+
 ## Mandatory Stage Warning
 
 If user bypasses a mandatory stage (`1-initializer` or `4-implementer`):

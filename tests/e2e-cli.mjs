@@ -46,6 +46,7 @@ function runCli(cliArguments) {
  */
 function createTempGitRepository() {
     const tempRepositoryPath = mkdtempSync(join(tmpdir(), 'united-we-stand-e2e-'));
+    const remoteRepositoryPath = join(tempRepositoryPath, '.tmp-origin.git');
     writeFileSync(join(tempRepositoryPath, 'README.md'), '# temp repo\n', 'utf-8');
     runGit(tempRepositoryPath, ['init']);
     runGit(tempRepositoryPath, ['config', 'user.email', 'test@example.com']);
@@ -53,6 +54,12 @@ function createTempGitRepository() {
     runGit(tempRepositoryPath, ['add', 'README.md']);
     runGit(tempRepositoryPath, ['commit', '-m', 'init']);
     runGit(tempRepositoryPath, ['branch', '-M', 'main']);
+    runGit(tempRepositoryPath, ['init', '--bare', remoteRepositoryPath]);
+    runGit(tempRepositoryPath, ['remote', 'add', 'origin', remoteRepositoryPath]);
+    runGit(tempRepositoryPath, ['push', '-u', 'origin', 'main']);
+    runGit(remoteRepositoryPath, ['symbolic-ref', 'HEAD', 'refs/heads/main']);
+    runGit(tempRepositoryPath, ['remote', 'set-head', 'origin', '-a']);
+    runGit(tempRepositoryPath, ['checkout', '-b', 'feature/current-work']);
     return tempRepositoryPath;
 }
 
@@ -84,23 +91,25 @@ function expectSuccessfulCommand(commandResult, label) {
  */
 function scenarioHappyPathPassesDoctor() {
     withTempRepository((tempRepositoryPath) => {
+        const branchName = 'feature/happy-path';
+        const branchFolder = 'feature-happy-path';
         expectSuccessfulCommand(
             runCli(['install', '--cwd', tempRepositoryPath]),
             'install',
         );
         expectSuccessfulCommand(
-            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'e2e happy path']),
+            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', branchName, 'e2e happy path']),
             'branch-init',
         );
 
-        const stateContent = readFileSync(join(tempRepositoryPath, '.spec-driven', 'main', 'state.json'), 'utf-8');
+        const stateContent = readFileSync(join(tempRepositoryPath, '.spec-driven', branchFolder, 'state.json'), 'utf-8');
         const parsedState = JSON.parse(stateContent);
 
-        assert.equal(parsedState.branchName, 'main');
-        assert.equal(parsedState.sanitizedBranchName, 'main');
-        assert.equal(parsedState.branchMemoryFolder, 'main');
+        assert.equal(parsedState.branchName, branchName);
+        assert.equal(parsedState.sanitizedBranchName, branchFolder);
+        assert.equal(parsedState.branchMemoryFolder, branchFolder);
 
-        const doctorResult = runCli(['doctor', '--cwd', tempRepositoryPath, '--branch', 'main']);
+        const doctorResult = runCli(['doctor', '--cwd', tempRepositoryPath, '--branch', branchName]);
         expectSuccessfulCommand(doctorResult, 'doctor');
         assert.match(doctorResult.output, /All checks passed\. Repository is fully set up\./);
         assert.match(doctorResult.output, /state\.json branch identity matches resolved branch context/);
@@ -112,16 +121,18 @@ function scenarioHappyPathPassesDoctor() {
  */
 function scenarioDoctorFailsCompletedPlaceholderStage() {
     withTempRepository((tempRepositoryPath) => {
+        const branchName = 'feature/doctor-placeholder';
+        const branchFolder = 'feature-doctor-placeholder';
         expectSuccessfulCommand(
             runCli(['install', '--cwd', tempRepositoryPath]),
             'install',
         );
         expectSuccessfulCommand(
-            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'doctor placeholder scenario']),
+            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', branchName, 'doctor placeholder scenario']),
             'branch-init',
         );
 
-        const branchDirectory = join(tempRepositoryPath, '.spec-driven', 'main');
+        const branchDirectory = join(tempRepositoryPath, '.spec-driven', branchFolder);
         writeFileSync(
             join(branchDirectory, '00-current-status.md'),
             [
@@ -129,8 +140,8 @@ function scenarioDoctorFailsCompletedPlaceholderStage() {
                 '',
                 '| Field | Value |',
                 '|-------|-------|',
-                '| Current branch | `main` |',
-                '| Sanitized ID | `main` |',
+                `| Current branch | \`${branchName}\` |`,
+                `| Sanitized ID | \`${branchFolder}\` |`,
                 '| Current stage | 2-planner |',
                 '| Completed steps | 1-initializer |',
                 '| Incompleted stages | none |',
@@ -147,9 +158,9 @@ function scenarioDoctorFailsCompletedPlaceholderStage() {
         writeFileSync(
             join(branchDirectory, 'state.json'),
             `${JSON.stringify({
-                branchName: 'main',
-                sanitizedBranchName: 'main',
-                branchMemoryFolder: 'main',
+                branchName,
+                sanitizedBranchName: branchFolder,
+                branchMemoryFolder: branchFolder,
                 currentStage: '2-planner',
                 completedSteps: ['1-initializer'],
                 incompletedStages: [],
@@ -187,7 +198,7 @@ TBD
             'utf-8',
         );
 
-        const doctorResult = runCli(['doctor', '--cwd', tempRepositoryPath, '--branch', 'main']);
+        const doctorResult = runCli(['doctor', '--cwd', tempRepositoryPath, '--branch', branchName]);
         assert.match(doctorResult.output, /02-plan\.md required sections have substantive content/);
         assert.match(doctorResult.output, /Branch runtime\/spec issues detected\./);
         assert.doesNotMatch(doctorResult.output, /All checks passed\. Repository is fully set up\./);
@@ -247,16 +258,18 @@ function scenarioCollisionFailsNonInteractiveReuse() {
  */
 function scenarioReinitRequiresForce() {
     withTempRepository((tempRepositoryPath) => {
+        const branchName = 'feature/reinit-test';
+        const branchFolder = 'feature-reinit-test';
         expectSuccessfulCommand(
             runCli(['install', '--cwd', tempRepositoryPath]),
             'install',
         );
         expectSuccessfulCommand(
-            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'first init']),
+            runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', branchName, 'first init']),
             'branch-init initial',
         );
 
-        const branchDirectory = join(tempRepositoryPath, '.spec-driven', 'main');
+        const branchDirectory = join(tempRepositoryPath, '.spec-driven', branchFolder);
         writeFileSync(
             join(branchDirectory, '02-plan.md'),
             `## Objectives
@@ -288,8 +301,8 @@ Do planning before design.
                 '',
                 '| Field | Value |',
                 '|-------|-------|',
-                '| Current branch | `main` |',
-                '| Sanitized ID | `main` |',
+                `| Current branch | \`${branchName}\` |`,
+                `| Sanitized ID | \`${branchFolder}\` |`,
                 '| Current stage | 2-planner |',
                 '| Completed steps | 1-initializer |',
                 '| Incompleted stages | none |',
@@ -305,9 +318,9 @@ Do planning before design.
         writeFileSync(
             join(branchDirectory, 'state.json'),
             `${JSON.stringify({
-                branchName: 'main',
-                sanitizedBranchName: 'main',
-                branchMemoryFolder: 'main',
+                branchName,
+                sanitizedBranchName: branchFolder,
+                branchMemoryFolder: branchFolder,
                 currentStage: '2-planner',
                 completedSteps: ['1-initializer'],
                 incompletedStages: [],
@@ -320,7 +333,7 @@ Do planning before design.
             'utf-8',
         );
 
-        const blockedReinitResult = runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'second init']);
+        const blockedReinitResult = runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', branchName, 'second init']);
         assert.equal(blockedReinitResult.exitCode, 1, `branch-init re-run without force should fail.\nOutput:\n${blockedReinitResult.output}`);
         assert.match(blockedReinitResult.output, /Current stage: 2-planner/);
         assert.match(blockedReinitResult.output, /Reset is only allowed when you explicitly rerun with `--force`\./);
@@ -330,11 +343,37 @@ Do planning before design.
     });
 }
 
+/**
+ * Verifies that default-branch initialization requires explicit confirmation or --force.
+ */
+function scenarioDefaultBranchInitRequiresForce() {
+    withTempRepository((tempRepositoryPath) => {
+        expectSuccessfulCommand(
+            runCli(['install', '--cwd', tempRepositoryPath]),
+            'install',
+        );
+
+        const blockedInitResult = runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', 'default branch init']);
+        assert.equal(
+            blockedInitResult.exitCode,
+            1,
+            `branch-init on default branch should require confirmation.\nOutput:\n${blockedInitResult.output}`,
+        );
+        assert.match(blockedInitResult.output, /default branch/i);
+        assert.match(blockedInitResult.output, /requires explicit confirmation/i);
+
+        const forcedInitResult = runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', '--force', 'forced default branch init']);
+        expectSuccessfulCommand(forcedInitResult, 'branch-init forced default branch');
+        assert.equal(existsSync(join(tempRepositoryPath, '.spec-driven', 'main', 'state.json')), true);
+    });
+}
+
 const scenarios = [
     ['happy path passes doctor', scenarioHappyPathPassesDoctor],
     ['doctor fails completed placeholder stage', scenarioDoctorFailsCompletedPlaceholderStage],
     ['collision fails non-interactive reuse', scenarioCollisionFailsNonInteractiveReuse],
     ['reinit requires force', scenarioReinitRequiresForce],
+    ['default branch init requires force', scenarioDefaultBranchInitRequiresForce],
 ];
 
 let failureCount = 0;

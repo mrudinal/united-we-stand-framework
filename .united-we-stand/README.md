@@ -6,7 +6,28 @@ It is meant for people using the package inside their repositories.
 
 ## Install The Package
 
-If you are installing from GitHub Packages, authenticate npm first.
+The primary public package in npm is:
+
+- `@rudinmax87/united-we-stand`
+
+This is the current public npm example for this repository. If you are using a fork or republished variant, replace that scope and package name with your own.
+
+Install it globally from npm:
+
+```bash
+npm install -g @rudinmax87/united-we-stand
+```
+
+Requirements:
+
+- Node.js 18+
+- git
+
+### Alternative: install from GitHub Packages
+
+If you are intentionally installing from GitHub Packages instead, authenticate npm first.
+
+Treat `@mrudinal` below as the current example GitHub Packages scope for this repository. If you install from your own fork or organization, replace it with your own GitHub owner scope.
 
 ### 1. Create a GitHub personal access token (classic)
 
@@ -21,11 +42,24 @@ If the package is tied to a private repository and your account needs repository
 Option A: add your token to `~/.npmrc`
 
 ```ini
+@YOUR_GITHUB_SCOPE:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT_CLASSIC
+```
+
+Example for this repository:
+
+```ini
 @mrudinal:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=YOUR_GITHUB_PAT_CLASSIC
 ```
 
 Option B: log in with npm
+
+```bash
+npm login --scope=@YOUR_GITHUB_SCOPE --auth-type=legacy --registry=https://npm.pkg.github.com
+```
+
+Example for this repository:
 
 ```bash
 npm login --scope=@mrudinal --auth-type=legacy --registry=https://npm.pkg.github.com
@@ -37,18 +71,25 @@ When prompted, use:
 - Password: your GitHub personal access token (classic)
 - Email: your GitHub account email
 
-### 3. Install the package globally
+### 3. Install the package globally from GitHub Packages
+
+```bash
+npm install -g @YOUR_GITHUB_SCOPE/united-we-stand
+```
+
+Installing this specific package:
 
 ```bash
 npm install -g @mrudinal/united-we-stand
 ```
 
-Requirements:
-
-- Node.js 18+
-- git
-
 If your scope mapping is not already in `~/.npmrc`, you can also install with the registry flag explicitly:
+
+```bash
+npm install -g @YOUR_GITHUB_SCOPE/united-we-stand --registry=https://npm.pkg.github.com
+```
+
+Installing this specific package from github:
 
 ```bash
 npm install -g @mrudinal/united-we-stand --registry=https://npm.pkg.github.com
@@ -74,60 +115,13 @@ Install the framework files:
 united-we-stand install
 ```
 
-Reset the framework back to the defaults and overwrite everything under `.united-we-stand/`:
+For resetting the framework back to the defaults and overwrite everything under `.united-we-stand/`:
 
 ```bash
 united-we-stand install --force
 ```
 
 Use `install --force` when you want to discard local edits to the installed framework and restore the default framework files shipped by the package. Treat `.united-we-stand/` as resettable package content, not as the place for branch-specific working memory. Branch-specific and request-specific custom rules, decisions, notes, and execution state should live under `.spec-driven/<branch-folder>/` in the files created by `branch-init`.
-
-Initialize branch memory for the branch you are working on:
-
-```bash
-united-we-stand branch-init "Describe the change you want to make"
-```
-
-If you are in detached HEAD, provide the branch name explicitly:
-
-```bash
-united-we-stand branch-init --branch feature/my-change "Describe the change you want to make"
-```
-
-If branch memory already exists and you intentionally want to reset only that branch memory back to initializer bootstrap files, use:
-
-```bash
-united-we-stand branch-init --force "Describe the change you want to make"
-```
-
-`branch-init --force` resets `.spec-driven/<branch-folder>/` for that branch only. It does not revert or roll back code changes in your repository.
-
-Check the repository health:
-
-```bash
-united-we-stand doctor
-```
-
-Check a specific branch explicitly:
-
-```bash
-united-we-stand doctor --branch feature/my-change
-```
-
-Refresh missing framework files and managed blocks:
-
-```bash
-united-we-stand refresh
-```
-
-## Typical First-Time Flow
-
-```bash
-git checkout -b feature/my-change
-united-we-stand install
-united-we-stand branch-init "Describe the change you want to make"
-united-we-stand doctor
-```
 
 ## What Gets Installed
 
@@ -151,6 +145,57 @@ Use that when `.united-we-stand/` was edited locally and you want the default fr
 - `.spec-driven/<branch-folder>/01-init.md`
 - `.spec-driven/<branch-folder>/state.json`
 - `.spec-driven/.branch-routing.json` when a branch uses a non-default folder mapping
+
+### Use It In Chat First
+
+After `united-we-stand install`, the intended primary interface is the AI chat, not a long CLI workflow.
+
+Typical chat bootstrap examples:
+
+- `initialize this`
+- `init the following`
+- `let's start this`
+- `help me with the following idea, i want...`
+- `plan this`
+- `design this`
+- `implement this`
+- `do a code review`
+- `wrap this up`
+- `what's my status`
+
+How chat usage works:
+
+- if branch memory does not exist yet, explicit initialization prompts should start `1-initializer`
+- broad start-of-work prompts should also default to `1-initializer` unless you explicitly ask for a later stage
+- if branch memory does not exist yet and you ask for direct code changes, the AI should warn that united-we-stand is not initialized and ask whether to proceed outside the framework for the current chat
+- once you confirm outside-framework work for the current chat, the AI should not ask that same confirmation again unless you later return to framework mode
+- if the current branch is the detected default branch, initialization should warn and ask for confirmation before creating branch memory unless you explicitly use `--force`
+
+The workflow is mainly used in chat after installation:
+
+1. `1-initializer`: `AGENTS.md initialize this branch for adding OAuth login`
+2. `2-planner`: `plan this feature`
+3. `3-designer`: `design the architecture for this change`
+4. `4-implementer`: `implement this now`
+5. `5-code-reviewer`: `do a code review`
+6. `6-finalizer`: `wrap this up`
+
+`0-status-checker` is a routing and validation stage, not a delivery stage. Example: `what's my status`
+
+For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`.
+In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
+
+After the workflow is initialized, each stage writes or updates its branch file as follows:
+
+| Stage | File name | General description |
+|-------|-----------|---------------------|
+| `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
+| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
+| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
+| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
+| `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
+| `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
 
 ## Runtime Branch Memory
 
@@ -283,6 +328,7 @@ If you ask to modify a specific stage, for example `add this in planning` or `up
 If you ask for earlier-stage work while the branch is already in a later stage, the AI should perform that work without moving the workflow backward; instead it should mark downstream state as needing refresh in the status metadata.
 The most reliable direct NLP bootstrap for initialization is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
+If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests should still warn and ask for confirmation before creating `.spec-driven/...` unless you explicitly use `--force`.
 If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
 If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should first warn that united-we-stand is not initialized for that branch and ask whether you want to proceed outside the framework for the current chat.
 If you confirm that outside-framework work is fine, the AI should continue outside the framework for the rest of the current chat without asking for the same confirmation again unless you later ask to initialize or return to framework flow.
@@ -413,3 +459,62 @@ Standalone agents can be used at any time when the task needs specialized help. 
 - `steering/`: repository-specific steering
 - `agents/`: numbered framework agents plus standalone specialists
 - `playbooks/`: scenario-specific routing guides
+
+## Using The CLI
+
+Initialize branch memory for the branch you are working on:
+
+```bash
+united-we-stand branch-init "Describe the change you want to make"
+```
+
+If you are on the repository default branch, `branch-init` should warn and ask for confirmation before creating branch memory there. This is meant to reduce long-lived workflow state on `main`/`master`-style branches when a feature branch would be safer.
+
+If you are in detached HEAD, provide the branch name explicitly:
+
+```bash
+united-we-stand branch-init --branch feature/my-change "Describe the change you want to make"
+```
+
+If branch memory already exists and you intentionally want to reset only that branch memory back to initializer bootstrap files, use:
+
+```bash
+united-we-stand branch-init --force "Describe the change you want to make"
+```
+
+`branch-init --force` resets `.spec-driven/<branch-folder>/` for that branch only. It does not revert or roll back code changes in your repository.
+
+Check the repository health:
+
+```bash
+united-we-stand doctor
+```
+
+Check a specific branch explicitly:
+
+```bash
+united-we-stand doctor --branch feature/my-change
+```
+
+Refresh missing framework files and managed blocks:
+
+```bash
+united-we-stand refresh
+```
+
+## Typical First-Time Flow
+
+```bash
+git checkout -b feature/my-change
+united-we-stand install
+united-we-stand branch-init "Describe the change you want to make"
+united-we-stand doctor
+```
+
+Chat-first alternative:
+
+```text
+git checkout -b feature/my-change
+united-we-stand install
+then ask the AI: "initialize this" or "let's start this"
+```
