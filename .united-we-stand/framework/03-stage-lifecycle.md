@@ -51,9 +51,11 @@ Explicit user closure confirmation after `6-finalizer` is the trigger that moves
 ## Multi-Stage Requests
 
 - Never auto-advance, even if the next stage seems obvious.
-- If a request could be read as advancing through two or more stages at once, ask for confirmation before proceeding.
-- The confirmation must list the exact stages to be executed together.
-- Until the user confirms, keep the workflow anchored in the current stage.
+- If a request could be read as advancing through two or more stages at once, do not run multiple stages.
+- Explain that united-we-stand only runs one stage at a time.
+- Suggest the next recommended numbered stage first.
+- Ask the user to confirm one single stage to run now.
+- Until the user confirms that single stage, keep the workflow anchored in the current stage.
 
 ## Resumption Inputs
 

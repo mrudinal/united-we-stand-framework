@@ -45,7 +45,7 @@ Route to `0-status-checker`.
 2. If current stage completed and prerequisites pass: advance to next numbered stage.
 3. If current stage unfinished: report blocker unless user explicitly skips or uses force semantics.
 
-Progression commands move only one stage at a time unless the user explicitly confirms a broader bypass.
+Progression commands move only one stage at a time.
 
 ## Stage Amendment Commands
 
@@ -117,11 +117,13 @@ Examples:
 
 If the user explicitly asks to initialize or init the work and branch memory does not exist yet:
 
-1. Treat that as explicit permission to create the branch spec under `.spec-driven/<branch>/`.
-2. Create or initialize the branch runtime files needed for `1-initializer`.
-3. Capture the user-provided intent in `01-init.md`.
-4. Keep the workflow anchored in `1-initializer` unless the user explicitly advances.
-5. Still enforce detached HEAD safety and branch-folder collision safety.
+1. Perform a fresh live check of the current git branch at the moment initialization is requested.
+2. Do not rely on a previous branch check, previous status output, or remembered chat context from earlier in the same chat.
+3. Treat that live branch result as the explicit target for `.spec-driven/<branch>/`.
+4. Create or initialize the branch runtime files needed for `1-initializer`.
+5. Capture the user-provided intent in `01-init.md`.
+6. Keep the workflow anchored in `1-initializer` unless the user explicitly advances.
+7. Still enforce detached HEAD safety and branch-folder collision safety.
 
 Initialization bootstrap does not grant permission to pre-create or populate planning, design, implementation, review, or finalization files.
 
@@ -167,7 +169,7 @@ If branch memory does not exist yet and the user requests concrete code changes 
 3. ask whether to proceed outside the framework for the current chat
 4. if the user confirms outside-framework work, continue normally outside the framework and do not repeat the same confirmation again in that chat unless the user later asks to initialize or return to framework mode
 5. if the user explicitly asks to initialize instead, create branch memory and start `1-initializer`
-6. if the user explicitly asks to start the framework from a later stage or uses force/bypass semantics, require confirmation of the exact stage path before proceeding
+6. if the user explicitly asks to start the framework from a later stage or uses force/bypass semantics, require confirmation of one exact target stage before proceeding
 
 This one-time outside-framework confirmation stays sticky on the default branch too. Do not keep re-asking in the same chat once the user already chose to continue outside the framework.
 
@@ -213,16 +215,17 @@ When branch memory exists and user requests implementation and stages `2-planner
 - ask confirmation before direct implementation
 - proceed only with explicit user confirmation or force bypass semantics
 
-## Multi-Stage Confirmation Rule
+## Multi-Stage Request Rule
 
 If a request could reasonably be interpreted as advancing or executing two or more stages in one pass:
 
 1. do not proceed on interpretation alone
-2. ask for confirmation first
-3. list the exact stages that would be run together
-4. proceed only after the user confirms that grouped phase execution
+2. explain that united-we-stand only runs one stage at a time
+3. suggest the next recommended numbered stage first
+4. ask the user to confirm one single stage to run now, or to name another single stage to force
+5. do not run grouped phase execution even if the original request names multiple stages
 
-Examples that require confirmation when they would skip across multiple stages:
+Examples that require single-stage clarification:
 
 - `leave everything ready to start testing`
 - `take this from init all the way to implementation`
@@ -246,6 +249,7 @@ If a user says short commands such as `continue`, `fix it`, `implement this`, or
 - perform the nearest safe action for the active/target stage
 - update status fields so the workflow remains traceable
 - ask for explicit confirmation when bypassing prerequisites, when a request could jump across two or more stages, or when making risky/destructive changes
+- when such a request implies multiple stages, ask for one single stage only and suggest the next recommended numbered stage first
 - do not treat `fix this in planning`, `update init`, or similar stage amendment requests as permission to advance stages
 - do not treat an earlier-stage direct command from a later stage as permission to regress workflow metadata
 

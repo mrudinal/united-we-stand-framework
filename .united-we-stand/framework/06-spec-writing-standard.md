@@ -57,10 +57,11 @@ Required fields:
 ### `02-plan.md`
 
 - Objectives
-- High-level task breakdown
 - Dependencies
 - Risks / unknowns
 - Suggested execution order
+- Detailed task list
+- Status
 
 ### `03-design.md`
 

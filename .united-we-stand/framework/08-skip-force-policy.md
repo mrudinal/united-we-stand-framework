@@ -9,7 +9,7 @@ Follow stages in order unless user explicitly requests skip/bypass.
 `--force` means explicit override of normal prerequisite/progression behavior.
 
 Force/bypass must never be inferred from broad delivery language alone.
-If a request could imply skipping or combining two or more stages, require explicit confirmation and name the affected stages before proceeding.
+If a request could imply skipping or combining two or more stages, explain the one-stage-at-a-time rule and require the user to confirm one exact target stage before proceeding.
 
 When force/bypass is applied:
 

@@ -112,10 +112,6 @@ describe('doctor command', () => {
 
 TBD
 
-## High-level task breakdown
-
-TBD
-
 ## Dependencies
 
 TBD
@@ -125,6 +121,14 @@ TBD
 TBD
 
 ## Suggested execution order
+
+TBD
+
+## Detailed task list
+
+TBD
+
+## Status
 
 TBD
 `,
@@ -170,7 +174,7 @@ TBD
 
         const output = logLines.join('\n');
         expect(output).toContain('02-plan.md required sections have substantive content');
-        expect(output).toContain('Placeholder-only: ## Objectives, ## High-level task breakdown, ## Dependencies, ## Risks / unknowns, ## Suggested execution order');
+        expect(output).toContain('Placeholder-only: ## Objectives, ## Dependencies, ## Risks / unknowns, ## Suggested execution order, ## Detailed task list, ## Status');
         expect(output).toContain('Branch runtime/spec issues detected.');
     });
 
@@ -219,10 +223,6 @@ TBD
 
 Plan objectives.
 
-## High-level task breakdown
-
-Plan tasks.
-
 ## Dependencies
 
 None.
@@ -234,6 +234,14 @@ None.
 ## Suggested execution order
 
 Do planning before design.
+
+## Detailed task list
+
+Plan tasks.
+
+## Status
+
+Plan status.
 `,
             'utf-8',
         );

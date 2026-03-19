@@ -156,9 +156,11 @@ The workflow is used in chat after installation. The framework steps are as foll
 `0-status-checker` is a routing and validation stage, not a delivery stage. Examples: `what's my status`, `what is the current status of united-we-stand`
 
 All of those steps are called in the chat, and do not need to be referenced explicitly after initialization. Simple prompts such as `lets move to the next step`, `next step`, or `do the next step` should move the AI framework to the next numbered stage.
+If a request sounds like it is asking for multiple stages at once, united-we-stand should explain that it only runs one stage at a time, suggest the next recommended numbered stage first, and ask the user to confirm one single stage to run now.
 
 For the most reliable initialization bootstrap, explicitly reference an installed framework file in the prompt, for example `.united-we-stand/README.md initialize this` or `AGENTS.md init the following`. Also, indicate at the end to only do the initialization step.
 In normal chat usage, the AI should create branch memory during initialization, follow the numbered workflow stages, and use standalone agents only when the task calls for specialized help.
+When initialization is requested, the AI should always do a fresh live check of the current git branch before creating branch memory. It should not reuse an earlier branch check, earlier status output, or remembered branch context from the same chat as the initialization target.
 
 After the workflow is initialized, each stage writes or updates its branch file as follows:
 

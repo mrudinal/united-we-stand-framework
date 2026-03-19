@@ -171,6 +171,8 @@ How chat usage works:
 - broad start-of-work prompts should also default to `1-initializer` unless you explicitly ask for a later stage
 - if branch memory does not exist yet and you ask for direct code changes, the AI should warn that united-we-stand is not initialized and ask whether to proceed outside the framework for the current chat
 - once you confirm outside-framework work for the current chat, the AI should not ask that same confirmation again unless you later return to framework mode
+- when initialization is requested, the AI should always do a fresh live check of the current git branch before creating branch memory
+- it should not reuse an earlier branch check, earlier status output, or remembered branch context from the same chat as the initialization target
 - if the current branch is the detected default branch, initialization should warn and ask for confirmation before creating branch memory unless you explicitly use `--force`
 
 The workflow is mainly used in chat after installation:
@@ -283,7 +285,7 @@ Optional framework stages:
 - while workflow is active, `Current stage` should match the highest created numbered stage file in `.spec-driven/<branch-folder>/` among `01-init.md` through `06-finalization.md`; after explicit finalizer approval, closed workflow may use `Current stage = none`
 - if you ask to change planning, init, design, review, or finalization content, the AI should update that stage in place without creating the next stage
 - if you ask for earlier-stage work after the workflow has already moved forward, the AI should do that work without regressing `Current stage`, `Completed steps`, or `Incompleted stages`; it should record the stale downstream impact in status metadata instead
-- if a request could be interpreted as advancing through two or more phases at once, the AI should ask for confirmation first and explicitly list the phases it would run together
+- if a request could be interpreted as advancing through two or more phases at once, the AI should explain that united-we-stand only runs one stage at a time, suggest the next recommended numbered stage first, and ask the user to confirm one single stage
 - for branch-scoped work, the AI should stay inside `.spec-driven/<branch-folder>/` by default and update specs first unless you explicitly say otherwise
 - later stage files should be created when those stages are actually started or explicitly amended
 - `4-implementer` is the first framework stage allowed to change code

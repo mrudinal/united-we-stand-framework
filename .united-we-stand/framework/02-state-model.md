@@ -68,12 +68,13 @@
   - keep any earlier explicitly used stages in `Completed steps` if they were already completed and are no longer current
   - ensure every recorded completed or incompleted stage has its corresponding stage document present in `.spec-driven/<branch>/`
 
-## Multi-Stage Advancement Confirmation Rule
+## One-Stage-At-A-Time Rule
 
 - Never infer permission to cross two or more stages from broad outcome wording alone.
-- If a request could mean "do planning, design, and implementation" or any other multi-stage jump, pause and ask for confirmation before changing stage state or creating later-stage files.
-- The confirmation must name the exact stages that would be advanced or executed in the same pass.
-- Without that confirmation, keep `Current stage` anchored and perform only the nearest safe in-stage work.
+- If a request could mean `do planning, design, and implementation` or any other multi-stage jump, do not run multiple stages.
+- Explain that united-we-stand only runs one stage at a time.
+- Ask the user to confirm one single stage, suggesting the next recommended numbered stage first.
+- Without that single-stage confirmation, keep `Current stage` anchored and perform only the nearest safe in-stage work.
 
 ## Category Invariants
 

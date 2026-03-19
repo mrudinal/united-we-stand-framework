@@ -73,10 +73,11 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
     ],
     '02-plan.md': [
         '## Objectives',
-        '## High-level task breakdown',
         '## Dependencies',
         '## Risks / unknowns',
         '## Suggested execution order',
+        '## Detailed task list',
+        '## Status',
     ],
     '03-design.md': [
         '## Architecture / approach',

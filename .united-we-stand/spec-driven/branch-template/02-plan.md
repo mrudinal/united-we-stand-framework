@@ -6,9 +6,6 @@ Turn the initialized idea into an ordered execution plan.
 ## Objectives
 TBD
 
-## High-level task breakdown
-TBD
-
 ## Dependencies
 TBD
 
@@ -16,4 +13,10 @@ TBD
 TBD
 
 ## Suggested execution order
+TBD
+
+## Detailed task list
+TBD
+
+## Status
 TBD

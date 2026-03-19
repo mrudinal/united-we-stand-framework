@@ -28,7 +28,7 @@ Establish reliable branch state and route the next action.
 - For stage amendment requests, preserve the anchored `Current stage` unless the user explicitly asks to advance, skip, or bypass.
 - If a lower stage was amended, do not treat that amendment as permission to create or populate a later stage.
 - If earlier-stage work was changed after the workflow had already moved forward, report the stale downstream areas in status output without regressing workflow metadata.
-- If a request could be interpreted as advancing through multiple stages at once, stop and ask for confirmation while naming the exact stages that would be run together.
+- If a request could be interpreted as advancing through multiple stages at once, stop, explain that united-we-stand only runs one stage at a time, and ask the user to confirm one single stage while suggesting the next recommended stage first.
 - Perform deterministic auto-correction for status contradictions when safe.
 - If auto-correction is made in `00-current-status.md`, include a brief note to user explaining what was corrected.
 

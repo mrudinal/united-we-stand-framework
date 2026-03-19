@@ -203,10 +203,6 @@ describe('init command (branch spec setup)', () => {
 
 Plan objectives.
 
-## High-level task breakdown
-
-Plan tasks.
-
 ## Dependencies
 
 None.
@@ -218,6 +214,14 @@ None.
 ## Suggested execution order
 
 Do planning before design.
+
+## Detailed task list
+
+Plan tasks.
+
+## Status
+
+Plan status.
 `,
             'utf-8',
         );
@@ -289,10 +293,6 @@ Do planning before design.
 
 Plan objectives.
 
-## High-level task breakdown
-
-Plan tasks.
-
 ## Dependencies
 
 None.
@@ -304,6 +304,14 @@ None.
 ## Suggested execution order
 
 Do planning before design.
+
+## Detailed task list
+
+Plan tasks.
+
+## Status
+
+Plan status.
 `,
             'utf-8',
         );

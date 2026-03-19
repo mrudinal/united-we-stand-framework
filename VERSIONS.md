@@ -1,5 +1,17 @@
 # Versions
 
+## 0.1.2
+
+`0.1.2` is a patch release that tightens workflow restrictions and aligns validation coverage with the updated framework rules.
+
+### What changed in this version
+
+- documented and enforced the one-stage-at-a-time routing rule across installed framework guidance
+- documented the requirement to perform a fresh live branch check when initialization is requested
+- updated the `02-plan.md` template and doctor validation to require `Detailed task list` and `Status`
+- fixed stale end-to-end fixtures so release validation matches the latest plan template requirements
+- cleaned release diff hygiene in the core rules document
+
 ## 0.1.1
 
 `0.1.1` is a patch release focused on trust and documentation improvements.

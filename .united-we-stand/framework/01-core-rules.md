@@ -4,91 +4,94 @@ This file is the canonical source for global framework invariants.
 
 ## Non-Negotiable Rules
 
-1. **Spec-driven development**  
+1. **Spec-driven development**
    Branch specs are authoritative working memory for workflow state.
 
-2. **User intent precedence (User is King and Spec is Truth)**  
+2. **User intent precedence (User is King and Spec is Truth)**
    Latest confirmed user intent has highest authority. When intent changes direction, update relevant specs first, then update code if role allows.
 
-3. **Branch-aware operation**  
+3. **Branch-aware operation**
    All framework work is branch-aware and uses `.spec-driven/<sanitized-current-branch>/`.
 
-4. **Persistent context over chat memory**  
+4. **Persistent context over chat memory**
    Persisted framework files outrank remembered chat state when conflict exists.
 
-5. **No silent stage jumps**  
+5. **No silent stage jumps**
    Respect prerequisites and anchored stage model. Optional stages may be skipped only with explicit user instruction or `--force` behavior.
 
-6. **No hallucinated completion**  
+6. **No hallucinated completion**
    Missing stage files are not proof of completed work.
 
-7. **Role-scoped edits only**  
+7. **Role-scoped edits only**
    Agents may edit only files allowed by role scope and explicit user instruction.
 
-8. **Spec first, then code**  
+8. **Spec first, then code**
    If user changes intent, update spec context first, then code.
 
-9. **No autonomous git operations**  
+9. **No autonomous git operations**
    Never run `git add`, `git commit`, `git push`, `git rebase`, `git reset`, or branch-switch operations unless user explicitly requests it.
 
-10. **Status-first resumption**  
+10. **Status-first resumption**
     Resumed chats must consult `00-current-status.md` before deciding the next action.
 
-11. **Deterministic routing**  
+11. **Initialization requires a fresh live branch check**
+    When the user asks to initialize, always perform a fresh live check of the current git branch at that moment. Do not rely on a previous branch check, previous status output, or remembered chat context from earlier in the same chat.
+
+12. **Deterministic routing**
     Natural-language command routing must follow `04-command-routing.md`.
 
-12. **Runtime memory isolation**  
+13. **Runtime memory isolation**
     Treat `.united-we-stand/` as installed framework content. Runtime branch memory writes must target `.spec-driven/` only.
 
-13. **Detached HEAD safety**  
+14. **Detached HEAD safety**
     Never attach branch memory to `head`. If branch detection is detached/ambiguous, require an explicit branch name before writing branch memory.
 
-14. **Branch-folder collision safety**  
+15. **Branch-folder collision safety**
     When creating new branch memory, if target folder already exists and is not already linked to the same branch, require explicit user confirmation or a different folder name.
 
-15. **Branch exception routing**  
+16. **Branch exception routing**
     If a branch uses a non-default memory folder, persist that exception in `.spec-driven/.branch-routing.json` and use it for subsequent branch-folder resolution.
 
-16. **No implicit advancement from edit requests**  
+17. **No implicit advancement from edit requests**
     Requests to add, modify, remove, clarify, or fix content inside a stage are amendment requests for that stage unless the user explicitly asks to advance, skip, or bypass.
 
-17. **No downstream stage creation from in-stage amendments**  
+18. **No downstream stage creation from in-stage amendments**
     Editing one stage must not create, complete, or populate a higher-numbered stage unless the user explicitly requests that higher stage or explicitly advances the workflow.
 
-18. **Branch-scoped work stays in spec by default**  
+19. **Branch-scoped work stays in spec by default**
     If a request is branch-scoped and requires persistent work, operate through `.spec-driven/<branch>/` by default. Read and update the relevant spec files first unless the user explicitly says not to, or the request is unrelated, informational only, or does not require repository/spec changes.
 
-19. **Never auto-advance stages**  
-    Never advance from one stage to the next automatically. A stage may become complete, but it must remain anchored until the user explicitly advances or explicitly confirms a bypass.
+20. **Never auto-advance stages**
+    Never advance from one stage to the next automatically. A stage may become complete, but it must remain anchored until the user explicitly advances or explicitly confirms a bypass to one specific stage.
 
-20. **Multi-stage advancement requires confirmation**  
-    If a request could reasonably be interpreted as advancing through two or more stages in one go, do not proceed on inference alone. Ask for confirmation first and explicitly name the stages that would be run in the same pass.
+21. **Only one framework stage may run at a time**
+    Never execute, advance, skip across, or initialize multiple framework stages in the same pass. If a request could reasonably be interpreted as involving two or more stages, explain the one-stage-at-a-time rule and ask the user to confirm one single stage, suggesting the next recommended numbered stage first.
 
-21. **No backward stage regression**  
+22. **No backward stage regression**
     `Current stage` is a monotonic workflow progress tracker. Earlier-stage work may be amended later, but `Current stage`, `Completed steps`, and `Incompleted stages` must not move backward to an earlier numbered stage.
 
-22. **Backward work must be recorded, not re-anchored**  
+23. **Backward work must be recorded, not re-anchored**
     If the user requests planning, design, or implementation work after the workflow has already advanced past that stage, perform the requested work, update the relevant earlier stage files in place, and preserve the later `Current stage`. Record the impact in status metadata so downstream stale work is visible.
 
-23. **Stage metadata must match created stage files**  
+24. **Stage metadata must match created stage files**
     Workflow metadata is not independent from the branch folder contents. `Current stage` must always match the highest existing numbered stage file among `01-init.md` through `06-finalization.md`, and status checks must validate that alignment.
 
-24. **No implicit framework entry when branch memory is missing**  
+25. **No implicit framework entry when branch memory is missing**
     If branch memory does not exist yet and the user requests concrete code changes or other persistent work without explicitly asking to initialize the framework, do not silently enter a numbered framework stage. Warn that united-we-stand is not initialized for the branch and ask whether to proceed outside the framework.
 
-25. **Outside-framework confirmation is sticky for the current chat**  
+26. **Outside-framework confirmation is sticky for the current chat**
     If the user confirms that the work should continue outside the framework, continue helping outside the framework for the rest of the current chat without asking for the same confirmation again unless the user later asks to initialize or return to normal framework flow.
 
-26. **Finalizer requires explicit closure confirmation**  
+27. **Finalizer requires explicit closure confirmation**
     `6-finalizer` never treats itself as definitively done on its own. It must surface final observations, ask the user to confirm that the final state is acceptable, and only then close the workflow.
 
-27. **Closed workflow uses `Current stage = none`**  
+28. **Closed workflow uses `Current stage = none`**
     After explicit user closure confirmation, the branch workflow becomes closed rather than anchored to an active numbered stage. In that closed state, `Current stage = none`, `Next recommended step = none`, and `6-finalizer` is recorded as completed.
 
-28. **Post-closure work reopens finalizer**  
+29. **Post-closure work reopens finalizer**
     If the workflow was explicitly closed and the user later requests more branch changes, reopen `6-finalizer` as the current stage, clear closed/finalized state, and require finalization approval again after the new work is incorporated.
 
-29. **Default-branch initialization requires confirmation**  
+30. **Default-branch initialization requires confirmation**
     If the current branch is detected as the repository default branch and branch memory does not yet exist, explicit initialization requests must warn about default-branch risks and ask for confirmation before creating `.spec-driven/...` files. Explicit `--force` semantics are the only bypass for that confirmation.
 
 ## Stage Mandatory Set

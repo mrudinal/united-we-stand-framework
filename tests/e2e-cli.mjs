@@ -179,10 +179,6 @@ function scenarioDoctorFailsCompletedPlaceholderStage() {
 
 TBD
 
-## High-level task breakdown
-
-TBD
-
 ## Dependencies
 
 TBD
@@ -192,6 +188,14 @@ TBD
 TBD
 
 ## Suggested execution order
+
+TBD
+
+## Detailed task list
+
+TBD
+
+## Status
 
 TBD
 `,
@@ -276,10 +280,6 @@ function scenarioReinitRequiresForce() {
 
 Plan objectives.
 
-## High-level task breakdown
-
-Plan tasks.
-
 ## Dependencies
 
 None.
@@ -291,6 +291,15 @@ None.
 ## Suggested execution order
 
 Do planning before design.
+
+## Detailed task list
+
+Plan tasks.
+
+## Status
+
+Planning is complete.
+
 `,
             'utf-8',
         );

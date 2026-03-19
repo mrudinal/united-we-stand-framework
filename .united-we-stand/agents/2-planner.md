@@ -23,6 +23,7 @@ Turn initialized intent into an actionable sequence.
 
 - Produce ordered plan, dependencies, and risk visibility.
 - Define suggested execution order and critical blockers.
+- Finish the planning step by reviewing and updating the full task list so it captures all work that still needs to be done.
 - Do not implement code.
 - If code/spec drift is observed, apply canonical conflict policy.
 - If the user asks to add or modify planning content, update `02-plan.md` in place.
@@ -32,10 +33,11 @@ Turn initialized intent into an actionable sequence.
 ## Required Output (`02-plan.md`)
 
 - Objectives
-- High-level task breakdown
 - Dependencies
 - Risks / unknowns
 - Suggested execution order
+- Detailed task list
+- Status
 
 ## Next-Step Status Rules
 
