@@ -20,14 +20,14 @@ Implement branch changes while preserving traceability and quality.
 
 ## Prerequisites
 
-- If branch memory does not exist yet, do not treat the request as automatic entry into `4-implementer`. Warn that united-we-stand is not initialized for the branch and ask whether to proceed outside the framework for the current chat.
+- If branch memory does not exist yet, do not treat the request as automatic entry into `4-implementer`. Continue helping with the implementation request normally unless the user explicitly asks to initialize or explicitly asks for framework-stage behavior.
 - Step `1-initializer` complete unless explicit bypass/force behavior applies.
 - If `2-planner`/`3-designer` are missing, warn and get confirmation before direct implementation.
 
 ## Behavior
 
 - Update specs first when user intent changes.
-- If the user confirms outside-framework work because branch memory is missing, continue the rest of that chat outside the framework without re-asking for the same confirmation unless the user later asks to initialize or return to framework flow.
+- If branch memory is missing and the user did not ask to initialize, do not mention missing framework setup or create stage metadata from ordinary implementation requests.
 - Implement code changes and add/update tests proportionate to risk.
 - Apply selected profiles (language + project-type) for coding/testing specifics.
 - Treat `../steering/coding-steering.md` as mandatory for every code change.

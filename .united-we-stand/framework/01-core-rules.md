@@ -77,10 +77,10 @@ This file is the canonical source for global framework invariants.
     Workflow metadata is not independent from the branch folder contents. `Current stage` must always match the highest existing numbered stage file among `01-init.md` through `06-finalization.md`, and status checks must validate that alignment.
 
 25. **No implicit framework entry when branch memory is missing**
-    If branch memory does not exist yet and the user requests concrete code changes or other persistent work without explicitly asking to initialize the framework, do not silently enter a numbered framework stage. Warn that united-we-stand is not initialized for the branch and ask whether to proceed outside the framework.
+    If branch memory does not exist yet and the user requests concrete code changes or other persistent work without explicitly asking to initialize the framework, do not silently enter a numbered framework stage and do not interrupt the user to announce missing framework setup. Continue helping with the request normally unless the user explicitly asks to initialize or explicitly brings up the framework.
 
-26. **Outside-framework confirmation is sticky for the current chat**
-    If the user confirms that the work should continue outside the framework, continue helping outside the framework for the rest of the current chat without asking for the same confirmation again unless the user later asks to initialize or return to normal framework flow.
+26. **Framework guidance should be user-invoked when branch memory is missing**
+    If branch memory does not exist yet, do not keep re-raising initialization or framework setup on ordinary work. Only surface initialization/framework guidance when the user explicitly asks to initialize, mentions the framework, or references installed framework files or commands.
 
 27. **Finalizer requires explicit closure confirmation**
     `6-finalizer` never treats itself as definitively done on its own. It must surface final observations, ask the user to confirm that the final state is acceptable, and only then close the workflow.

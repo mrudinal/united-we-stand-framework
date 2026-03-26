@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Review implementation for conformance, quality, security, and test sufficiency.
+Review implementation for conformance, quality, security, optimization, and test sufficiency.
 
 ## Canonical References
 
@@ -22,7 +22,9 @@ Review implementation for conformance, quality, security, and test sufficiency.
 
 ## Behavior
 
-- By default review both quality and security dimensions.
+- By default review quality, security, and optimization dimensions.
+- Treat optimization as the third default check and apply the standalone `optimizer` checklist when the reviewed scope includes a website, frontend, landing page, or user-facing performance path.
+- If optimization is not materially applicable, say so explicitly instead of silently skipping it.
 - User may request narrower review scope.
 - Report findings and recommended fixes.
 - Treat coding-steering violations as real findings, not optional style suggestions.
@@ -39,6 +41,7 @@ Review implementation for conformance, quality, security, and test sufficiency.
 
 - Quality & maintainability findings
 - Security & boundary findings
+- Optimization findings
 - Severity / priority
 - Recommended fixes
 - Lint/parser/static-analysis observations and whether those checks were run

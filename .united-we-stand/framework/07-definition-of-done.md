@@ -19,7 +19,7 @@ A stage is done when all are true:
 - **Planner**: objectives, tasks, dependencies, and risks are actionable.
 - **Designer**: architecture, boundaries, and implementation guidance are clear.
 - **Implementer**: changes, rationale, tests, and validation are recorded.
-- **Code Reviewer**: findings, severity, scope, and recommendations are explicit.
+- **Code Reviewer**: quality, security, and optimization findings, severity, scope, and recommendations are explicit.
 - **Finalizer**: delivered scope, known gaps, uncaptured spec/code differences, doc impact, and user closure confirmation status are clear; the workflow is only closed after explicit user confirmation.
 
 ## Implementation and Review Quality Gates

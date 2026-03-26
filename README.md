@@ -134,6 +134,7 @@ It also installs the framework agents, including:
   - `project-manager`
   - `refactorer`
   - `test-strategist`
+  - `optimizer`
   - `performance-reviewer`
   - `accessibility-reviewer`
   - `api-contract-writer`
@@ -171,7 +172,7 @@ After the workflow is initialized, each stage writes or updates its branch file 
 | `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
 | `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
 | `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
-| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, optimization, and review findings |
 | `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
 
 Each stage document can be updated later, either manually or by asking the agent in the chat, if the work changes or the plan evolves. When moving to the next stage, the AI should use the latest version of those written documents as the main source of truth, instead of depending only on the chat.

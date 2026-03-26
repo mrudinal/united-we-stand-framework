@@ -169,8 +169,8 @@ How chat usage works:
 
 - if branch memory does not exist yet, explicit initialization prompts should start `1-initializer`
 - broad start-of-work prompts should also default to `1-initializer` unless you explicitly ask for a later stage
-- if branch memory does not exist yet and you ask for direct code changes, the AI should warn that united-we-stand is not initialized and ask whether to proceed outside the framework for the current chat
-- once you confirm outside-framework work for the current chat, the AI should not ask that same confirmation again unless you later return to framework mode
+- if branch memory does not exist yet and you ask for direct code changes without explicitly asking to initialize, the AI should continue helping normally and should not interrupt to explain framework setup
+- framework initialization guidance should appear only when you explicitly ask to initialize or explicitly bring up the framework
 - when initialization is requested, the AI should always do a fresh live check of the current git branch before creating branch memory
 - it should not reuse an earlier branch check, earlier status output, or remembered branch context from the same chat as the initialization target
 - if the current branch is the detected default branch, initialization should warn and ask for confirmation before creating branch memory unless you explicitly use `--force`
@@ -198,7 +198,7 @@ After the workflow is initialized, each stage writes or updates its branch file 
 | `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
 | `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
 | `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
-| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, and review findings |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, optimization, and review findings |
 | `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
 
 ## Runtime Branch Memory
@@ -335,8 +335,8 @@ The framework is designed to route short natural requests such as `continue`, `f
 - If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
 - If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests should still warn and ask for confirmation before creating `.spec-driven/...` unless you explicitly use `--force`.
 - If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
-- If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should first warn that united-we-stand is not initialized for that branch and ask whether you want to proceed outside the framework for the current chat.
-- If you confirm that outside-framework work is fine, the AI should continue outside the framework for the rest of the current chat without asking for the same confirmation again unless you later ask to initialize or return to framework flow.
+- If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should continue helping with that request normally and should not interrupt to explain framework setup.
+- In that situation it should not create `.spec-driven/...` files unless you explicitly ask to initialize or explicitly bring up the framework.
 
 ## Framework Stage Chat Routes
 
@@ -407,7 +407,7 @@ Framework-stage routes:
 
 These direct route labels select the acting stage behavior. If the workflow is already in a later stage, they must not regress `Current stage`, `Completed steps`, or `Incompleted stages`.
 
-If branch memory does not exist yet and a direct request such as `implement this`, `fix these vulnerabilities`, `upgrade this dependency`, or `refactor this module` would otherwise cause repo changes, the AI should not silently enter that framework stage. It should first warn that united-we-stand is not initialized for the branch and ask whether you want to proceed outside the framework for the current chat.
+If branch memory does not exist yet and a direct request such as `implement this`, `fix these vulnerabilities`, `upgrade this dependency`, or `refactor this module` would otherwise cause repo changes, the AI should not silently enter that framework stage. It should continue helping with the request normally without announcing missing framework setup unless you explicitly ask to initialize or explicitly bring up the framework.
 
 Standalone specialist routes:
 
@@ -416,6 +416,7 @@ Standalone specialist routes:
 - `manage this project` -> `project-manager`
 - `refactor this` -> `refactorer`
 - `plan tests for this` -> `test-strategist`
+- `check optimization` / `review website optimization` -> `optimizer`
 - `check performance` -> `performance-reviewer`
 - `check accessibility` -> `accessibility-reviewer`
 - `write api contracts` -> `api-contract-writer`
@@ -432,6 +433,7 @@ Standalone route examples:
 - `document this install process`
 - `refactor this CLI without changing behavior`
 - `plan tests for this doctor command`
+- `check optimization for this landing page`
 - `write api contracts for the new endpoint`
 - `design sql schema for the booking tables`
 - `create database diagrams for this workflow`
@@ -448,6 +450,7 @@ Standalone agents can be used at any time when the task needs specialized help. 
 - `project-manager`: summarize scope, blockers, milestones, dependencies, and coordination needs
 - `refactorer`: plan or execute structural improvements while preserving behavior
 - `test-strategist`: design proportionate test strategy and identify critical test coverage gaps
+- `optimizer`: review website optimization, Lighthouse/PageSpeed risks, startup cost, media delivery, caching, and real-user performance bottlenecks
 - `performance-reviewer`: review latency, throughput, memory, and performance hotspots
 - `accessibility-reviewer`: review accessibility concerns for UI work, including semantics and navigation
 - `api-contract-writer`: define API request/response boundaries, contracts, and field exposure rules

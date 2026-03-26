@@ -96,6 +96,7 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
     '05-code-review.md': [
         '## Quality & maintainability findings',
         '## Security / boundary findings',
+        '## Optimization findings',
         '## Severity / priority',
         '## Recommended fixes',
         '## Reviewed scope and non-reviewed scope',

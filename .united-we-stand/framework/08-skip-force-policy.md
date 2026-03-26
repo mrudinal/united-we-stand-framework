@@ -18,14 +18,13 @@ When force/bypass is applied:
 - set new `Current stage` explicitly
 - update `Next recommended step` accordingly
 
-## Outside-Framework Work
+## Direct Work Before Initialization
 
-If branch memory does not exist yet, working outside the framework is a separate mode from force/bypass:
+If branch memory does not exist yet, direct repo work without explicit initialization is separate from force/bypass:
 
-- warn that united-we-stand is not initialized for the branch
-- ask the user to confirm they want to continue outside the framework
+- continue helping with the requested work normally
 - do not create `.spec-driven/...` files unless the user explicitly asks to initialize
-- once the user confirms outside-framework work for the current chat, continue without repeating that confirmation unless they later ask to initialize or return to framework flow
+- do not interrupt to explain framework setup unless the user explicitly asks to initialize or explicitly mentions the framework
 
 ## Default Branch Initialization Warning
 

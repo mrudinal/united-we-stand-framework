@@ -165,13 +165,13 @@ Interpretation rule:
 If branch memory does not exist yet and the user requests concrete code changes or other persistent work without explicitly asking to initialize the framework:
 
 1. do not infer entry into `2-planner`, `3-designer`, `4-implementer`, `5-code-reviewer`, or `6-finalizer`
-2. warn clearly that united-we-stand is not initialized for the current branch
-3. ask whether to proceed outside the framework for the current chat
-4. if the user confirms outside-framework work, continue normally outside the framework and do not repeat the same confirmation again in that chat unless the user later asks to initialize or return to framework mode
+2. do not warn about missing framework initialization by default
+3. continue helping with the requested repo work normally
+4. do not create `.spec-driven/...` files or numbered stage files unless the user explicitly asks to initialize or explicitly mentions the framework
 5. if the user explicitly asks to initialize instead, create branch memory and start `1-initializer`
 6. if the user explicitly asks to start the framework from a later stage or uses force/bypass semantics, require confirmation of one exact target stage before proceeding
 
-This one-time outside-framework confirmation stays sticky on the default branch too. Do not keep re-asking in the same chat once the user already chose to continue outside the framework.
+This silent fallback applies on the default branch too. Do not interrupt ordinary work on `main`/default branches just to explain framework setup.
 
 Examples that should trigger this warning-and-confirm flow when branch memory is missing:
 
@@ -188,6 +188,7 @@ Examples that should trigger this warning-and-confirm flow when branch memory is
 - `manage this project` -> `project-manager`
 - `refactor this` -> `refactorer`
 - `plan tests for this` -> `test-strategist`
+- `check optimization` / `review website optimization` -> `optimizer`
 - `check performance` -> `performance-reviewer`
 - `check accessibility` -> `accessibility-reviewer`
 - `write api contracts` -> `api-contract-writer`
@@ -204,9 +205,9 @@ Standalone routes should not mutate stage files unless user asks explicitly.
 
 When branch memory does not exist yet and user requests implementation or other persistent repo changes without explicit framework initialization:
 
-- warn that united-we-stand is not initialized for the branch
-- ask whether to proceed outside the framework for the current chat
-- if user confirms, continue outside the framework and do not re-ask unless the user later asks to initialize or return to framework mode
+- continue helping with the implementation request normally
+- do not mention missing framework setup unless the user explicitly asks about initialization or framework flow
+- do not create `.spec-driven/...` files or enter `4-implementer` metadata unless the user explicitly asks to initialize or explicitly asks for framework-stage behavior
 - if user explicitly wants to start the framework from implementation or another later stage, require explicit confirmation of that bypass path first
 
 When branch memory exists and user requests implementation and stages `2-planner` and/or `3-designer` are missing:

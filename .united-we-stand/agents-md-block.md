@@ -36,8 +36,8 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - If branch memory does not exist yet, explicit init requests such as `init the following`, `initialize this`, `let's init this`, `help me with the following idea, i want...`, `let's start building this`, `i want to build...`, `i want to create...`, or `let's work on...` should be treated as permission to create the branch spec and start `1-initializer`.
 - When initialization is requested, always perform a fresh live check of the current git branch before creating branch memory.
 - Never reuse an earlier branch check, earlier status output, or remembered branch context from the same chat as the initialization target.
-- If branch memory does not exist yet and the user asks for concrete code changes or other persistent repo work without explicitly asking to initialize, warn that united-we-stand is not initialized for the branch and ask whether to proceed outside the framework instead of inferring a numbered stage.
-- If the user confirms outside-framework work, continue outside the framework for the rest of the current chat and do not ask for the same confirmation again unless the user later asks to initialize or return to normal framework flow.
+- If branch memory does not exist yet and the user asks for concrete code changes or other persistent repo work without explicitly asking to initialize, do not interrupt to explain missing framework setup. Help with the request normally instead of inferring a numbered stage.
+- Do not create `.spec-driven/...` files from that request alone. Only surface initialization/framework guidance when the user explicitly asks to initialize or explicitly brings up the framework.
 - If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests must warn about default-branch risks and ask for confirmation before creating `.spec-driven/...` files unless the user explicitly uses `--force`.
 - The most reliable direct NLP bootstrap is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 - Runtime branch memory is writable under `.spec-driven/` only.
@@ -87,6 +87,7 @@ Canonical source of these rules:
 - `project-manager`
 - `refactorer`
 - `test-strategist`
+- `optimizer`
 - `performance-reviewer`
 - `accessibility-reviewer`
 - `api-contract-writer`

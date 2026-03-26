@@ -30,6 +30,7 @@ const STANDALONE_AGENT_FILENAMES = [
     'project-manager.md',
     'refactorer.md',
     'test-strategist.md',
+    'optimizer.md',
     'performance-reviewer.md',
     'accessibility-reviewer.md',
     'api-contract-writer.md',

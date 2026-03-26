@@ -19,10 +19,11 @@ A **gap** is any requirement, feature, or constraint requested in earlier stages
 
 Use for implementation review requests.
 
-Default scope includes both:
+Default scope includes all of:
 
 - Quality and Maintainability
 - Adversarial Security and Boundaries
+- Optimization (default third check)
 
 User may explicitly narrow scope.
 
@@ -41,9 +42,16 @@ User may explicitly narrow scope.
    - authn/authz ownership checks (BOLA/IDOR)
    - data exposure minimization
    - dependency/supply-chain considerations
-4. **Testing**
+4. **Optimization**
+   - initial page work, lazy-loading, and startup cost
+   - duplicated initialization, unnecessary listeners, and repeated bootstrap work
+   - media, image, font, and third-party delivery cost
+   - main-thread work, forced reflow, DOM size, and offscreen rendering cost
+   - mobile behavior, layout stability, caching, and production-only bundle risks
+   - accessibility/SEO/best-practice issues that Lighthouse commonly surfaces during optimization work
+5. **Testing**
    - tests exist and cover high-risk paths proportionately
-5. **Documentation**
+6. **Documentation**
    - implementation and finalization notes are complete and truthful
 
 ## Output Requirements
@@ -53,6 +61,7 @@ Review output should state:
 - what was reviewed
 - what was not reviewed
 - findings
+- optimization findings or an explicit not-applicable note
 - severity/priority
 - recommended fixes
 - lint/parser/static-analysis observations and whether those checks were run

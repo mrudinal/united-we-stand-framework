@@ -80,6 +80,7 @@ describe('install command', () => {
         expect(existsSync(join(agentsDirectory, 'project-manager.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'documentation-writer.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'refactorer.md'))).toBe(true);
+        expect(existsSync(join(agentsDirectory, 'optimizer.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'release-coordinator.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'sql-database-designer.md'))).toBe(true);
         expect(existsSync(join(agentsDirectory, 'web-designer.md'))).toBe(true);

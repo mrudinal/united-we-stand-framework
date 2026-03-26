@@ -1,5 +1,17 @@
 # Versions
 
+## 0.2.0
+
+`0.2.0` is a minor release that expands the framework review model and makes uninitialized direct work quieter by default.
+
+### What changed in this version
+
+- added an installable standalone `optimizer` agent focused on website optimization, Lighthouse/PageSpeed risks, startup cost, media delivery, caching, and real-user performance bottlenecks
+- updated `5-code-reviewer` and `05-code-review.md` so optimization findings are recorded alongside quality and security findings by default
+- added standalone routing and documentation coverage for direct optimization review requests
+- changed uninitialized direct-work behavior so ordinary code requests do not surface framework setup unless the user explicitly asks to initialize or explicitly brings up the framework
+- kept the default-branch initialization safeguard intact, including the explicit confirmation requirement on `main`/default branches unless the user explicitly uses `--force`
+
 ## 0.1.2
 
 `0.1.2` is a patch release that tightens workflow restrictions and aligns validation coverage with the updated framework rules.

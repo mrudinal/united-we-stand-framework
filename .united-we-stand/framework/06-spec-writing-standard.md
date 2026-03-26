@@ -84,6 +84,7 @@ Required fields:
 
 - Quality & maintainability findings
 - Security / boundary findings
+- Optimization findings
 - Severity / priority
 - Recommended fixes
 - Reviewed scope and non-reviewed scope

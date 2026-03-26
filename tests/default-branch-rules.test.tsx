@@ -16,12 +16,12 @@ describe('default-branch initialization guidance', () => {
         expect(agentsBlock).toContain('unless the user explicitly uses `--force`');
     });
 
-    it('documents the canonical routing rule and sticky outside-framework behavior', () => {
+    it('documents the canonical routing rule and silent direct-work fallback on the default branch', () => {
         const commandRouting = readRepositoryFile('.united-we-stand/framework/04-command-routing.md');
 
         expect(commandRouting).toContain('## Default Branch Initialization Rule');
         expect(commandRouting).toContain('warn clearly that initialization is being requested on the default branch');
-        expect(commandRouting).toContain('This one-time outside-framework confirmation stays sticky on the default branch too.');
+        expect(commandRouting).toContain('This silent fallback applies on the default branch too.');
     });
 
     it('documents the same warning in initializer guidance and user-facing README', () => {

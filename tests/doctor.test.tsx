@@ -178,6 +178,79 @@ TBD
         expect(output).toContain('Branch runtime/spec issues detected.');
     });
 
+    it('fails when 05-code-review.md is missing the optimization findings section', () => {
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
+        const statusPath = join(specDirectory, '00-current-status.md');
+        const runtimeStatePath = join(specDirectory, 'state.json');
+
+        writeFileSync(
+            join(specDirectory, '05-code-review.md'),
+            `## Quality & maintainability findings
+
+No quality issues found.
+
+## Security / boundary findings
+
+No security issues found.
+
+## Severity / priority
+
+Low.
+
+## Recommended fixes
+
+Not applicable.
+
+## Reviewed scope and non-reviewed scope
+
+Reviewed the current branch implementation.
+`,
+            'utf-8',
+        );
+
+        writeFileSync(
+            statusPath,
+            buildStatusMarkdown(
+                '5-code-reviewer',
+                '1-initializer, 2-planner, 3-designer, 4-implementer',
+                'none',
+                '6-finalizer',
+                'Review is complete and ready for finalization.',
+                '5-code-reviewer',
+            ),
+            'utf-8',
+        );
+
+        writeFileSync(
+            runtimeStatePath,
+            serializeBranchRuntimeState({
+                branchName: 'main',
+                sanitizedBranchName: 'main',
+                branchMemoryFolder: 'main',
+                currentStage: '5-code-reviewer',
+                completedSteps: ['1-initializer', '2-planner', '3-designer', '4-implementer'],
+                incompletedStages: [],
+                nextRecommendedStep: '6-finalizer',
+                lastUpdatedBy: '5-code-reviewer',
+                lastUpdatedAt: '2026-03-10T00:00:00.000Z',
+                initialized: true,
+                finalized: false,
+            }),
+            'utf-8',
+        );
+
+        runDoctorCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+        });
+
+        const output = logLines.join('\n');
+        expect(output).toContain('05-code-review.md required sections present');
+        expect(output).toContain('Missing: ## Optimization findings');
+        expect(output).toContain('Branch runtime/spec issues detected.');
+    });
+
     it('fails when state.json branch identity does not match the resolved branch context', () => {
         const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
         const runtimeStatePath = join(specDirectory, 'state.json');
