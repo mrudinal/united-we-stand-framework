@@ -35,6 +35,7 @@ These gates must be applied through profile + review-model rules:
 - security boundaries are reviewed
 - dependency/security checks are run when dependency changes occur
 - available lint/parser/static-analysis checks relevant to the changed scope were run, or their absence/non-execution is explicitly disclosed
+- for website/frontend changes, predictable mobile Lighthouse/PageSpeed blockers such as cache lifetime failures, render-blocking requests, late-discovered LCP assets, oversized images, unused JS/CSS, unnamed controls, and low-contrast UI are either fixed or explicitly documented before review is treated as clean
 
 Profile-specific mandates (for example JS/TS style, audit commands, JSDoc practices) must be enforced via selected profile docs.
 

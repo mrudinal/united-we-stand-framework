@@ -1,6 +1,6 @@
 {
   "name": "@rudinmax87/united-we-stand",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Repo-scoped AI workflow context framework — persists branch-aware specs and agent roles as markdown files.",
   "type": "module",
   "bin": {

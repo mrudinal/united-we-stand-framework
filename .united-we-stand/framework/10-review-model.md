@@ -47,8 +47,9 @@ User may explicitly narrow scope.
    - duplicated initialization, unnecessary listeners, and repeated bootstrap work
    - media, image, font, and third-party delivery cost
    - main-thread work, forced reflow, DOM size, and offscreen rendering cost
-   - mobile behavior, layout stability, caching, and production-only bundle risks
-   - accessibility/SEO/best-practice issues that Lighthouse commonly surfaces during optimization work
+   - mobile behavior, layout stability, caching, render-blocking requests, LCP breakdown/resource discovery, network dependency chains, and production-only bundle risks
+   - unused JS/CSS and late-discovered critical resources
+   - Lighthouse-scored accessibility issues that materially affect launch-readiness, especially unnamed interactive controls and insufficient contrast
 5. **Testing**
    - tests exist and cover high-risk paths proportionately
 6. **Documentation**
@@ -62,6 +63,7 @@ Review output should state:
 - what was not reviewed
 - findings
 - optimization findings or an explicit not-applicable note
+- for website/frontend scope, an explicit note on whether the remaining findings are compatible with a realistic strong mobile Lighthouse/PageSpeed outcome
 - severity/priority
 - recommended fixes
 - lint/parser/static-analysis observations and whether those checks were run

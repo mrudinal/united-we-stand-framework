@@ -24,6 +24,8 @@ Review implementation for conformance, quality, security, optimization, and test
 
 - By default review quality, security, and optimization dimensions.
 - Treat optimization as the third default check and apply the standalone `optimizer` checklist when the reviewed scope includes a website, frontend, landing page, or user-facing performance path.
+- For website/frontend scope, include mobile Lighthouse/PageSpeed-style blockers in the default review, especially cache lifetime issues, image delivery issues, render-blocking requests, LCP breakdown/resource discovery issues, network dependency tree problems, unused JS/CSS, unnamed interactive controls, and insufficient contrast.
+- Do not treat a website review as clean when those issues would predictably keep the first production-like mobile Lighthouse/PageSpeed run below a strong score unless the residual risk is explicitly documented.
 - If optimization is not materially applicable, say so explicitly instead of silently skipping it.
 - User may request narrower review scope.
 - Report findings and recommended fixes.

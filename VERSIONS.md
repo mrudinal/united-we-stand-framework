@@ -1,5 +1,16 @@
 # Versions
 
+## 0.2.1
+
+`0.2.1` is a patch release that tightens the mobile website review guidance so the framework more directly catches Lighthouse and PageSpeed regressions before production deploys.
+
+### What changed in this version
+
+- strengthened the `optimizer` guidance around mobile-first Lighthouse/PageSpeed review for production-like URLs
+- added explicit review expectations for cache lifetimes, image delivery, render-blocking requests, LCP breakdown and resource discovery, network dependency trees, and unused JS/CSS
+- tightened website review guidance so Lighthouse-impacting accessibility issues such as unnamed buttons and low color contrast are surfaced during review
+- clarified that website/frontend reviews should not be treated as clean when predictable mobile-score blockers remain unresolved before the first production deploy
+
 ## 0.2.0
 
 `0.2.0` is a minor release that expands the framework review model and makes uninitialized direct work quieter by default.

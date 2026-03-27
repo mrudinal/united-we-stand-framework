@@ -450,9 +450,9 @@ Standalone agents can be used at any time when the task needs specialized help. 
 - `project-manager`: summarize scope, blockers, milestones, dependencies, and coordination needs
 - `refactorer`: plan or execute structural improvements while preserving behavior
 - `test-strategist`: design proportionate test strategy and identify critical test coverage gaps
-- `optimizer`: review website optimization, Lighthouse/PageSpeed risks, startup cost, media delivery, caching, and real-user performance bottlenecks
+- `optimizer`: review website optimization, mobile Lighthouse/PageSpeed risks, startup cost, media delivery, caching, render blockers, LCP discovery, and real-user performance bottlenecks
 - `performance-reviewer`: review latency, throughput, memory, and performance hotspots
-- `accessibility-reviewer`: review accessibility concerns for UI work, including semantics and navigation
+- `accessibility-reviewer`: review accessibility concerns for UI work, including semantics, navigation, accessible control names, and contrast
 - `api-contract-writer`: define API request/response boundaries, contracts, and field exposure rules
 - `data-modeler`: design or review schemas, migrations, and data boundaries
 - `sql-database-designer`: design SQL schemas, migration layout, and required database flowcharts, sequence diagrams, entity-relationship models, and relational models
