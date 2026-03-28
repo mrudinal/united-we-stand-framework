@@ -2,14 +2,16 @@
 
 ## 0.2.1
 
-`0.2.1` is a patch release that tightens the mobile website review guidance so the framework more directly catches Lighthouse and PageSpeed regressions before production deploys.
+`0.2.1` is a patch release focused on safer review behavior, vulnerability auditing, and release/documentation cleanup.
 
 ### What changed in this version
 
-- strengthened the `optimizer` guidance around mobile-first Lighthouse/PageSpeed review for production-like URLs
-- added explicit review expectations for cache lifetimes, image delivery, render-blocking requests, LCP breakdown and resource discovery, network dependency trees, and unused JS/CSS
-- tightened website review guidance so Lighthouse-impacting accessibility issues such as unnamed buttons and low color contrast are surfaced during review
-- clarified that website/frontend reviews should not be treated as clean when predictable mobile-score blockers remain unresolved before the first production deploy
+- expanded the staged framework so initialization, planning, and design explicitly consider dependency risk, attack surface, and security boundaries before implementation begins
+- upgraded `5-code-reviewer` and the review templates to require vulnerability auditing when repo-native/package-manager-native commands are available, and to treat detected dependency vulnerabilities as high priority findings
+- added a framework-native React/frontend review checklist and a vulnerability audit command matrix so repositories get broader review coverage without adding new dependencies
+- strengthened fix expectations so remediation work must be followed by build/test/runtime verification to confirm functionality still works as intended
+- moved the package publishing guide to the repository root as `PACKAGE-PUBLISHING.md` and aligned package contents so the published tarball includes that guide
+- removed the previously inspected `react-doctor-main` source tree from this repository after its findings were absorbed into framework guidance
 
 ## 0.2.0
 

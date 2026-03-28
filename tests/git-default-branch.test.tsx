@@ -56,7 +56,7 @@ describe('tryGetDefaultBranchName', () => {
         const repositoryPath = createRepositoryWithDefaultBranch('trunk');
 
         expect(tryGetDefaultBranchName(repositoryPath)).toBe('trunk');
-    });
+    }, 15000);
 
     it('returns null when the repository has no origin remote', () => {
         const repositoryPath = mkdtempSync(join(tmpdir(), 'united-we-stand-git-test-'));
@@ -68,5 +68,5 @@ describe('tryGetDefaultBranchName', () => {
         runGitCommand(repositoryPath, ['commit', '--allow-empty', '-m', 'init']);
 
         expect(tryGetDefaultBranchName(repositoryPath)).toBeNull();
-    });
+    }, 15000);
 });

@@ -24,13 +24,15 @@
 - Avoid introducing vulnerable, deprecated, or unmaintained packages.
 - Keep dependencies minimal and justify new ones.
 - Treat ESLint, parser-based AST analysis, and similar static-analysis tooling as mandatory quality inputs when the repository provides them.
-- Run package audit commands when dependency graph changes:
-  - `npm audit`
-  - `pnpm audit`
-  - `yarn audit`
-- In npm-based repos, prefer running `npm audit` at implementation close when feasible.
+- Run the package-manager-native audit command for the active repo when a no-extra-install path exists:
+  - `package-lock.json` -> `npm audit`
+  - `pnpm-lock.yaml` -> `pnpm audit`
+  - `yarn.lock` -> `yarn audit`, or the repo-configured Yarn equivalent if the active Yarn version does not expose `yarn audit`
+- If no safe native audit command is available in the active environment, disclose that explicitly in implementation/review notes instead of silently skipping it.
 - Ensure user-controlled values do not flow into unsafe sinks without validation.
+- Review for XSS, SQL/NoSQL injection, command injection, path traversal, SSRF, CSRF, open redirects, unsafe deserialization, and secret exposure when relevant.
 - Ensure authn/authz ownership checks for resource-level operations.
+- For React/Next/Vite-style frontend work, apply `../12-react-frontend-review-checklist.md`.
 
 ## Testing and Validation
 
@@ -48,4 +50,5 @@ Reviewers should additionally check:
 - stale or dead code
 - unsafe data exposure in API responses
 - dependency risk introduced by new packages
+- dependency vulnerability findings reported as high priority regardless of underlying tool severity
 - lint/parser/static-analysis findings for the changed scope and whether they were addressed or intentionally deferred

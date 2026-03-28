@@ -12,6 +12,9 @@ TBD
 ## Risks / unknowns
 TBD
 
+## Security / dependency risk plan
+TBD
+
 ## Suggested execution order
 TBD
 

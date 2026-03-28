@@ -12,15 +12,15 @@ describe('default-branch initialization guidance', () => {
         const agentsBlock = loadAgentsMdBlockTemplate();
 
         expect(agentsBlock).toContain('current branch is detected as the repository default branch');
-        expect(agentsBlock).toContain('ask for confirmation before creating `.spec-driven/...` files');
-        expect(agentsBlock).toContain('unless the user explicitly uses `--force`');
+        expect(agentsBlock).toContain('ask for confirmation before writing `.spec-driven/...` files');
+        expect(agentsBlock).toContain('Force or bypass wording does not skip that confirmation');
     });
 
     it('documents the canonical routing rule and silent direct-work fallback on the default branch', () => {
         const commandRouting = readRepositoryFile('.united-we-stand/framework/04-command-routing.md');
 
-        expect(commandRouting).toContain('## Default Branch Initialization Rule');
-        expect(commandRouting).toContain('warn clearly that initialization is being requested on the default branch');
+        expect(commandRouting).toContain('## Default Branch Spec-Creation Rule');
+        expect(commandRouting).toContain('warn clearly that framework memory is about to be written on the default branch');
         expect(commandRouting).toContain('This silent fallback applies on the default branch too.');
     });
 
@@ -29,8 +29,8 @@ describe('default-branch initialization guidance', () => {
         const frameworkReadme = readRepositoryFile('.united-we-stand/README.md');
 
         expect(initializer).toContain('warn about default-branch risks');
-        expect(initializer).toContain('unless the user explicitly used `--force`');
+        expect(initializer).toContain('Force or bypass wording does not skip that confirmation');
         expect(frameworkReadme).toContain('If you are on the repository default branch');
-        expect(frameworkReadme).toContain('explicit init requests should still warn and ask for confirmation');
+        expect(frameworkReadme).toContain('`--force` does not skip that confirmation');
     });
 });

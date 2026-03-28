@@ -127,21 +127,23 @@ If the user explicitly asks to initialize or init the work and branch memory doe
 
 Initialization bootstrap does not grant permission to pre-create or populate planning, design, implementation, review, or finalization files.
 
-## Default Branch Initialization Rule
+## Default Branch Spec-Creation Rule
 
-If branch memory does not exist yet and the current branch is detected as the repository default branch and the user asks to initialize:
+If the current branch is detected as the repository default branch and the framework would create or rewrite branch memory there:
 
-1. warn clearly that initialization is being requested on the default branch
+1. warn clearly that framework memory is about to be written on the default branch
 2. explain that default-branch framework memory can make later feature-branch flow, branch-specific specs, and long-lived workflow state harder to manage
 3. ask for explicit confirmation before creating `.spec-driven/<branch>/`
-4. if the user confirms, continue with normal `1-initializer` bootstrap
-5. if the user explicitly uses `--force` or equally explicit force/bypass semantics, proceed without asking again
+4. if the user confirms, continue with the single requested framework stage bootstrap
+5. force or bypass wording does not skip this confirmation on the default branch
 
 Examples:
 
 - `initialize this on main`
 - `branch-init this work on master`
 - `init this branch` while currently on the detected default branch
+- `start planning on main`
+- `create the review spec on master`
 
 Examples:
 
@@ -170,6 +172,7 @@ If branch memory does not exist yet and the user requests concrete code changes 
 4. do not create `.spec-driven/...` files or numbered stage files unless the user explicitly asks to initialize or explicitly mentions the framework
 5. if the user explicitly asks to initialize instead, create branch memory and start `1-initializer`
 6. if the user explicitly asks to start the framework from a later stage or uses force/bypass semantics, require confirmation of one exact target stage before proceeding
+7. once that exact later-stage start is confirmed, create only `00-current-status.md`, `state.json`, and the single requested stage file; do not backfill `01-init.md` or any other numbered stage file in the same pass
 
 This silent fallback applies on the default branch too. Do not interrupt ordinary work on `main`/default branches just to explain framework setup.
 

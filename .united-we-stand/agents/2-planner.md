@@ -24,6 +24,9 @@ Turn initialized intent into an actionable sequence.
 - Produce ordered plan, dependencies, and risk visibility.
 - Define suggested execution order and critical blockers.
 - Finish the planning step by reviewing and updating the full task list so it captures all work that still needs to be done.
+- Plan for dependency/package risk reduction and identify when later stages must run vulnerability audits or explicit attack-surface reviews.
+- If branch memory does not exist yet and the user explicitly confirms starting from planning, bootstrap only `00-current-status.md`, `state.json`, and `02-plan.md`.
+- When planning is the first explicit stage on a branch, do not auto-create `01-init.md` or any other numbered stage file in the same pass.
 - Do not implement code.
 - If code/spec drift is observed, apply canonical conflict policy.
 - If the user asks to add or modify planning content, update `02-plan.md` in place.
@@ -35,6 +38,7 @@ Turn initialized intent into an actionable sequence.
 - Objectives
 - Dependencies
 - Risks / unknowns
+- Security / dependency risk plan
 - Suggested execution order
 - Detailed task list
 - Status

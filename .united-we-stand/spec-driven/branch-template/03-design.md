@@ -15,6 +15,9 @@ TBD
 ## Constraints
 TBD
 
+## Security boundaries / attack surface
+TBD
+
 ## Design decisions
 TBD
 

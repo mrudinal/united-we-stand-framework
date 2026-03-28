@@ -19,6 +19,8 @@ Provide reusable, deterministic rules for spec-driven AI development across repo
 9. `09-traceability-model.md`
 10. `10-review-model.md`
 11. `11-glossary.md`
+12. `12-react-frontend-review-checklist.md`
+13. `13-vulnerability-audit-matrix.md`
 
 Then read:
 
@@ -41,6 +43,8 @@ Then read:
 - Requirement mapping across stages: `09-traceability-model.md`
 - Review dimensions, deep checks, and outputs: `10-review-model.md`
 - Shared definitions: `11-glossary.md`
+- React/frontend static review heuristics: `12-react-frontend-review-checklist.md`
+- Native vulnerability audit command guidance: `13-vulnerability-audit-matrix.md`
 
 ## Design Goals
 

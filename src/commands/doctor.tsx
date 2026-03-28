@@ -70,11 +70,13 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
         '## Assumptions',
         '## Open questions',
         '## Success criteria',
+        '## Security / dependency concerns',
     ],
     '02-plan.md': [
         '## Objectives',
         '## Dependencies',
         '## Risks / unknowns',
+        '## Security / dependency risk plan',
         '## Suggested execution order',
         '## Detailed task list',
         '## Status',
@@ -84,6 +86,7 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
         '## Key components',
         '## Interfaces / data flow',
         '## Constraints',
+        '## Security boundaries / attack surface',
         '## Design decisions',
     ],
     '04-implementation.md': [
@@ -95,10 +98,13 @@ const REQUIRED_STAGE_SECTIONS: Record<string, string[]> = {
     ],
     '05-code-review.md': [
         '## Quality & maintainability findings',
+        '## Vulnerability audit findings',
         '## Security / boundary findings',
         '## Optimization findings',
         '## Severity / priority',
         '## Recommended fixes',
+        '## Lint/parser/static-analysis observations',
+        '## Residual risks',
         '## Reviewed scope and non-reviewed scope',
     ],
     '06-finalization.md': [
@@ -120,11 +126,6 @@ const STAGE_FILE_TO_STAGE_NAME: Record<string, string> = {
     '05-code-review.md': '5-code-reviewer',
     '06-finalization.md': '6-finalizer',
 };
-
-const REQUIRED_BOOTSTRAP_BRANCH_FILES = [
-    '00-current-status.md',
-    '01-init.md',
-] as const;
 
 /**
  * Returns the highest existing stage file and stage name within a branch folder.
@@ -167,10 +168,7 @@ function validateStageMetadataAgainstFiles(
             );
         }
 
-        for (const recordedStage of [
-            ...metadata.completedSteps,
-            ...metadata.incompletedStages,
-        ]) {
+        for (const recordedStage of metadata.completedSteps) {
             const expectedStageFile = Object.entries(STAGE_FILE_TO_STAGE_NAME).find(
                 ([, stageName]) => stageName === recordedStage,
             )?.[0];
@@ -195,7 +193,6 @@ function validateStageMetadataAgainstFiles(
     for (const recordedStage of [
         metadata.currentStage,
         ...metadata.completedSteps,
-        ...metadata.incompletedStages,
     ]) {
         const expectedStageFile = Object.entries(STAGE_FILE_TO_STAGE_NAME).find(
             ([, stageName]) => stageName === recordedStage,
@@ -584,48 +581,47 @@ export function runDoctorCommand(options: DoctorCommandOptions): void {
                 reportCheck(`.spec-driven/${branchMemoryFolderName}/ directory exists`, specDirectoryExists, 'branch');
 
                 if (specDirectoryExists) {
-                    for (const requiredBootstrapFile of REQUIRED_BOOTSTRAP_BRANCH_FILES) {
-                        reportCheck(
-                            `  ${requiredBootstrapFile}`,
-                            doesFileExist(join(specDrivenDirectory, requiredBootstrapFile)),
-                            'branch',
-                        );
-                    }
+                    const statusMarkdownPath = join(specDrivenDirectory, '00-current-status.md');
+                    const statusMarkdownExists = doesFileExist(statusMarkdownPath);
+                    reportCheck('  00-current-status.md', statusMarkdownExists, 'branch');
 
                     const runtimeStatePath = join(specDrivenDirectory, 'state.json');
                     const runtimeStateExists = doesFileExist(runtimeStatePath);
                     reportCheck('  state.json', runtimeStateExists, 'branch');
 
-                    const statusMarkdownPath = join(specDrivenDirectory, '00-current-status.md');
-                    const statusMarkdownContent = readFileOrNull(statusMarkdownPath) ?? '';
-                    const parsedStatus = parseStatusSnapshot(statusMarkdownContent);
-                    reportCheck(
-                        '  status required fields are present',
-                        parsedStatus.errors.length === 0,
-                        'branch',
-                        parsedStatus.errors.length > 0 ? parsedStatus.errors.join(' | ') : undefined,
-                    );
+                    const parsedStatus = statusMarkdownExists
+                        ? parseStatusSnapshot(readFileOrNull(statusMarkdownPath) ?? '')
+                        : { snapshot: null, errors: [] as string[] };
 
-                    if (parsedStatus.snapshot) {
-                        const statusSemanticErrors = validateStatusSnapshot(parsedStatus.snapshot);
+                    if (statusMarkdownExists) {
                         reportCheck(
-                            '  status semantics are consistent',
-                            statusSemanticErrors.length === 0,
+                            '  status required fields are present',
+                            parsedStatus.errors.length === 0,
                             'branch',
-                            statusSemanticErrors.length > 0 ? statusSemanticErrors.join(' | ') : undefined,
+                            parsedStatus.errors.length > 0 ? parsedStatus.errors.join(' | ') : undefined,
                         );
 
-                        const statusFileAlignmentErrors = validateStageMetadataAgainstFiles(
-                            specDrivenDirectory,
-                            'Status metadata',
-                            parsedStatus.snapshot,
-                        );
-                        reportCheck(
-                            '  status metadata matches created stage files',
-                            statusFileAlignmentErrors.length === 0,
-                            'branch',
-                            statusFileAlignmentErrors.length > 0 ? statusFileAlignmentErrors.join(' | ') : undefined,
-                        );
+                        if (parsedStatus.snapshot) {
+                            const statusSemanticErrors = validateStatusSnapshot(parsedStatus.snapshot);
+                            reportCheck(
+                                '  status semantics are consistent',
+                                statusSemanticErrors.length === 0,
+                                'branch',
+                                statusSemanticErrors.length > 0 ? statusSemanticErrors.join(' | ') : undefined,
+                            );
+
+                            const statusFileAlignmentErrors = validateStageMetadataAgainstFiles(
+                                specDrivenDirectory,
+                                'Status metadata',
+                                parsedStatus.snapshot,
+                            );
+                            reportCheck(
+                                '  status metadata matches created stage files',
+                                statusFileAlignmentErrors.length === 0,
+                                'branch',
+                                statusFileAlignmentErrors.length > 0 ? statusFileAlignmentErrors.join(' | ') : undefined,
+                            );
+                        }
                     }
 
                     if (runtimeStateExists) {

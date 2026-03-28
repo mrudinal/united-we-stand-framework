@@ -27,12 +27,15 @@ describe('one-stage-at-a-time workflow guidance', () => {
 
     it('documents the rule in initializer, status checker, and user-facing readmes', () => {
         const initializer = readRepositoryFile('.united-we-stand/agents/1-initializer.md');
+        const planner = readRepositoryFile('.united-we-stand/agents/2-planner.md');
         const statusChecker = readRepositoryFile('.united-we-stand/agents/0-status-checker.md');
         const frameworkReadme = readRepositoryFile('.united-we-stand/README.md');
         const repositoryReadme = readRepositoryFile('README.md');
 
         expect(initializer).toContain('do only `1-initializer`');
+        expect(planner).toContain('do not auto-create `01-init.md`');
         expect(statusChecker).toContain('only runs one stage at a time');
+        expect(frameworkReadme).toContain('It should not backfill `01-init.md` in the same response');
         expect(frameworkReadme).toContain('only runs one stage at a time');
         expect(repositoryReadme).toContain('only runs one stage at a time');
     });

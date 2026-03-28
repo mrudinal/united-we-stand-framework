@@ -53,12 +53,14 @@ Required fields:
 - Assumptions
 - Open questions
 - Success criteria
+- Security / dependency concerns
 
 ### `02-plan.md`
 
 - Objectives
 - Dependencies
 - Risks / unknowns
+- Security / dependency risk plan
 - Suggested execution order
 - Detailed task list
 - Status
@@ -69,6 +71,7 @@ Required fields:
 - Key components
 - Interfaces / data flow
 - Constraints
+- Security boundaries / attack surface
 - Design decisions
 - Diagrams/flows when useful (Mermaid allowed)
 
@@ -83,10 +86,13 @@ Required fields:
 ### `05-code-review.md`
 
 - Quality & maintainability findings
+- Vulnerability audit findings
 - Security / boundary findings
 - Optimization findings
 - Severity / priority
 - Recommended fixes
+- Lint/parser/static-analysis observations
+- Residual risks
 - Reviewed scope and non-reviewed scope
 
 ### `06-finalization.md`

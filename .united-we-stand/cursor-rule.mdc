@@ -15,6 +15,6 @@ If branch memory does not exist yet and the user asks for concrete code changes 
 
 When initialization is requested, always perform a fresh live check of the current git branch before creating branch memory. Do not rely on a previous branch check, previous status output, or remembered branch context from earlier in the same chat.
 
-If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests must warn about default-branch risks and ask for confirmation before creating `.spec-driven/...` files unless the user explicitly uses `--force`.
+If the current branch is detected as the repository default branch and the framework would create or rewrite branch memory there, warn about default-branch risks and ask for confirmation before writing `.spec-driven/...` files. Force or bypass wording does not skip that confirmation.
 
 For the most reliable natural-language initialization when branch memory does not exist yet, reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this`.

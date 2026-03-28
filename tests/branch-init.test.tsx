@@ -188,15 +188,17 @@ describe('init command (branch spec setup)', () => {
     });
 
     it('does not reset an already-initialized branch unless --force is provided', async () => {
+        const branchName = 'feature/reinit-state';
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'feature-reinit-state');
+
         await runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
-            branchNameOverride: 'main',
+            branchNameOverride: branchName,
             ideaText: 'initial idea',
             force: true,
         });
 
-        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
         writeFileSync(
             join(specDirectory, '02-plan.md'),
             `## Objectives
@@ -208,6 +210,10 @@ Plan objectives.
 None.
 
 ## Risks / unknowns
+
+None.
+
+## Security / dependency risk plan
 
 None.
 
@@ -231,8 +237,8 @@ Plan status.
 
 | Field | Value |
 |-------|-------|
-| Current branch | \`main\` |
-| Sanitized ID | \`main\` |
+| Current branch | \`${branchName}\` |
+| Sanitized ID | \`feature-reinit-state\` |
 | Current stage | 2-planner |
 | Completed steps | 1-initializer |
 | Incompleted stages | none |
@@ -247,9 +253,9 @@ Plan status.
         writeFileSync(
             join(specDirectory, 'state.json'),
             `{
-  "branchName": "main",
-  "sanitizedBranchName": "main",
-  "branchMemoryFolder": "main",
+  "branchName": "${branchName}",
+  "sanitizedBranchName": "feature-reinit-state",
+  "branchMemoryFolder": "feature-reinit-state",
   "currentStage": "2-planner",
   "completedSteps": ["1-initializer"],
   "incompletedStages": [],
@@ -266,7 +272,7 @@ Plan status.
         await runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
-            branchNameOverride: 'main',
+            branchNameOverride: branchName,
             ideaText: 'new idea that should not overwrite state',
         });
 
@@ -278,15 +284,17 @@ Plan status.
     });
 
     it('resets branch memory when --force is provided', async () => {
+        const branchName = 'feature/forced-reset';
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'feature-forced-reset');
+
         await runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
-            branchNameOverride: 'main',
+            branchNameOverride: branchName,
             ideaText: 'initial idea',
             force: true,
         });
 
-        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
         writeFileSync(
             join(specDirectory, '02-plan.md'),
             `## Objectives
@@ -298,6 +306,10 @@ Plan objectives.
 None.
 
 ## Risks / unknowns
+
+None.
+
+## Security / dependency risk plan
 
 None.
 
@@ -318,9 +330,9 @@ Plan status.
         writeFileSync(
             join(specDirectory, 'state.json'),
             `{
-  "branchName": "main",
-  "sanitizedBranchName": "main",
-  "branchMemoryFolder": "main",
+  "branchName": "${branchName}",
+  "sanitizedBranchName": "feature-forced-reset",
+  "branchMemoryFolder": "feature-forced-reset",
   "currentStage": "2-planner",
   "completedSteps": ["1-initializer"],
   "incompletedStages": [],
@@ -337,7 +349,7 @@ Plan status.
         await runBranchInitCommand({
             workingDirectory: tempRepoDirectory,
             isDryRun: false,
-            branchNameOverride: 'main',
+            branchNameOverride: branchName,
             ideaText: 'forced reset idea',
             force: true,
         });
@@ -408,7 +420,7 @@ Plan status.
         }
     });
 
-    it('requires explicit confirmation before initializing the detected default branch without --force', async () => {
+    it('requires explicit confirmation before writing framework memory on the detected default branch', async () => {
         const capturedMessages: string[] = [];
         console.log = (message?: unknown) => {
             capturedMessages.push(String(message ?? ''));
@@ -427,7 +439,30 @@ Plan status.
         expect(process.exitCode).toBe(1);
         expect(existsSync(join(tempRepoDirectory, '.spec-driven', 'main'))).toBe(false);
         expect(capturedMessages.join('\n')).toContain('repository default branch');
-        expect(capturedMessages.join('\n')).toContain('Default-branch initialization requires explicit confirmation.');
+        expect(capturedMessages.join('\n')).toContain('Default-branch framework writes require explicit confirmation.');
+    });
+
+    it('does not let --force bypass default-branch confirmation for first-time writes', async () => {
+        const capturedMessages: string[] = [];
+        console.log = (message?: unknown) => {
+            capturedMessages.push(String(message ?? ''));
+        };
+        console.error = (message?: unknown) => {
+            capturedMessages.push(String(message ?? ''));
+        };
+
+        await runBranchInitCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+            ideaText: 'default branch guard',
+            force: true,
+        });
+
+        expect(process.exitCode).toBe(1);
+        expect(existsSync(join(tempRepoDirectory, '.spec-driven', 'main'))).toBe(false);
+        expect(capturedMessages.join('\n')).toContain('repository default branch');
+        expect(capturedMessages.join('\n')).toContain('Default-branch framework writes require explicit confirmation.');
     });
 
     it('fails when default sanitized folder collides with another branch folder in non-interactive mode', async () => {

@@ -13,4 +13,5 @@
 ## Verification Guidance
 
 - Run formatter, linter, tests, and packaging/build checks appropriate to the repo.
-- Run dependency vulnerability checks appropriate to the environment when dependencies change.
+- Prefer repo-configured dependency vulnerability tooling when present; otherwise explicitly disclose that Python has no guaranteed no-extra-install native audit command in this framework baseline.
+- Review input handling, deserialization, SSRF/file-path boundaries, command execution, and secret exposure when relevant.

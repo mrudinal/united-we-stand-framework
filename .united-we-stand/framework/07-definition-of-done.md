@@ -15,11 +15,11 @@ A stage is done when all are true:
 
 ## Role-Specific Completion Expectations
 
-- **Initializer**: goal, scope, assumptions, open questions, and success criteria captured.
-- **Planner**: objectives, tasks, dependencies, and risks are actionable.
-- **Designer**: architecture, boundaries, and implementation guidance are clear.
-- **Implementer**: changes, rationale, tests, and validation are recorded.
-- **Code Reviewer**: quality, security, and optimization findings, severity, scope, and recommendations are explicit.
+- **Initializer**: goal, scope, assumptions, open questions, success criteria, and relevant security/dependency concerns are captured.
+- **Planner**: objectives, tasks, dependencies, risks, and security/dependency risk handling are actionable.
+- **Designer**: architecture, boundaries, attack surface, and implementation guidance are clear.
+- **Implementer**: changes, rationale, tests, and validation are recorded, including post-fix verification when relevant.
+- **Code Reviewer**: quality, vulnerability, security, and optimization findings, severity, scope, and recommendations are explicit.
 - **Finalizer**: delivered scope, known gaps, uncaptured spec/code differences, doc impact, and user closure confirmation status are clear; the workflow is only closed after explicit user confirmation.
 
 ## Implementation and Review Quality Gates
@@ -33,7 +33,10 @@ These gates must be applied through profile + review-model rules:
 - error handling and logging are intentional
 - tests are proportionate and meaningful
 - security boundaries are reviewed
-- dependency/security checks are run when dependency changes occur
+- earlier stages identify dependency risk and attack surface when relevant
+- dependency/security checks are run according to the selected stack/package manager when a safe no-extra-install command exists, or the gap is explicitly disclosed
+- all detected dependency vulnerabilities are surfaced as high priority review findings
+- fix requests are not done until post-fix verification was attempted for build/compile health, available tests, and functionality preservation
 - available lint/parser/static-analysis checks relevant to the changed scope were run, or their absence/non-execution is explicitly disclosed
 - for website/frontend changes, predictable mobile Lighthouse/PageSpeed blockers such as cache lifetime failures, render-blocking requests, late-discovered LCP assets, oversized images, unused JS/CSS, unnamed controls, and low-contrast UI are either fixed or explicitly documented before review is treated as clean
 

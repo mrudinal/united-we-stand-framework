@@ -187,6 +187,10 @@ TBD
 
 TBD
 
+## Security / dependency risk plan
+
+TBD
+
 ## Suggested execution order
 
 TBD
@@ -288,6 +292,10 @@ None.
 
 None.
 
+## Security / dependency risk plan
+
+None.
+
 ## Suggested execution order
 
 Do planning before design.
@@ -353,9 +361,9 @@ Planning is complete.
 }
 
 /**
- * Verifies that default-branch initialization requires explicit confirmation or --force.
+ * Verifies that default-branch branch-init always requires explicit confirmation.
  */
-function scenarioDefaultBranchInitRequiresForce() {
+function scenarioDefaultBranchInitRequiresConfirmationAlways() {
     withTempRepository((tempRepositoryPath) => {
         expectSuccessfulCommand(
             runCli(['install', '--cwd', tempRepositoryPath]),
@@ -369,11 +377,16 @@ function scenarioDefaultBranchInitRequiresForce() {
             `branch-init on default branch should require confirmation.\nOutput:\n${blockedInitResult.output}`,
         );
         assert.match(blockedInitResult.output, /default branch/i);
-        assert.match(blockedInitResult.output, /requires explicit confirmation/i);
+        assert.match(blockedInitResult.output, /framework writes require explicit confirmation/i);
 
         const forcedInitResult = runCli(['branch-init', '--cwd', tempRepositoryPath, '--branch', 'main', '--force', 'forced default branch init']);
-        expectSuccessfulCommand(forcedInitResult, 'branch-init forced default branch');
-        assert.equal(existsSync(join(tempRepositoryPath, '.spec-driven', 'main', 'state.json')), true);
+        assert.equal(
+            forcedInitResult.exitCode,
+            1,
+            `branch-init --force on default branch should still require confirmation.\nOutput:\n${forcedInitResult.output}`,
+        );
+        assert.match(forcedInitResult.output, /framework writes require explicit confirmation/i);
+        assert.equal(existsSync(join(tempRepositoryPath, '.spec-driven', 'main', 'state.json')), false);
     });
 }
 
@@ -382,7 +395,7 @@ const scenarios = [
     ['doctor fails completed placeholder stage', scenarioDoctorFailsCompletedPlaceholderStage],
     ['collision fails non-interactive reuse', scenarioCollisionFailsNonInteractiveReuse],
     ['reinit requires force', scenarioReinitRequiresForce],
-    ['default branch init requires force', scenarioDefaultBranchInitRequiresForce],
+    ['default branch init requires confirmation always', scenarioDefaultBranchInitRequiresConfirmationAlways],
 ];
 
 let failureCount = 0;

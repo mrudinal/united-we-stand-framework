@@ -120,6 +120,10 @@ TBD
 
 TBD
 
+## Security / dependency risk plan
+
+TBD
+
 ## Suggested execution order
 
 TBD
@@ -174,7 +178,7 @@ TBD
 
         const output = logLines.join('\n');
         expect(output).toContain('02-plan.md required sections have substantive content');
-        expect(output).toContain('Placeholder-only: ## Objectives, ## Dependencies, ## Risks / unknowns, ## Suggested execution order, ## Detailed task list, ## Status');
+        expect(output).toContain('Placeholder-only: ## Objectives, ## Dependencies, ## Risks / unknowns, ## Security / dependency risk plan, ## Suggested execution order, ## Detailed task list, ## Status');
         expect(output).toContain('Branch runtime/spec issues detected.');
     });
 
@@ -189,6 +193,10 @@ TBD
 
 No quality issues found.
 
+## Vulnerability audit findings
+
+No dependency vulnerabilities detected.
+
 ## Security / boundary findings
 
 No security issues found.
@@ -200,6 +208,14 @@ Low.
 ## Recommended fixes
 
 Not applicable.
+
+## Lint/parser/static-analysis observations
+
+Not run.
+
+## Residual risks
+
+Unknown.
 
 ## Reviewed scope and non-reviewed scope
 
@@ -304,6 +320,10 @@ None.
 
 None.
 
+## Security / dependency risk plan
+
+No special security risks.
+
 ## Suggested execution order
 
 Do planning before design.
@@ -336,6 +356,10 @@ Interface notes.
 ## Constraints
 
 Constraint notes.
+
+## Security boundaries / attack surface
+
+Security notes.
 
 ## Design decisions
 
@@ -386,5 +410,88 @@ Decision notes.
         expect(output).toContain('state.json metadata matches created stage files');
         expect(output).toContain('Status metadata current stage is "2-planner" but the highest existing stage file is "03-design.md" (3-designer).');
         expect(output).toContain('state.json metadata current stage is "2-planner" but the highest existing stage file is "03-design.md" (3-designer).');
+    });
+
+    it('passes when a branch is explicitly bootstrapped into planning without 01-init.md', () => {
+        const specDirectory = join(tempRepoDirectory, '.spec-driven', 'main');
+        const statusPath = join(specDirectory, '00-current-status.md');
+        const runtimeStatePath = join(specDirectory, 'state.json');
+
+        rmSync(join(specDirectory, '01-init.md'), { force: true });
+        writeFileSync(
+            join(specDirectory, '02-plan.md'),
+            `## Objectives
+
+Plan objectives.
+
+## Dependencies
+
+None.
+
+## Risks / unknowns
+
+Initializer was bypassed by explicit user choice.
+
+## Security / dependency risk plan
+
+No special security risks.
+
+## Suggested execution order
+
+Do planning before design.
+
+## Detailed task list
+
+Plan tasks.
+
+## Status
+
+Planning is active.
+`,
+            'utf-8',
+        );
+
+        writeFileSync(
+            statusPath,
+            buildStatusMarkdown(
+                '2-planner',
+                'none',
+                '1-initializer',
+                '2-planner',
+                'Planning was explicitly started first; initializer remains bypassed and incomplete.',
+                '2-planner',
+            ),
+            'utf-8',
+        );
+
+        writeFileSync(
+            runtimeStatePath,
+            serializeBranchRuntimeState({
+                branchName: 'main',
+                sanitizedBranchName: 'main',
+                branchMemoryFolder: 'main',
+                currentStage: '2-planner',
+                completedSteps: [],
+                incompletedStages: ['1-initializer'],
+                nextRecommendedStep: '2-planner',
+                lastUpdatedBy: '2-planner',
+                lastUpdatedAt: '2026-03-10T00:00:00.000Z',
+                initialized: true,
+                finalized: false,
+            }),
+            'utf-8',
+        );
+
+        runDoctorCommand({
+            workingDirectory: tempRepoDirectory,
+            isDryRun: false,
+            branchNameOverride: 'main',
+        });
+
+        const output = logLines.join('\n');
+        expect(output).toContain('All checks passed. Repository is fully set up.');
+        expect(output).toContain('status metadata matches created stage files');
+        expect(output).toContain('state.json metadata matches created stage files');
+        expect(output).not.toContain('01-init.md');
     });
 });

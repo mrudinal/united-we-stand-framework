@@ -38,7 +38,8 @@ This repository uses **united-we-stand**, a spec-driven AI workflow framework th
 - Never reuse an earlier branch check, earlier status output, or remembered branch context from the same chat as the initialization target.
 - If branch memory does not exist yet and the user asks for concrete code changes or other persistent repo work without explicitly asking to initialize, do not interrupt to explain missing framework setup. Help with the request normally instead of inferring a numbered stage.
 - Do not create `.spec-driven/...` files from that request alone. Only surface initialization/framework guidance when the user explicitly asks to initialize or explicitly brings up the framework.
-- If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests must warn about default-branch risks and ask for confirmation before creating `.spec-driven/...` files unless the user explicitly uses `--force`.
+- If the current branch is detected as the repository default branch and the framework would create or rewrite branch memory there, warn about default-branch risks and ask for confirmation before writing `.spec-driven/...` files. Force or bypass wording does not skip that confirmation.
+- If branch memory does not exist yet and the user explicitly confirms starting from a later stage, create only `00-current-status.md`, `state.json`, and the single targeted numbered stage file. Never create two numbered stage files in the same pass.
 - The most reliable direct NLP bootstrap is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 - Runtime branch memory is writable under `.spec-driven/` only.
 - Treat `.united-we-stand/` as installed framework content (do not use it for runtime branch memory updates).

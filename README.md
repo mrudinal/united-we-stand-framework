@@ -55,6 +55,7 @@ The built package ships:
 
 - compiled CLI output
 - `.united-we-stand/**`
+- `PACKAGE-PUBLISHING.md`
 - `README.md`
 - `LICENSE`
 
@@ -168,11 +169,11 @@ After the workflow is initialized, each stage writes or updates its branch file 
 | Stage | File name | General description |
 |-------|-----------|---------------------|
 | `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
-| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
-| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
-| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
+| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, success criteria, and early security/dependency concerns |
+| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, security/dependency risk handling, and suggested execution order |
+| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, attack surface, data flow, and design decisions |
 | `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
-| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, optimization, and review findings |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, vulnerability, security, optimization, and review findings |
 | `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
 
 Each stage document can be updated later, either manually or by asking the agent in the chat, if the work changes or the plan evolves. When moving to the next stage, the AI should use the latest version of those written documents as the main source of truth, instead of depending only on the chat.
@@ -246,7 +247,7 @@ what is the current status of united-we-stand
 
 ## Creating Your Own Package
 
-If you want to generate and publish your own package variant of this framework, follow [the maintainer guide](https://github.com/mrudinal/united-we-stand-framework/blob/main/docs/generate-your-own-package.md).
+If you want to generate and publish your own package variant of this framework, follow [PACKAGE-PUBLISHING.md](./PACKAGE-PUBLISHING.md).
 
 ## Contents in this repository
 
@@ -279,6 +280,7 @@ repo-root/
 |   `-- lib/
 |-- tests/
 |-- LICENSE
+|-- PACKAGE-PUBLISHING.md
 |-- package-lock.json
 |-- package.json
 |-- README.md

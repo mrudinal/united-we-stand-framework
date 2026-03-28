@@ -173,7 +173,7 @@ How chat usage works:
 - framework initialization guidance should appear only when you explicitly ask to initialize or explicitly bring up the framework
 - when initialization is requested, the AI should always do a fresh live check of the current git branch before creating branch memory
 - it should not reuse an earlier branch check, earlier status output, or remembered branch context from the same chat as the initialization target
-- if the current branch is the detected default branch, initialization should warn and ask for confirmation before creating branch memory unless you explicitly use `--force`
+- if the current branch is the detected default branch, any framework write that would create or rewrite branch memory should warn and ask for confirmation first; `--force` does not skip that confirmation
 
 The workflow is mainly used in chat after installation:
 
@@ -194,11 +194,11 @@ After the workflow is initialized, each stage writes or updates its branch file 
 | Stage | File name | General description |
 |-------|-----------|---------------------|
 | `0-status-checker` | `00-current-status.md` | Current branch status, blockers, recommended next step, and routing state |
-| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, and success criteria |
-| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, and suggested execution order |
-| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, data flow, and design decisions |
+| `1-initializer` | `01-init.md` | Raw idea, scope, assumptions, open questions, success criteria, and early security/dependency concerns |
+| `2-planner` | `02-plan.md` | Ordered plan, dependencies, risks, security/dependency risk handling, and suggested execution order |
+| `3-designer` | `03-design.md` | Architecture, interfaces, boundaries, attack surface, data flow, and design decisions |
 | `4-implementer` | `04-implementation.md` | What changed in code, validation performed, and remaining gaps |
-| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, security, optimization, and review findings |
+| `5-code-reviewer` | `05-code-review.md` | Quality, maintainability, vulnerability, security, optimization, and review findings |
 | `6-finalizer` | `06-finalization.md` | Final summary, uncaptured changes, doc updates, and closure confirmation |
 
 ## Runtime Branch Memory
@@ -244,7 +244,7 @@ The numbered framework stages are:
 2. `2-planner`: turn initialized intent into an ordered execution plan with dependencies and risks
 3. `3-designer`: define architecture, interfaces, boundaries, and implementation approach before coding
 4. `4-implementer`: make the code changes and record what changed plus how it was validated
-5. `5-code-reviewer`: review implementation quality, security, test sufficiency, and remaining issues
+5. `5-code-reviewer`: review implementation quality, dependency vulnerabilities, injection/attack risks, test sufficiency, and remaining issues
 6. `6-finalizer`: summarize delivered scope, identify spec/code mismatches or uncaptured changes, ask for explicit user approval, and only then close the workflow with `Current stage = none`
 
 ### Proper Order
@@ -288,6 +288,7 @@ Optional framework stages:
 - if a request could be interpreted as advancing through two or more phases at once, the AI should explain that united-we-stand only runs one stage at a time, suggest the next recommended numbered stage first, and ask the user to confirm one single stage
 - for branch-scoped work, the AI should stay inside `.spec-driven/<branch-folder>/` by default and update specs first unless you explicitly say otherwise
 - later stage files should be created when those stages are actually started or explicitly amended
+- if branch memory is created directly into a later stage by explicit user confirmation, the AI should create only that one numbered stage file plus `00-current-status.md` and `state.json`
 - `4-implementer` is the first framework stage allowed to change code
 - `6-finalizer` should check for meaningful code/doc changes that were not captured in the specs, ask the user to confirm the final state, and only then close the workflow with `Current stage = none`
 - if a closed branch receives new work later, the workflow should reopen `6-finalizer` and require final approval again
@@ -333,8 +334,9 @@ The framework is designed to route short natural requests such as `continue`, `f
 - If you ask for earlier-stage work while the branch is already in a later stage, the AI should perform that work without moving the workflow backward; instead it should mark downstream state as needing refresh in the status metadata.
 - The most reliable direct NLP bootstrap for initialization is to reference any installed united-we-stand file together with the init request, for example `AGENTS.md initialize this` or `.united-we-stand/README.md init the following`.
 - If branch memory does not exist yet, an explicit request such as `init the following` or `initialize this` should be treated as permission to create the branch spec and start `1-initializer`.
-- If branch memory does not exist yet and the current branch is detected as the repository default branch, explicit init requests should still warn and ask for confirmation before creating `.spec-driven/...` unless you explicitly use `--force`.
+- If the current branch is detected as the repository default branch and the framework would create or rewrite branch memory there, the AI should still warn and ask for confirmation before writing `.spec-driven/...`; `--force` does not skip that confirmation.
 - If branch memory does not exist yet, broader natural phrases such as `let's start this`, `help me with the following idea, i want...`, `i want to build...`, `i want to create...`, or `let's work on...` should also default to `1-initializer` unless you explicitly ask for a later stage.
+- If branch memory does not exist yet and you explicitly confirm starting from a later stage such as planning, the AI should create only that single numbered stage file for the pass. It should not backfill `01-init.md` in the same response.
 - If branch memory does not exist yet and you ask for concrete code changes or other persistent repo work without explicitly asking to initialize the framework, the AI should continue helping with that request normally and should not interrupt to explain framework setup.
 - In that situation it should not create `.spec-driven/...` files unless you explicitly ask to initialize or explicitly bring up the framework.
 
@@ -476,7 +478,7 @@ Initialize branch memory for the branch you are working on:
 united-we-stand branch-init "Describe the change you want to make"
 ```
 
-If you are on the repository default branch, `branch-init` should warn and ask for confirmation before creating branch memory there. This is meant to reduce long-lived workflow state on `main`/`master`-style branches when a feature branch would be safer.
+If you are on the repository default branch, `branch-init` should warn and ask for confirmation before creating or rewriting branch memory there. This confirmation is still required even when `--force` is used. This is meant to reduce long-lived workflow state on `main`/`master`-style branches when a feature branch would be safer.
 
 If you are in detached HEAD, provide the branch name explicitly:
 

@@ -28,11 +28,11 @@ If branch memory does not exist yet, direct repo work without explicit initializ
 
 ## Default Branch Initialization Warning
 
-If the current branch is detected as the repository default branch and the user asks to initialize framework memory:
+If the current branch is detected as the repository default branch and the framework would create or rewrite branch memory there:
 
 - warn about the risks of anchoring branch-specific workflow state on the default branch
 - ask for explicit confirmation before creating `.spec-driven/...` files
-- only skip that confirmation when the user explicitly uses `--force` or equivalent force/bypass wording
+- never skip that confirmation because of `--force` or equivalent force/bypass wording
 
 ## Mandatory Stage Warning
 
@@ -40,6 +40,7 @@ If user bypasses a mandatory stage (`1-initializer` or `4-implementer`):
 
 - warn clearly about risk and missing guarantees
 - proceed only if user confirms bypass intent
+- create only the single explicitly targeted stage file for that pass; do not backfill the bypassed stage file in the same pass
 
 ## Traceability Requirement
 

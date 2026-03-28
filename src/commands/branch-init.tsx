@@ -216,7 +216,7 @@ async function promptForCollisionResolution(defaultFolderName: string): Promise<
 }
 
 /**
- * Prompts the user before initializing framework memory on the repository default branch.
+ * Prompts the user before writing framework memory on the repository default branch.
  */
 async function promptForDefaultBranchInitialization(branchName: string): Promise<boolean | null> {
     if (!input.isTTY || !output.isTTY) {
@@ -226,7 +226,7 @@ async function promptForDefaultBranchInitialization(branchName: string): Promise
     const prompt = createInterface({ input, output });
     try {
         const answer = (await prompt.question(
-            `Branch "${branchName}" is the repository default branch. Continue framework initialization on it? [y/N]: `,
+            `Branch "${branchName}" is the repository default branch. Continue writing framework memory on it? [y/N]: `,
         )).trim().toLowerCase();
 
         return answer === 'y' || answer === 'yes';
@@ -350,19 +350,21 @@ export async function runBranchInitCommand(options: InitCommandOptions): Promise
 
     const isDefaultBranchTarget = defaultBranchName !== null && currentBranch === defaultBranchName;
 
-    if (isDefaultBranchTarget && !branchAlreadyInitialized && !force) {
+    const isDefaultBranchWrite = isDefaultBranchTarget && (!branchAlreadyInitialized || force);
+
+    if (isDefaultBranchWrite) {
         logger.warn(`"${currentBranch}" is detected as the repository default branch.`);
-        logger.warn('Initializing framework memory on the default branch can make later feature work, branch-specific specs, and long-lived workflow state harder to manage.');
+        logger.warn('Writing framework memory on the default branch can make later feature work, branch-specific specs, and long-lived workflow state harder to manage.');
 
         const didConfirmDefaultBranchInitialization = await promptForDefaultBranchInitialization(currentBranch);
         if (didConfirmDefaultBranchInitialization !== true) {
-            logger.error('Default-branch initialization requires explicit confirmation.');
-            logger.info('Create or checkout a feature branch first, rerun `branch-init` interactively and confirm, or use `--force` if you intentionally want to initialize the default branch.');
+            logger.error('Default-branch framework writes require explicit confirmation.');
+            logger.info('Create or checkout a feature branch first, or rerun `branch-init` interactively and confirm if you intentionally want to write framework memory on the default branch.');
             process.exitCode = 1;
             return;
         }
 
-        logger.info(`Proceeding with initialization on default branch "${currentBranch}" by user confirmation.`);
+        logger.info(`Proceeding with framework writes on default branch "${currentBranch}" by user confirmation.`);
     }
 
     if (branchAlreadyInitialized && !force) {

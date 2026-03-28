@@ -37,8 +37,11 @@ User may explicitly narrow scope.
    - oversized or multi-responsibility functions
    - routine SonarQube-style maintainability findings that should have been prevented during implementation
    - lint, parser-based analysis, and static-analysis findings relevant to the changed scope
+   - React/frontend static-review checklist findings when that stack is in scope
 3. **Security**
+   - dependency vulnerability audit findings from safe repo-native/package-manager-native commands when available
    - input validation/injection boundaries
+   - XSS, SQL/NoSQL injection, command injection, path traversal, SSRF, CSRF, open redirects, unsafe deserialization, and secret exposure when relevant
    - authn/authz ownership checks (BOLA/IDOR)
    - data exposure minimization
    - dependency/supply-chain considerations
@@ -62,6 +65,7 @@ Review output should state:
 - what was reviewed
 - what was not reviewed
 - findings
+- vulnerability audit findings or an explicit unavailable/not-run note
 - optimization findings or an explicit not-applicable note
 - for website/frontend scope, an explicit note on whether the remaining findings are compatible with a realistic strong mobile Lighthouse/PageSpeed outcome
 - severity/priority
@@ -72,6 +76,8 @@ Review output should state:
 ## Reviewer Behavior Constraints
 
 - report discrepancies by default
+- run safe repo-native vulnerability audit commands when available for the selected stack/package manager, or explicitly disclose that no no-install command was available
+- report detected dependency vulnerabilities as high priority findings in review output
 - treat mandatory coding-steering violations as review findings that block a clean review
 - use available lint/parser/static-analysis results as first-class review evidence instead of optional background context
 - do not rewrite lower stages unless user explicitly requests it

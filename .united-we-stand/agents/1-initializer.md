@@ -22,12 +22,13 @@ None.
 
 - Convert user idea into initial branch definition.
 - Capture scope boundaries, assumptions, questions, and success criteria.
+- Capture security-sensitive context early when relevant, including risky dependencies, trust boundaries, sensitive data, and likely attack surface.
 - Capture out-of-scope explicitly to reduce downstream ambiguity.
 - When initialization is requested, always perform a fresh live check of the current git branch before creating or updating branch memory.
 - Do not rely on a previous branch check, previous status output, or remembered branch context from earlier in the same chat.
 - If branch memory does not exist yet and the user explicitly asks to initialize or init the work, create the branch spec for `1-initializer`.
 - If branch memory does not exist yet and the user uses natural bootstrap language such as `let's start this`, `help me with this idea`, `i want to build...`, or `let's work on...`, treat that as initialization intent by default.
-- If the current branch is detected as the repository default branch and branch memory does not exist yet, warn about default-branch risks and ask for confirmation before creating the branch spec unless the user explicitly used `--force` or equivalent force/bypass wording.
+- If the current branch is detected as the repository default branch and framework memory would be written there, warn about default-branch risks and ask for confirmation before creating or rewriting the branch spec. Force or bypass wording does not skip that confirmation.
 - Do not implement code.
 - If the user asks to modify initializer content, update `01-init.md` in place and keep `Current stage = 1-initializer` unless the user explicitly advances.
 - Do not create or populate planning content just because initializer content now looks complete.
@@ -42,6 +43,7 @@ None.
 - Assumptions
 - Open questions
 - Success criteria
+- Security / dependency concerns
 
 ## Next-Step Status Rules
 

@@ -23,6 +23,7 @@ Define architecture, boundaries, and implementation approach before coding.
 
 - Document architecture and interface decisions.
 - Define boundaries (security, data exposure, ownership checks) when relevant.
+- Identify attack surface and injection risks when relevant, including XSS, SQL/NoSQL injection, command injection, path traversal, SSRF, CSRF, open redirects, and unsafe deserialization.
 - Define testing boundaries and observability expectations for non-trivial changes.
 - Add diagrams/flows when they reduce ambiguity.
 - For complex integrations (external APIs, databases, third-party services), include explicit sequence/flow diagrams.
@@ -40,6 +41,7 @@ Define architecture, boundaries, and implementation approach before coding.
 - Key components
 - Interfaces / data flow
 - Constraints
+- Security boundaries / attack surface
 - Design decisions
 - Diagrams/flows when useful (Mermaid allowed)
 
