@@ -319,6 +319,16 @@ npm publish .publish/github
 
 Example scope for this repository: `@mrudinal`
 
+```bash
+npm install
+npm run build
+npm test
+npm run test:e2e
+npm login --scope=@mrudinal --auth-type=legacy --registry=https://npm.pkg.github.com
+npm run prepare:publish:github
+npm publish .publish/github
+```
+
 ### Verify The GitHub Package Exists
 
 After publishing, verify the package in both the CLI and the GitHub UI.
